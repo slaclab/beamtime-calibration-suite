@@ -1,15 +1,17 @@
 import os
 
+# this probably in file where it's actually used
 if os.getenv("foo") == "1":
     print("psana1")
-    from psana1Base import *
+    from psana1Base import * # noqa: F403
 else:
     print("psana2")
-    from psana2Base import *
+    from psana2Base import * # noqa: F403
 
 import numpy as np
 
-##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
+##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation',\\
+## 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 ##experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 experimentHash = {
     "exp": "rixx1003721",

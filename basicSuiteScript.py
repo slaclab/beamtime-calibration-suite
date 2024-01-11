@@ -1,19 +1,19 @@
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import sys
-from rixSuiteConfig import *
+import os   
+from rixSuiteConfig import experimentHash
 
 ##from mfxRixSuiteConfig import *
-import h5py
-from scipy.optimize import curve_fit  ## here?
-import fitFunctions
 
+if os.getenv("foo") == "1":
+    print("psana1")
+    from psana1Base import PsanaBase
+else:
+    print("psana2")
+    from psana2Base import PsanaBase
 
 def sortArrayByList(a, data):
     return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
-
 
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
@@ -31,11 +31,11 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.location = experimentHash["location"]
-        except:
+        except Exception:
             pass
         try:
             self.exp = experimentHash["exp"]
-        except:
+        except Exception:
             pass
         try:
             ##if True:
@@ -45,20 +45,20 @@ class BasicSuiteScript(PsanaBase):
                 self.ROIs.append(np.load(f + ".npy"))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
-            except:
+            except Exception:
                 pass
         ##if False:
-        except:
+        except Exception:
             print("had trouble finding", self.ROIfileNames)
             self.ROI = None
             self.ROIs = None
         try:
             self.singlePixels = experimentHash["singlePixels"]
-        except:
+        except Exception:
             self.singlePixels = None
         try:
             self.regionSlice = experimentHash["regionSlice"]
-        except:
+        except Exception:
             self.regionSlice = None
         if self.regionSlice is not None:
             self.sliceCoordinates = [
@@ -72,13 +72,13 @@ class BasicSuiteScript(PsanaBase):
             self.fluxSource = experimentHash["fluxSource"]
             try:
                 self.fluxChannels = experimentHash["fluxChannels"]
-            except:
+            except Exception:
                 self.fluxChannels = range(8, 16)  ## wave8
             try:
                 self.fluxSign = experimentHash["fluxSign"]
-            except:
+            except Exception:
                 self.fluxSign = 1
-        except:
+        except Exception:
             self.fluxSource = None
 
         parser = argparse.ArgumentParser(
@@ -115,7 +115,8 @@ class BasicSuiteScript(PsanaBase):
         parser.add_argument(
             "--special",
             type=str,
-            help="comma-separated list of special behaviors - maybe this is too lazy.  E.g. positiveParity,doKazEvents,...",
+            help="comma-separated list of special behaviors - maybe this is too lazy.\
+                E.g. positiveParity,doKazEvents,...",
         )
         args = parser.parse_args()
 
@@ -151,7 +152,7 @@ class BasicSuiteScript(PsanaBase):
             self.fluxCut = args.fluxCut
         try:
             self.runRange = eval(args.runRange)  ## in case needed
-        except:
+        except Exception:
             self.runRange = None
 
         self.fivePedestalRun = args.fivePedestalRun  ## in case needed
@@ -204,12 +205,14 @@ class BasicSuiteScript(PsanaBase):
                         ]
                     )
                     ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
+                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], \
+                    # rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
                     ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
                     ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except:
+                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], \
+                    # np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
+                except Exception:
                     rowCM = -666
                     print("rowCM problem")
                     print(frame[r, colOffset : colOffset + self.detColsPerBank])

@@ -1,5 +1,13 @@
-from basicSuiteScript import *
+from basicSuiteScript import BasicSuiteScript, sortArrayByList
+from matplotlib.ticker import AutoMinorLocator
+from mpi4py import MPI
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
 
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
@@ -84,9 +92,10 @@ class EventScanParallel(BasicSuiteScript):
             for r in range(data.shape[2]):
                 for c in range(data.shape[3]):
                     d = data[:, m, r, c]
-                    p0 = estimateFineScanPars(delays, d)
-                    f = fineScanFunc
-                    coeff, var = curve_fit(f, delays, d, p0=p0)
+                    # where are these funcs defined?, ignoring from ruff for now
+                    p0 = estimateFineScanPars(delays, d) # noqa: F821
+                    f = fineScanFunc # noqa: F821
+                    coeff, var = curve_fit(f, delays, d, p0=p0) # noqa: F821
                     edge[m, r, c] = coeff[1]
         return edge
 
@@ -106,7 +115,7 @@ class EventScanParallel(BasicSuiteScript):
             np.save(
                 "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp), np.array(bitSlice)
             )
-        except:
+        except Exception:
             pass
 
         pulseIds.sort()
@@ -168,7 +177,7 @@ if __name__ == "__main__":
 
             try:
                 bitSliceSum += r
-            except:
+            except Exception:
                 bitSliceSum = r.astype(np.uint32)
 
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])

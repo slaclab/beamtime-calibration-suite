@@ -1,4 +1,9 @@
-from psana import *
+# ignoring from ruff for now, need sort out later along
+# with other noqa in this file
+from psana import * # noqa: F403
+
+## standard
+from mpi4py import MPI
 
 ##from PSCalib.NDArrIO import load_txt
 
@@ -8,9 +13,6 @@ import os
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"
 ## psana2 only
-
-## standard
-from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -34,7 +36,7 @@ class PsanaBase(object):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource(exp=self.exp, run=run, intg_det="epixhr", max_events=self.maxNevents)
+        return DataSource(exp=self.exp, run=run, intg_det="epixhr", max_events=self.maxNevents) # noqa: F405
 
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
@@ -48,7 +50,7 @@ class PsanaBase(object):
         try:
             self.step_value = self.myrun.Detector("step_value")
             self.step_docstring = self.myrun.Detector("step_docstring")
-        except:
+        except Exception:
             self.step_value = self.step_docstring = None
 
         ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
@@ -66,12 +68,12 @@ class PsanaBase(object):
 
         try:
             self.mfxDg1 = self.myrun.Detector("MfxDg1BmMon")
-        except:
+        except Exception:
             self.mfxDg1 = None
             print("No flux source found")  ## if self.verbose?
         try:
             self.mfxDg2 = self.myrun.Detector("MfxDg2BmMon")
-        except:
+        except Exception:
             self.mfxDg2 = None
         ## fix hardcoding in the fullness of time
         self.detEvts = 0
@@ -79,13 +81,13 @@ class PsanaBase(object):
 
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except:
+            self.wave8 = Detector(self.fluxSource, self.ds.env()) # noqa: F405
+        except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData")
-        except:
+            self.controlData = Detector("ControlData") # noqa: F405
+        except Exception:
             self.controlData = None
 
     ##        if self.mfxDg1 is None:
@@ -119,7 +121,7 @@ class PsanaBase(object):
         for nevt, evt in enumerate(gen):
             try:
                 self.flux = self._getFlux(evt)
-            except:
+            except Exception:
                 pass
             if self.det.raw.raw(evt) is None:
                 continue
@@ -150,7 +152,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except:
+            except Exception:
                 continue
 
     def getEvtFromRuns(self):
@@ -163,7 +165,7 @@ class PsanaBase(object):
                 self.run = self.runRange[i + 1]
                 print("switching to run %d" % (self.run))
                 self.ds = self.get_ds(self.run)
-            except:
+            except Exception:
                 print("have run out of new runs")
                 return None
             ##print("get event from new run")
@@ -175,7 +177,7 @@ class PsanaBase(object):
             return None
         try:
             return self.mfxDg1.raw.peakAmplitude(evt)
-        except:
+        except Exception:
             return None
 
     def _getFlux(self, evt):
@@ -186,12 +188,12 @@ class PsanaBase(object):
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
             ##print(f)
-        except:
+        except Exception:
             return None
         try:
             if f < self.fluxCut:
                 return None
-        except:
+        except Exception:
             pass
         return f
 
@@ -205,7 +207,7 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == EvrData.ConfigV7: # noqa: F405
                 self.evrs.append(key.src())
 
     def getEventCodes(self, evt):
@@ -278,7 +280,8 @@ class PsanaBase(object):
 
 
 if __name__ == "__main__":
-    bSS = BasicSuiteScript()
+    # BasicSuiteScript 'is a' PsanaBase, so why do here? ignore from ruff for now
+    bSS = BasicSuiteScript() # noqa: F405
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
