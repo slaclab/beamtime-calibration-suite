@@ -4,7 +4,6 @@ import fitFunctions
 
 ##import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 
 ##import sys
 import argparse
@@ -56,7 +55,7 @@ class AnalyzeH5(object):
             self.sliceEdges = self.h5Files[0]["analysisType"][()]
 
             print("analysis type: ", self.analysisType, " ", self.sliceEdges)
-        except:
+        except Exception:
             print("Execeptiopn!!")
 
             ## do something useful here, maybe
@@ -76,11 +75,13 @@ class AnalyzeH5(object):
         energyHist = None
 
         clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
+
+        ''' this never works!
         try:
             energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
-            print("BB!")
-        except:
+        except Exception:
             pass
+        '''
 
         self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         self.highEnergyCut = 30  ## fix - should be 1.5 photons or something
@@ -89,6 +90,7 @@ class AnalyzeH5(object):
         self.analyzeSimpleClusters(clusters)
 
         if energyHist is None:
+            exit(1)
             return
 
         _, bins = np.histogram(energyHist, 250, [-5, 45])
@@ -114,7 +116,7 @@ class AnalyzeH5(object):
         energy *= 2  ## temporary, due to bit shift
         ##print(energy[energy>0][666:777])
         print("mean energy above 0:", energy[energy > 0].mean())
-        foo = ax.hist(energy[energy > 0], 100)
+        ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         plt.savefig(
@@ -154,7 +156,7 @@ class AnalyzeH5(object):
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
                         fittedFunc = fitFunctions.gaussian(bins, *popt)
                         ax.plot(bins, fittedFunc, color="b")
-                    except:
+                    except Exception:
                         pass
 
                     ax.set_xlabel("energy (keV)")
