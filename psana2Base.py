@@ -1,6 +1,6 @@
 # ignoring from ruff for now, need sort out later along
 # with other noqa in this file
-from psana import * # noqa: F403
+from psana import *  # noqa: F403
 
 ## standard
 from mpi4py import MPI
@@ -36,7 +36,7 @@ class PsanaBase(object):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource(exp=self.exp, run=run, intg_det="epixhr", max_events=self.maxNevents) # noqa: F405
+        return DataSource(exp=self.exp, run=run, intg_det="epixhr", max_events=self.maxNevents)  # noqa: F405
 
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
@@ -81,12 +81,12 @@ class PsanaBase(object):
 
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env()) # noqa: F405
+            self.wave8 = Detector(self.fluxSource, self.ds.env())  # noqa: F405
         except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData") # noqa: F405
+            self.controlData = Detector("ControlData")  # noqa: F405
         except Exception:
             self.controlData = None
 
@@ -207,7 +207,7 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7: # noqa: F405
+            if key.type() == EvrData.ConfigV7:  # noqa: F405
                 self.evrs.append(key.src())
 
     def getEventCodes(self, evt):
@@ -281,7 +281,7 @@ class PsanaBase(object):
 
 if __name__ == "__main__":
     # BasicSuiteScript 'is a' PsanaBase, so why do here? ignore from ruff for now
-    bSS = BasicSuiteScript() # noqa: F405
+    bSS = BasicSuiteScript()  # noqa: F405
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()

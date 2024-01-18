@@ -41,7 +41,7 @@ def getRestrictedHistogram(bins, counts, x0, x1):
 
 
 # unused? and won't work in current state i think...
-'''
+"""
 def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     ## binned 1d data, optional fit restriction to [x0, x1]
     x = binCenters
@@ -58,7 +58,8 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
 
     ## should perhaps return an object with attributes for future flexibility
     return mu, sigma, fittedFunc
-'''
+"""
+
 
 def fitNorm(data):
     mean, std = norm.fit(data)

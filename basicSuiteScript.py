@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-import os   
+import os
 from rixSuiteConfig import experimentHash
 
 ##from mfxRixSuiteConfig import *
@@ -12,8 +12,10 @@ else:
     print("psana2")
     from psana2Base import PsanaBase
 
+
 def sortArrayByList(a, data):
     return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
+
 
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):

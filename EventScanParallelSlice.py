@@ -9,6 +9,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
+
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__()  ##self)
@@ -93,9 +94,9 @@ class EventScanParallel(BasicSuiteScript):
                 for c in range(data.shape[3]):
                     d = data[:, m, r, c]
                     # where are these funcs defined?, ignoring from ruff for now
-                    p0 = estimateFineScanPars(delays, d) # noqa: F821
-                    f = fineScanFunc # noqa: F821
-                    coeff, var = curve_fit(f, delays, d, p0=p0) # noqa: F821
+                    p0 = estimateFineScanPars(delays, d)  # noqa: F821
+                    f = fineScanFunc  # noqa: F821
+                    coeff, var = curve_fit(f, delays, d, p0=p0)  # noqa: F821
                     edge[m, r, c] = coeff[1]
         return edge
 
