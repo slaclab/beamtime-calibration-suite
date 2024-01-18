@@ -1,18 +1,12 @@
 import h5py
 import numpy as np
 import fitFunctions
-
-##import seaborn as sns
 import matplotlib.pyplot as plt
-
-##import sys
 import argparse
 
-
 class AnalyzeH5(object):
+
     def __init__(self):
-        print("in init")
-        ## this parsing may be common - move elsewhere if so
         parser = argparse.ArgumentParser(
             description="Configures calibration suite, overriding experimentHash",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -34,32 +28,23 @@ class AnalyzeH5(object):
 
         self.run = args.run
         self.files = args.files.replace(" ", "")
-        print(self.files)
         self.outputDir = args.path
         self.label = args.label
         self.camera = 0
 
     def getFiles(self):
         fileNames = self.files.split(",")
-        print("filenames: ", fileNames)
         self.h5Files = []
-        for f in fileNames:
-            print(f)
-            file = h5py.File(f)
-            print("!!file: ", file)
-            self.h5Files.append(file)
+        for currName in fileNames:
+            currFile = h5py.File(currName)
+            self.h5Files.append(currFile)
 
     def identifyAnalysis(self):
         try:
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceEdges = self.h5Files[0]["analysisType"][()]
-
-            print("analysis type: ", self.analysisType, " ", self.sliceEdges)
         except Exception:
-            print("Execeptiopn!!")
-
             ## do something useful here, maybe
-            self.analysisType = None
             ## but for now
             self.analysisType = "cluster"
             self.sliceEdges = [288 - 270, 107 - 59]
@@ -70,29 +55,7 @@ class AnalyzeH5(object):
         else:
             print("unknown analysis type %s" % (self.analysisType))
 
-    def clusterAnalysis(self):
-        clusters = None
-        energyHist = None
-
-        clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
-
-        ''' this never works!
-        try:
-            energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
-        except Exception:
-            pass
-        '''
-
-        self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
-        self.highEnergyCut = 30  ## fix - should be 1.5 photons or something
-        ##tmp
-        np.save("%s/r%d_clusters.npy" % (self.outputDir, self.run), clusters)
-        self.analyzeSimpleClusters(clusters)
-
-        if energyHist is None:
-            exit(1)
-            return
-
+    def plotEnergyHist(self, energyHist):
         _, bins = np.histogram(energyHist, 250, [-5, 45])
         plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
         plt.grid(which="major", linewidth=0.5)
@@ -109,6 +72,26 @@ class AnalyzeH5(object):
             energyHist,
         )
         plt.close()
+
+    def clusterAnalysis(self):
+        clusters = None
+        #energyHist = None
+
+        clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
+
+        # concat never works, h5 undefined
+        try:
+            # meant to do similar thing as clusters above?
+            energyHist = None #np.concatenate(energyHist, h5["energyHistogram"][()])
+            #self.plotEnergyHist(energyHist)
+        except Exception:
+            pass
+
+        self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
+        self.highEnergyCut = 30  ## fix - should be 1.5 photons or something
+        ##tmp
+        np.save("%s/r%d_clusters.npy" % (self.outputDir, self.run), clusters)
+        self.analyzeSimpleClusters(clusters)
 
     def analyzeSimpleClusters(self, clusters):
         ax = plt.subplot()
@@ -185,7 +168,6 @@ class AnalyzeH5(object):
             "%s/%s_r%d_c%d_%s_gainDistribution.png"
             % (self.outputDir, self.__class__.__name__, self.run, self.camera, self.label)
         )
-
 
 if __name__ == "__main__":
     ah5 = AnalyzeH5()
