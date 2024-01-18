@@ -21,13 +21,11 @@ def test_saturatedLinearB(a, b, d, expected):
     result = saturatedLinearB(x, a, b, d)
     np.testing.assert_array_equal(result, expected)
 
-'''
-@pytest.mark.parametrize("a, mu, sigma, expected", [(1, 3, 0.5, np.array([3.354626e-04, 1.353353e-01, 1.000000e+00, 1.353353e-01, 3.354626e-04]))])
+@pytest.mark.parametrize("a, mu, sigma, expected", [(1, 3, 0.5, np.array([0.0003354626279025118, 0.13533528323661267, 1.0, 0.13533528323661267, 0.0003354626279025118]))])
 def test_gaussian(a, mu, sigma, expected):
     x = np.array([1, 2, 3, 4, 5])
     result = gaussian(x, a, mu, sigma)
     np.testing.assert_allclose(result, expected)
-'''
 
 def test_estimateGaussianParameters():
     flatData = np.array([1, 2, 3, 4, 5])
