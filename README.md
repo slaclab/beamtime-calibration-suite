@@ -1,2 +1,2 @@
 # beamtime-calibration-suite
-[![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=master)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
+[![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
