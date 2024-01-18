@@ -4,8 +4,6 @@ from mpi4py import MPI
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-import loggingSetup 
-import logging
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -135,9 +133,6 @@ class EventScanParallel(BasicSuiteScript):
 
 
 if __name__ == "__main__":
-
-    logging.debug("This is a debug message in other_module")
-
     esp = EventScanParallel()
     print("have built a", esp.className, "class")
     if esp.file is not None:
