@@ -4,6 +4,14 @@ import fitFunctions
 import matplotlib.pyplot as plt
 import argparse
 
+class FileNamingInfo:
+    def __init__(self, outputDir, className, run, camera, label):
+        self.outputDir = outputDir
+        self.className = className 
+        self.run = run
+        self.camera = camera
+        self.label = label
+
 class AnalyzeH5(object):
 
     def __init__(self):
@@ -26,11 +34,8 @@ class AnalyzeH5(object):
 
         args = parser.parse_args()
 
-        self.run = args.run
         self.files = args.files.replace(" ", "")
-        self.outputDir = args.path
-        self.label = args.label
-        self.camera = 0
+        self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
 
     def getFiles(self):
         fileNames = self.files.split(",")
@@ -55,7 +60,7 @@ class AnalyzeH5(object):
         else:
             print("unknown analysis type %s" % (self.analysisType))
 
-    def plotEnergyHist(self, energyHist):
+    def plotEnergyHist(self, energyHist, fileInfo):
         _, bins = np.histogram(energyHist, 250, [-5, 45])
         plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
         plt.grid(which="major", linewidth=0.5)
@@ -64,11 +69,11 @@ class AnalyzeH5(object):
         print("I hate matplotlib so much")
         plt.savefig(
             "%s/%s_r%d_c%d_%s_energyHistogram.png"
-            % (self.outputDir, self.__class__.__name__, self.run, self.camera, self.label)
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
         )
         np.save(
             "%s/%s_r%d_c%d_%s_energyHistogram.npy"
-            % (self.outputDir, self.__class__.__name__, self.run, self.camera, self.label),
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label),
             energyHist,
         )
         plt.close()
@@ -83,43 +88,39 @@ class AnalyzeH5(object):
         try:
             # meant to do similar thing as clusters above?
             energyHist = None #np.concatenate(energyHist, h5["energyHistogram"][()])
-            #self.plotEnergyHist(energyHist)
+            #self.plotEnergyHist(energyHist, self.fileNameInfo)
         except Exception:
             pass
 
         self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         self.highEnergyCut = 30  ## fix - should be 1.5 photons or something
         ##tmp
-        np.save("%s/r%d_clusters.npy" % (self.outputDir, self.run), clusters)
+        np.save("%s/r%d_clusters.npy" % (self.fileNameInfo.outputDir, self.fileNameInfo.run), clusters)
         self.analyzeSimpleClusters(clusters)
 
-    def analyzeSimpleClusters(self, clusters):
+    def plot_overall_energy_distribution(self, energy, fileInfo):
         ax = plt.subplot()
-        energy = clusters[:, :, 0]  ##.flatten()
-        energy *= 2  ## temporary, due to bit shift
         ##print(energy[energy>0][666:777])
         print("mean energy above 0:", energy[energy > 0].mean())
         ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         plt.savefig(
-            "%s/%s_r%d_c%d_%s_E.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, self.label)
+            "%s/%s_r%d_c%d_%s_E.png" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
         )
         plt.close()
 
-        rows = self.sliceEdges[0]
-        cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 4))  ## mean, std, mu, sigma
+    def analyze_pixel_clusters(self, clusters, energy, rows, cols, fitInfo, lowEnergyCut, highEnergyCut, fileInfo):
         for i in range(rows):
             for j in range(cols):
                 pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
                 small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
                 smallPixel = np.bitwise_and(small, pixel)
                 pixelEcut0 = np.bitwise_and(
-                    smallPixel, energy > self.lowEnergyCut
+                    smallPixel, energy > lowEnergyCut
                 )  ## adjusted due to gains not making sense
                 pixelEcut = np.bitwise_and(
-                    pixelEcut0, energy < self.highEnergyCut
+                    pixelEcut0, energy < highEnergyCut
                 )  ## would be good to get rid of these entirely when things make sense
                 nPixelClusters = (pixelEcut > 0).sum()
                 mean = std = mu = sigma = 0
@@ -149,15 +150,18 @@ class AnalyzeH5(object):
                     plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
                     plt.savefig(
                         "%s/%s_r%d_c%d_r%d_c%d_%s_E.png"
-                        % (self.outputDir, self.__class__.__name__, self.run, self.camera, i, j, self.label)
+                        % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, i, j, fileInfo.label)
                     )
                     plt.close()
 
-        np.save(
+    def save_fit_information(self, fitInfo, rows, cols, fileInfo):
+            np.save(
             "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy"
-            % (self.outputDir, self.__class__.__name__, self.run, self.camera, i, j, self.label),
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, rows-1, cols-1, fileInfo.label),
             fitInfo,
         )
+
+    def plot_gain_distribution(self, fitInfo, fileInfo):
         gains = fitInfo[:, :, 2]
         goodGains = gains[np.bitwise_and(gains > 0, gains < 30)]
         ax = plt.subplot()
@@ -166,8 +170,20 @@ class AnalyzeH5(object):
         ax.set_title("pixel single photon fitted energy")
         plt.savefig(
             "%s/%s_r%d_c%d_%s_gainDistribution.png"
-            % (self.outputDir, self.__class__.__name__, self.run, self.camera, self.label)
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
         )
+
+    def analyzeSimpleClusters(self, clusters):
+        energy = clusters[:, :, 0]  ##.flatten()
+        energy *= 2  ## temporary, due to bit shift
+        rows = self.sliceEdges[0]
+        cols = self.sliceEdges[1]
+        fitInfo = np.zeros((rows, cols, 4))  ## mean, std, mu, sigma
+
+        self.plot_overall_energy_distribution(energy, self.fileNameInfo)
+        self.analyze_pixel_clusters(clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+        self.save_fit_information(fitInfo, rows, cols, self.fileNameInfo)
+        self.plot_gain_distribution(fitInfo,self.fileNameInfo)
 
 if __name__ == "__main__":
     ah5 = AnalyzeH5()
