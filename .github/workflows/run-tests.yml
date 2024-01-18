@@ -21,6 +21,7 @@ jobs:
         pip install numpy
         pip install scipy
         pip install statsmodels
+        conda install -c conda-forge lcls-i::psana 
 
     - name: Run tests
       run: |
