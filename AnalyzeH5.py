@@ -67,24 +67,6 @@ class AnalyzeH5(object):
         else:
             print("unknown analysis type %s" % (self.analysisType))
 
-    def plotEnergyHist(self, energyHist, fileInfo):
-        _, bins = np.histogram(energyHist, 250, [-5, 45])
-        plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
-        plt.grid(which="major", linewidth=0.5)
-        plt.title = "All pixel energies in run after common mode correction"
-        plt.xlabel = "energy (keV)"
-        print("I hate matplotlib so much")
-        plt.savefig(
-            "%s/%s_r%d_c%d_%s_energyHistogram.png"
-            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
-        )
-        np.save(
-            "%s/%s_r%d_c%d_%s_energyHistogram.npy"
-            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label),
-            energyHist,
-        )
-        plt.close()
-
     def clusterAnalysis(self):
         clusters = None
         # energyHist = None
@@ -104,6 +86,20 @@ class AnalyzeH5(object):
         ##tmp
         np.save("%s/r%d_clusters.npy" % (self.fileNameInfo.outputDir, self.fileNameInfo.run), clusters)
         self.analyzeSimpleClusters(clusters)
+
+    def analyzeSimpleClusters(self, clusters):
+        energy = clusters[:, :, 0]  ##.flatten()
+        energy *= 2  ## temporary, due to bit shift
+        rows = self.sliceEdges[0]
+        cols = self.sliceEdges[1]
+        fitInfo = np.zeros((rows, cols, 4))  ## mean, std, mu, sigma
+
+        self.plotOverallEnergyDistribution(energy, self.fileNameInfo)
+        self.analyzePixelClusters(
+            clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo
+        )
+        self.saveFitInformation(fitInfo, rows, cols, self.fileNameInfo)
+        self.plotGainDistribution(fitInfo, self.fileNameInfo)
 
     def plotOverallEnergyDistribution(self, energy, fileInfo):
         ax = plt.subplot()
@@ -189,19 +185,23 @@ class AnalyzeH5(object):
             % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
         )
 
-    def analyzeSimpleClusters(self, clusters):
-        energy = clusters[:, :, 0]  ##.flatten()
-        energy *= 2  ## temporary, due to bit shift
-        rows = self.sliceEdges[0]
-        cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 4))  ## mean, std, mu, sigma
-
-        self.plotOverallEnergyDistribution(energy, self.fileNameInfo)
-        self.analyzePixelClusters(
-            clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo
+    def plotEnergyHist(self, energyHist, fileInfo):
+        _, bins = np.histogram(energyHist, 250, [-5, 45])
+        plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
+        plt.grid(which="major", linewidth=0.5)
+        plt.title = "All pixel energies in run after common mode correction"
+        plt.xlabel = "energy (keV)"
+        print("I hate matplotlib so much")
+        plt.savefig(
+            "%s/%s_r%d_c%d_%s_energyHistogram.png"
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
         )
-        self.saveFitInformation(fitInfo, rows, cols, self.fileNameInfo)
-        self.plotGainDistribution(fitInfo, self.fileNameInfo)
+        np.save(
+            "%s/%s_r%d_c%d_%s_energyHistogram.npy"
+            % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label),
+            energyHist,
+        )
+        plt.close()
 
 
 if __name__ == "__main__":
