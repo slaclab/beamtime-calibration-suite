@@ -24,4 +24,5 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest testFitFunctions.py  # Replace with your actual test file name
+        pytest testFitFunctions.py
+        ./run_simple_test.sh
