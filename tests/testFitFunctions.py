@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from fitFunctions import linear, saturatedLinear, saturatedLinearB, gaussian, \
+from scripts.fitFunctions import linear, saturatedLinear, saturatedLinearB, gaussian, \
     estimateGaussianParameters, getHistogramMeanStd, getBinCentersFromNumpyHistogram, getRestrictedHistogram
 
 @pytest.mark.parametrize("a, b, expected", [(2, 3, np.array([5, 7, 9, 11, 13]))])
