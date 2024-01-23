@@ -4,6 +4,7 @@ import fitFunctions
 import matplotlib.pyplot as plt
 import argparse
 import logging
+from scipy.optimize import curve_fit
 
 # Setup logging.
 # Log file gets appended to each new run, can manually delete for fresh log.
@@ -45,6 +46,11 @@ class AnalyzeH5(object):
         parser.add_argument("-L", "--label", type=str, default="testLabel", help="analysis label")
         args = parser.parse_args()
 
+        if args.files == None:
+            print("No input files specified, quitting...")
+            logging.info("No input files specified, quitting...")
+            exit(1)
+
         self.files = args.files.replace(" ", "")
         self.lowEnergyCut = 4  # fix - should be 0.5 photons or something
         self.highEnergyCut = 30  # fix - should be 1.5 photons or something
@@ -62,10 +68,12 @@ class AnalyzeH5(object):
             logging.info("Using input file: " + currFile.filename)
 
     def identifyAnalysis(self):
-        try:
+        # script fails earlier if not >= 1 h5 file
+        if "analysisType" in self.h5Files[0]:
             self.analysisType = self.h5Files[0]["analysisType"]
+            # '[()]' gets us the data and not a reference
             self.sliceEdges = self.h5Files[0]["analysisType"][()]
-        except Exception:
+        else:
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
@@ -89,7 +97,9 @@ class AnalyzeH5(object):
             # meant to do similar thing as clusters above?
             energyHist = None #np.concatenate(energyHist, h5["energyHistogram"][()])
             #self.plotEnergyHist(energyHist, self.fileNameInfo)
-        except Exception:
+        except Exception as e:
+            print(f"An exception occurred: {e}")
+            logging.error(f"An exception occurred: {e}")
             pass
 
         fileName = "%s/r%d_clusters.npy" % (self.fileNameInfo.outputDir, self.fileNameInfo.run)
@@ -136,7 +146,7 @@ class AnalyzeH5(object):
     def analyze_pixel_clusters(self, clusters, energy, rows, cols, fitInfo, lowEnergyCut, highEnergyCut, fileInfo):
         for i in range(rows):
             for j in range(cols):
-                # Create array of bools satisfying the conds
+                # Create bool array satisfying the conds
                 pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
                 small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
                 smallPixel = np.bitwise_and(small, pixel)
@@ -157,7 +167,7 @@ class AnalyzeH5(object):
                 # (selects elements from energy where corresponding element in pixelEcut is True)
                 pixelE = energy[pixelEcut > 0]
 
-                if nPixelClusters > 5: # only analysis if enoguh pixels
+                if nPixelClusters > 5: # only do analysis if enough pixels
                     print("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
                     logging.info("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
                     ax = plt.subplot()
@@ -166,13 +176,17 @@ class AnalyzeH5(object):
                     # print(y, bins)
                     mean, std = fitFunctions.estimateGaussianParameters(pixelE)
                     try:
-                        popt, pcov = fitFunctions.curve_fit(fitFunctions.gaussian, bins, y, [3, mean, std])
+                        # Set maxfev arg > 800?? (fails to find optimal params for some clusters)
+                        popt, pcov = curve_fit(fitFunctions.gaussian, bins, y, [3, mean, std])
+
                         mu = popt[1]
                         sigma = popt[2]
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
                         fittedFunc = fitFunctions.gaussian(bins, *popt)
-                        ax.plot(bins, fittedFunc, color="b")
-                    except Exception:
+                        #ax.plot(bins, fittedFunc, color="b")
+                    except Exception as e:
+                        print(f"An exception occurred: {e}")
+                        logging.error(f"An exception occurred: {e}")
                         pass
 
                     ax.set_xlabel("energy (keV)")
