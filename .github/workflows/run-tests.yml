@@ -24,4 +24,4 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest testFitFunctions.py
+        pytest tests/testFitFunctions.py
