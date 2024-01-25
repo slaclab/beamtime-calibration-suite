@@ -11,11 +11,12 @@ def test_run_event_scan_parallel_slice_and_compare():
 
     # run scripts
     result1 = subprocess.run(["python", "../scripts/EventScanParallelSlice.py", "-r", "349", "-p", "scan"])
-    result2 = subprocess.run(["python", "../scripts/EventScanParallelSlice.py", "-r", "349", "-f", "scan/EventScanParallel_c0_r349_n1.h5"])
+    result2 = subprocess.run(["python", "../scripts/EventScanParallelSlice.py", "-r", "349", "-f", "scan/EventScanParallel_c0_r349_n1.h5", "-p", "scan"])
 
     #print(result1.stdout)
     #print(result1.stderr)
     #print(result2.stdout)
     #print(result2.stderr)
 
-    assert subprocess.call(["diff", "-r", "scan", "testData/expected/eventScanParallelSliceExpected/"]) != 0
+    diff_result = subprocess.run(["diff", "-r", "scan", "testData/expected/eventScanParallelSliceExpected/"])
+    assert diff_result.returncode == 0

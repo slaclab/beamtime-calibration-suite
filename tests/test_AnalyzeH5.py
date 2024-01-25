@@ -23,7 +23,7 @@ def test_run_analyzeh5_and_compare():
     ]
 
     for file1, file2 in file_pairs:
-        diff_result = subprocess.run(["diff", file1, file2], capture_output=True, text=True)
+        diff_result = subprocess.run(["diff", file1, file2])
         assert diff_result.returncode == 0
           
 
