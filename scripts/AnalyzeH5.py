@@ -43,6 +43,7 @@ class AnalyzeH5(object):
         parser.add_argument(
             "-f", "--files", type=str, default=None, help="run analysis on file or comma-separated files"
         )
+        parser.add_argument("-s", "--slice_edges", type=str, help="two ints for row and col, separated by ','")
         parser.add_argument("-L", "--label", type=str, default="testLabel", help="analysis label")
         args = parser.parse_args()
 
@@ -54,6 +55,10 @@ class AnalyzeH5(object):
         self.files = args.files.replace(" ", "")
         self.lowEnergyCut = 4  # fix - should be 0.5 photons or something
         self.highEnergyCut = 30  # fix - should be 1.5 photons or something
+        self.sliceEdges = None
+        if args.slice_edges is not None:
+            self.sliceEdges = args.slice_edges.split(',')
+            self.sliceEdges = [int(curr) for curr in self.sliceEdges]
         self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
         print("Output dir: " + self.fileNameInfo.outputDir)
         logging.info("Output dir: " + self.fileNameInfo.outputDir)
@@ -77,7 +82,8 @@ class AnalyzeH5(object):
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
-            self.sliceEdges = [288 - 270, 107 - 59]
+            if self.sliceEdges == None: # set if not already by cmdline args
+                self.sliceEdges = [288 - 270, 107 - 59]
 
     def analyze(self):
         if self.analysisType == "cluster":
