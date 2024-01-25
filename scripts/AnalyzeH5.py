@@ -108,7 +108,6 @@ class AnalyzeH5(object):
     def clusterAnalysis(self):
         # energyHist = None
         clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
-
         # concat never works here since h5 undefined
         try:
             # meant to do similar thing as clusters above?
@@ -160,8 +159,8 @@ class AnalyzeH5(object):
         ax = plt.subplot()
 
         # print(energy[energy>0][666:777])
-        print("mean energy above 0:", energy[energy > 0].mean())
-        logging.info("mean energy above 0:" + str(energy[energy > 0].mean()))
+        # print("mean energy above 0:", energy[energy > 0].mean())
+        #logging.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
         ax.hist(energy[energy > 0], 100)  # 100 bins
         plt.xlabel = "energy (keV)"

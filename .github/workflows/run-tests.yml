@@ -21,7 +21,18 @@ jobs:
         pip install numpy
         pip install scipy
         pip install statsmodels
+        pip install h5py
+        pip install matplotlib
 
-    - name: Run tests
+    - name: Run fit-functions tests
       run: |
-        pytest tests/test_FitFunctions.py
+        pytest tests/testFitFunctions.py
+
+    - name: Run AnalyzeH5.py and diff against expected plots
+      run: |
+        mkdir test
+        python scripts/AnalyzeH5.py -f testData/lowFlux/SimpleClusters_c0_r334_n100.h5 -p test -r 666 -s 2,15
+        diff test/AnalyzeH5_r666_c0_r1_c14_testLabel_E.png testData/expected/analyzeH5Expected/AnalyzeH5_r666_c0_r1_c14_testLabel_E.png
+        diff test/AnalyzeH5_r666_c0_testLabel_E.png testData/expected/analyzeH5Expected/AnalyzeH5_r666_c0_testLabel_E.png
+        diff test/AnalyzeH5_r666_c0_testLabel_gainDistribution.png testData/expected/analyzeH5Expected/AnalyzeH5_r666_c0_testLabel_gainDistribution.png
+        diff test/AnalyzeH5_r666_c0_r1_c14_testLabel_fitInfo.npy testData/expected/analyzeH5Expected/AnalyzeH5_r666_c0_r1_c14_testLabel_fitInfo.npy
