@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-import fitFunctions
+import fitFunctions, ancillaryMethods
 import matplotlib.pyplot as plt
 import argparse
 import logging
@@ -45,6 +45,7 @@ class AnalyzeH5(object):
         )
         parser.add_argument("-s", "--slice_edges", type=str, help="two ints for row and col, separated by ','")
         parser.add_argument("-L", "--label", type=str, default="testLabel", help="analysis label")
+        parser.add_argument("-sb", "--shift_energy_bits", action="store_true", help="use if want energy-values << 1")
         args = parser.parse_args()
 
         if args.files == None:
@@ -59,6 +60,8 @@ class AnalyzeH5(object):
         if args.slice_edges is not None:
             self.sliceEdges = args.slice_edges.split(',')
             self.sliceEdges = [int(curr) for curr in self.sliceEdges]
+        self.nBins = 100
+        self.shiftEnergy = False if args.shift_energy_bits == None else True
         self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
         print("Output dir: " + self.fileNameInfo.outputDir)
         logging.info("Output dir: " + self.fileNameInfo.outputDir)
@@ -77,13 +80,17 @@ class AnalyzeH5(object):
         if "analysisType" in self.h5Files[0]:
             self.analysisType = self.h5Files[0]["analysisType"]
             # '[()]' gets us the data and not a reference
-            self.sliceEdges = self.h5Files[0]["analysisType"][()]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
         else:
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
             if self.sliceEdges == None: # set if not already by cmdline args
                 self.sliceEdges = [288 - 270, 107 - 59]
+            self.sliceCoordinates = [[270, 288], [59, 107]]
+
+    def sliceToDetector(self, sliceRow, sliceCol):
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
     def analyze(self):
         if self.analysisType == "cluster":
@@ -224,7 +231,8 @@ class AnalyzeH5(object):
 
     def analyzeSimpleClusters(self, clusters):
         energy = clusters[:, :, 0] #.flatten()
-        energy *= 2  # temporary, due to bit shift
+        if self.shiftEnergy:
+            energy *= 2  # temporary, due to bit shift
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
         fitInfo = np.zeros((rows, cols, 4)) # mean, std, mu, sigma
