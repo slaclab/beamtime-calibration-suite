@@ -82,7 +82,8 @@ def test_estimateGaussianParametersFromXY():
     y = np.array([2, 4, 6, 4, 2])
     result_amp, result_mean, result_sigma = estimateGaussianParametersFromXY(x, y)
     expected_amp, expected_mean, expected_sigma = 2.482238418490429, 3.0, 1.1547005383792515
-    print(result_amp, result_mean, result_sigma)
+    assert np.isclose(result_amp, expected_amp)
+    assert result_mean == expected_mean
     assert np.isclose(result_sigma, expected_sigma)
 
 

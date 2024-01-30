@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import fitFunctions, ancillaryMethods
+import fitFunctions
+import ancillaryMethods
 from scipy.optimize import curve_fit
 import logging
 
@@ -142,7 +143,7 @@ def histogramAndFitGaussian(ax, energies, nBins):
         fittedFunc = fitFunctions.gaussian(bins, *popt)
         ax.plot(bins, fittedFunc, color="b")
         return popt
-    except:
+    except Exception:
         return 0, 0, 0
 
 

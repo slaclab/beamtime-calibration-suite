@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import binned_statistic
 
 
@@ -18,7 +19,8 @@ def makeProfile(x, y, bins, range=None, spread=False):
         root_N[root_N == 0] = root_N[root_N > 0].mean()
         yErr = yErr / root_N
         ##yErr = yErr.clip(0, 6666666.)
-    bin_edges = means_result.bin_edges
+    # where is means_result defined?? (ignore from ruff for now)
+    bin_edges = means_result.bin_edges # noqa: F821
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2.0
     usefulBins = bin_N > 0
     return bin_centers[usefulBins], means[usefulBins], yErr[usefulBins]
