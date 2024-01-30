@@ -21,7 +21,17 @@ def test_saturatedLinearB(a, b, d, expected):
     result = saturatedLinearB(x, a, b, d)
     np.testing.assert_array_equal(result, expected)
 
-@pytest.mark.parametrize("a, mu, sigma, expected", [(1, 3, 0.5, np.array([0.0003354626279025118, 0.13533528323661267, 1.0, 0.13533528323661267, 0.0003354626279025118]))])
+@pytest.mark.parametrize(
+    "a, mu, sigma, expected",
+    [
+        (
+            1,
+            3,
+            0.5,
+            np.array([0.0003354626279025118, 0.13533528323661267, 1.0, 0.13533528323661267, 0.0003354626279025118]),
+        )
+    ],
+)
 def test_gaussian(a, mu, sigma, expected):
     x = np.array([1, 2, 3, 4, 5])
     result = gaussian(x, a, mu, sigma)
@@ -69,7 +79,7 @@ def test_getBinCentersFromNumpyHistogram():
     result = getBinCentersFromNumpyHistogram(bins)
     expected = np.array([1.5, 2.5, 3.5, 4.5])
     np.testing.assert_array_equal(result, expected)
-    
+
 def test_getRestrictedHistogram():
     bins = np.array([1, 2, 3, 4, 5])
     counts = np.array([2, 4, 6, 4, 2])

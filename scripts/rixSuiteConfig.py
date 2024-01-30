@@ -3,10 +3,10 @@ import os
 # this probably in file where it's actually used
 if os.getenv("foo") == "1":
     print("psana1")
-    from psana1Base import * # noqa: F403
+    from psana1Base import *  # noqa: F403
 else:
     print("psana2")
-    from psana2Base import * # noqa: F403
+    from psana2Base import *  # noqa: F403
 
 import numpy as np
 
