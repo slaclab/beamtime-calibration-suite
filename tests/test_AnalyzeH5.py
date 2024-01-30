@@ -9,7 +9,23 @@ def test_run_analyzeh5_and_compare():
         shutil.rmtree("test")
     os.makedirs("test")
 
-    result = subprocess.run(["python", "../scripts/AnalyzeH5.py", "-f", "testData/lowFlux/SimpleClusters_c0_r334_n100.h5", "-p", "test", "-r", "666", "-s", "2,15", "-sb", "-a", "1"])
+    subprocess.run(
+        [
+            "python",
+            "../scripts/AnalyzeH5.py",
+            "-f",
+            "testData/lowFlux/SimpleClusters_c0_r334_n100.h5",
+            "-p",
+            "test",
+            "-r",
+            "666",
+            "-s",
+            "2,15",
+            "-sb",
+            "-a",
+            "1",
+        ]
+    )
 
     # print(result.stdout)
     # print(result.stderr)

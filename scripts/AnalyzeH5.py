@@ -14,13 +14,14 @@ class FileNamingInfo:
         self.camera = camera
         self.label = label
 
+
 # Setup logging.
 # Log file gets appended to each new run, can manually delete for fresh log.
 # Could change so makes new unique log each run or overwrites existing log.
 logging.basicConfig(
-    filename='analyze_h5.log',
-    level=logging.INFO, # For full logging set to INFO which includes ERROR logging too
-    format='%(asctime)s - %(levelname)s - %(message)s' # levelname is log severity (ERROR, INFO, etc)
+    filename="analyze_h5.log",
+    level=logging.INFO,  # For full logging set to INFO which includes ERROR logging too
+    format="%(asctime)s - %(levelname)s - %(message)s",  # levelname is log severity (ERROR, INFO, etc)
 )
 
 
@@ -61,9 +62,15 @@ class AnalyzeH5(object):
             self.sliceEdges = args.slice_edges.split(",")
             self.sliceEdges = [int(curr) for curr in self.sliceEdges]
         self.nBins = 100
-        self.shiftEnergy = False if args.shift_energy_bits == None else True
-        self.analysisNum = 1 if args.analysis_mode == None else int(args.analysis_mode)
-        self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
+        self.shiftEnergy = False if args.shift_energy_bits is None else True
+        self.analysisNum = 1 if args.analysis_mode is None else int(args.analysis_mode)
+        self.fileNameInfo = FileNamingInfo(
+            args.path,
+            self.__class__.__name__,
+            args.run,
+            0,
+            args.label,
+        )
         print("Output dir: " + self.fileNameInfo.outputDir)
         logging.info("Output dir: " + self.fileNameInfo.outputDir)
 
@@ -203,24 +210,36 @@ class AnalyzeH5(object):
         plt.savefig(fileName)
 
     def analyzeSimpleClusters(self, clusters):
-        energy = clusters[:, :, 0] #.flatten()
+        energy = clusters[:, :, 0]  # .flatten()
         if self.shiftEnergy:
             energy *= 2  # temporary, due to bit shift
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 4)) # mean, std, mu, sigma
+        fitInfo = np.zeros((rows, cols, 4))  # mean, std, mu, sigma
         fitIndex = 0
 
         self.plot_overall_energy_distribution(energy, self.fileNameInfo)
-        
+
         print("Analysis Mode: " + str(self.analysisNum))
         logging.info("Analysis Mode: " + str(self.analysisNum))
         if self.analysisNum == 1:
             fitIndex = 2
-            fitInfo = pixelAnalysis.analysis_one(clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+            fitInfo = pixelAnalysis.analysis_one(
+                clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo
+            )
         else:
             fitIndex = 3
-            fitInfo = pixelAnalysis.analysis_two(clusters, self.nBins, self.sliceCoordinates, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+            fitInfo = pixelAnalysis.analysis_two(
+                clusters,
+                self.nBins,
+                self.sliceCoordinates,
+                rows,
+                cols,
+                fitInfo,
+                self.lowEnergyCut,
+                self.highEnergyCut,
+                self.fileNameInfo,
+            )
 
         self.save_fit_information(fitInfo, rows, cols, self.fileNameInfo)
         self.plot_gain_distribution(fitInfo, self.fileNameInfo, fitIndex)
