@@ -1,19 +1,9 @@
 import h5py
 import numpy as np
-import fitFunctions
+import pixelAnalysis
 import matplotlib.pyplot as plt
 import argparse
 import logging
-from scipy.optimize import curve_fit
-
-# Setup logging.
-# Log file gets appended to each new run, can manually delete for fresh log.
-# Could change so makes new unique log each run or overwrites existing log.
-logging.basicConfig(
-    filename='analyze_h5.log',
-    level=logging.ERROR, # For full logging set to INFO which includes ERROR logging too
-    format='%(asctime)s - %(levelname)s - %(message)s' # levelname is log severity (ERROR, INFO, etc)
-)
 
 
 class FileNamingInfo:
@@ -23,6 +13,15 @@ class FileNamingInfo:
         self.run = run
         self.camera = camera
         self.label = label
+
+# Setup logging.
+# Log file gets appended to each new run, can manually delete for fresh log.
+# Could change so makes new unique log each run or overwrites existing log.
+logging.basicConfig(
+    filename='analyze_h5.log',
+    level=logging.INFO, # For full logging set to INFO which includes ERROR logging too
+    format='%(asctime)s - %(levelname)s - %(message)s' # levelname is log severity (ERROR, INFO, etc)
+)
 
 
 # Analysis of Hierarchical Data Format files (.h5 files)
@@ -45,6 +44,8 @@ class AnalyzeH5(object):
         )
         parser.add_argument("-s", "--slice_edges", type=str, help="two ints for row and col, separated by ','")
         parser.add_argument("-L", "--label", type=str, default="testLabel", help="analysis label")
+        parser.add_argument("-sb", "--shift_energy_bits", action="store_true", help="use if want energy-values << 1")
+        parser.add_argument("-a", "--analysis_mode", type=int, help="choose analysis mode 1 or 2")
         args = parser.parse_args()
 
         if args.files == None:
@@ -59,6 +60,9 @@ class AnalyzeH5(object):
         if args.slice_edges is not None:
             self.sliceEdges = args.slice_edges.split(',')
             self.sliceEdges = [int(curr) for curr in self.sliceEdges]
+        self.nBins = 100
+        self.shiftEnergy = False if args.shift_energy_bits == None else True
+        self.analysisNum = 1 if args.analysis_mode == None else int(args.analysis_mode)
         self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
         print("Output dir: " + self.fileNameInfo.outputDir)
         logging.info("Output dir: " + self.fileNameInfo.outputDir)
@@ -77,13 +81,14 @@ class AnalyzeH5(object):
         if "analysisType" in self.h5Files[0]:
             self.analysisType = self.h5Files[0]["analysisType"]
             # '[()]' gets us the data and not a reference
-            self.sliceEdges = self.h5Files[0]["analysisType"][()]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
         else:
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
             if self.sliceEdges == None: # set if not already by cmdline args
                 self.sliceEdges = [288 - 270, 107 - 59]
+            self.sliceCoordinates = [[270, 288], [59, 107]]
 
     def analyze(self):
         if self.analysisType == "cluster":
@@ -149,69 +154,13 @@ class AnalyzeH5(object):
         plt.savefig(fileName)
         plt.close()
 
-    def analyze_pixel_clusters(self, clusters, energy, rows, cols, fitInfo, lowEnergyCut, highEnergyCut, fileInfo):
-        for i in range(rows):
-            for j in range(cols):
-                # Create bool array satisfying the conds
-                pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
-                small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
-                smallPixel = np.bitwise_and(small, pixel)
-
-                # Adjusted due to gains not making sense
-                # Would be good to get rid of these entirely when things make sense
-                pixelEcut0 = np.bitwise_and(
-                    smallPixel, energy > lowEnergyCut
-                )
-                pixelEcut = np.bitwise_and(
-                    pixelEcut0, energy < highEnergyCut
-                )
-                nPixelClusters = (pixelEcut > 0).sum()
-
-                mean = std = mu = sigma = 0
-
-                # Select energy vals that passed cut conditions
-                # (selects elements from energy where corresponding element in pixelEcut is True)
-                pixelE = energy[pixelEcut > 0]
-
-                if nPixelClusters > 5: # only do analysis if enough pixels
-                    print("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
-                    logging.info("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
-                    ax = plt.subplot()
-                    y, bin_edges, _ = ax.hist(pixelE, 100)
-                    bins = (bin_edges[:-1] + bin_edges[1:]) / 2
-                    # print(y, bins)
-                    mean, std = fitFunctions.estimateGaussianParameters(pixelE)
-                    try:
-                        # Set maxfev arg > 800?? (fails to find optimal params for some clusters)
-                        popt, pcov = curve_fit(fitFunctions.gaussian, bins, y, [3, mean, std])
-
-                        mu = popt[1]
-                        sigma = popt[2]
-                        fitInfo[i, j] = (mean, std, popt[1], popt[2])
-                        fittedFunc = fitFunctions.gaussian(bins, *popt)
-                        #ax.plot(bins, fittedFunc, color="b")
-                    except Exception as e:
-                        print(f"An exception occurred: {e}")
-                        logging.error(f"An exception occurred: {e}")
-                        pass
-
-                    ax.set_xlabel("energy (keV)")
-                    ax.set_title("pixel %d,%d in slice, small cluster cuts" % (i, j))
-                    plt.figtext(0.7, 0.8, "%d entries" % (nPixelClusters))
-                    plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
-                    plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
-                    fileName = "%s/%s_r%d_c%d_r%d_c%d_%s_E.png" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, i, j, fileInfo.label)
-                    logging.info("Writing plot: " + fileName)
-                    plt.savefig(fileName)
-                    plt.close()
-
     def save_fit_information(self, fitInfo, rows, cols, fileInfo):
         fileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, rows-1, cols-1, fileInfo.label)
         logging.info("Writing npy: " + fileName)
         np.save(fileName, fitInfo)
 
-    def plot_gain_distribution(self, fitInfo, fileInfo):
-        gains = fitInfo[:, :, 2]
+    def plot_gain_distribution(self, fitInfo, fileInfo, fitIndex):
+        gains = fitInfo[:, :, fitIndex]
         goodGains = gains[np.bitwise_and(gains > 0, gains < 30)]
 
         ax = plt.subplot()
@@ -224,15 +173,26 @@ class AnalyzeH5(object):
 
     def analyzeSimpleClusters(self, clusters):
         energy = clusters[:, :, 0] #.flatten()
-        energy *= 2  # temporary, due to bit shift
+        if self.shiftEnergy:
+            energy *= 2  # temporary, due to bit shift
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
         fitInfo = np.zeros((rows, cols, 4)) # mean, std, mu, sigma
+        fitIndex = 0
 
         self.plot_overall_energy_distribution(energy, self.fileNameInfo)
-        self.analyze_pixel_clusters(clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+        
+        print("Analysis Mode: " + str(self.analysisNum))
+        logging.info("Analysis Mode: " + str(self.analysisNum))
+        if self.analysisNum == 1:
+            fitIndex = 2
+            fitInfo = pixelAnalysis.analysis_one(clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+        else:
+            fitIndex = 3
+            fitInfo = pixelAnalysis.analysis_two(clusters, self.nBins, self.sliceCoordinates, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+
         self.save_fit_information(fitInfo, rows, cols, self.fileNameInfo)
-        self.plot_gain_distribution(fitInfo,self.fileNameInfo)
+        self.plot_gain_distribution(fitInfo, self.fileNameInfo, fitIndex)
 
 
 if __name__ == "__main__":
