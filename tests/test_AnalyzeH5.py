@@ -9,7 +9,7 @@ def test_run_analyzeh5_and_compare():
         shutil.rmtree("test")
     os.makedirs("test")
 
-    subprocess.run(
+    result = subprocess.run(
         [
             "python",
             "../scripts/AnalyzeH5.py",
@@ -24,11 +24,14 @@ def test_run_analyzeh5_and_compare():
             "-sb",
             "-a",
             "1",
-        ]
+        ],
+        capture_output=True,  # Capture stdout and stderr
+        text=True,            # Decode output to text
+        check=True  
     )
 
-    # print(result.stdout)
-    # print(result.stderr)
+    print("STDOUT:", result.stdout)
+    print("STDERR:", result.stderr)
 
     # List of file pairs
     file_pairs = [
@@ -50,6 +53,9 @@ def test_run_analyzeh5_and_compare():
         ),
     ]
 
+    subprocess.run(["ls"])
     for file1, file2 in file_pairs:
-        diff_result = subprocess.run(["diff", file1, file2])
+        diff_result = subprocess.run(["cmp", file1, file2])
+        subprocess.run(["ls", "-lth", file1])
+        subprocess.run(["ls", "-lth", file2])
         assert diff_result.returncode == 0
