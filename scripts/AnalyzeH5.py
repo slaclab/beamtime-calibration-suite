@@ -48,7 +48,7 @@ class AnalyzeH5(object):
         parser.add_argument("-a", "--analysis_mode", type=int, help="choose analysis mode 1 or 2")
         args = parser.parse_args()
 
-        if args.files == None:
+        if args.files is None:
             print("No input files specified, quitting...")
             logging.info("No input files specified, quitting...")
             exit(1)
@@ -86,7 +86,7 @@ class AnalyzeH5(object):
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
-            if self.sliceEdges == None:  # set if not already by cmdline args
+            if self.sliceEdges is None:  # set if not already by cmdline args
                 self.sliceEdges = [288 - 270, 107 - 59]
             self.sliceCoordinates = [[270, 288], [59, 107]]
 
@@ -105,7 +105,7 @@ class AnalyzeH5(object):
         # concat never works here since h5 undefined
         try:
             # meant to do similar thing as clusters above?
-            energyHist = None  # np.concatenate(energyHist, h5["energyHistogram"][()])
+            pass  # np.concatenate(energyHist, h5["energyHistogram"][()])
             # self.plotEnergyHist(energyHist, self.fileNameInfo)
         except Exception as e:
             print(f"An exception occurred: {e}")
