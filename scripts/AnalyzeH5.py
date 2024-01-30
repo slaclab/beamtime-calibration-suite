@@ -9,18 +9,19 @@ import logging
 class FileNamingInfo:
     def __init__(self, outputDir, className, run, camera, label):
         self.outputDir = outputDir
-        self.className = className 
+        self.className = className
         self.run = run
         self.camera = camera
         self.label = label
+
 
 # Setup logging.
 # Log file gets appended to each new run, can manually delete for fresh log.
 # Could change so makes new unique log each run or overwrites existing log.
 logging.basicConfig(
-    filename='analyze_h5.log',
-    level=logging.INFO, # For full logging set to INFO which includes ERROR logging too
-    format='%(asctime)s - %(levelname)s - %(message)s' # levelname is log severity (ERROR, INFO, etc)
+    filename="analyze_h5.log",
+    level=logging.INFO,  # For full logging set to INFO which includes ERROR logging too
+    format="%(asctime)s - %(levelname)s - %(message)s",  # levelname is log severity (ERROR, INFO, etc)
 )
 
 
@@ -48,7 +49,7 @@ class AnalyzeH5(object):
         parser.add_argument("-a", "--analysis_mode", type=int, help="choose analysis mode 1 or 2")
         args = parser.parse_args()
 
-        if args.files == None:
+        if args.files is None:
             print("No input files specified, quitting...")
             logging.info("No input files specified, quitting...")
             exit(1)
@@ -58,12 +59,18 @@ class AnalyzeH5(object):
         self.highEnergyCut = 30  # fix - should be 1.5 photons or something
         self.sliceEdges = None
         if args.slice_edges is not None:
-            self.sliceEdges = args.slice_edges.split(',')
+            self.sliceEdges = args.slice_edges.split(",")
             self.sliceEdges = [int(curr) for curr in self.sliceEdges]
         self.nBins = 100
-        self.shiftEnergy = False if args.shift_energy_bits == None else True
-        self.analysisNum = 1 if args.analysis_mode == None else int(args.analysis_mode)
-        self.fileNameInfo = FileNamingInfo(args.path, self.__class__.__name__, args.run, 0, args.label,)
+        self.shiftEnergy = False if args.shift_energy_bits is None else True
+        self.analysisNum = 1 if args.analysis_mode is None else int(args.analysis_mode)
+        self.fileNameInfo = FileNamingInfo(
+            args.path,
+            self.__class__.__name__,
+            args.run,
+            0,
+            args.label,
+        )
         print("Output dir: " + self.fileNameInfo.outputDir)
         logging.info("Output dir: " + self.fileNameInfo.outputDir)
 
@@ -86,7 +93,7 @@ class AnalyzeH5(object):
             # do something useful here, maybe
             # but for now
             self.analysisType = "cluster"
-            if self.sliceEdges == None: # set if not already by cmdline args
+            if self.sliceEdges is None:  # set if not already by cmdline args
                 self.sliceEdges = [288 - 270, 107 - 59]
             self.sliceCoordinates = [[270, 288], [59, 107]]
 
@@ -99,15 +106,14 @@ class AnalyzeH5(object):
             logging.error(errorString)
 
     def clusterAnalysis(self):
-
-        #energyHist = None
+        # energyHist = None
         clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
 
         # concat never works here since h5 undefined
         try:
             # meant to do similar thing as clusters above?
-            energyHist = None #np.concatenate(energyHist, h5["energyHistogram"][()])
-            #self.plotEnergyHist(energyHist, self.fileNameInfo)
+            pass  # np.concatenate(energyHist, h5["energyHistogram"][()])
+            # self.plotEnergyHist(energyHist, self.fileNameInfo)
         except Exception as e:
             print(f"An exception occurred: {e}")
             logging.error(f"An exception occurred: {e}")
@@ -122,18 +128,30 @@ class AnalyzeH5(object):
     def plotEnergyHist(self, energyHist, fileInfo):
         _, bins = np.histogram(energyHist, 250, [-5, 45])
 
-        plt.hist(bins[:-1], bins, weights=energyHist) #, log=True)
+        plt.hist(bins[:-1], bins, weights=energyHist)  # , log=True)
         plt.grid(which="major", linewidth=0.5)
         plt.title = "All pixel energies in run after common mode correction"
         plt.xlabel = "energy (keV)"
         print("I hate matplotlib so much")
         logging.info("I hate matplotlib so much")
 
-        fileNamePlot = "%s/%s_r%d_c%d_%s_energyHistogram.png" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
+        fileNamePlot = "%s/%s_r%d_c%d_%s_energyHistogram.png" % (
+            fileInfo.outputDir,
+            fileInfo.className,
+            fileInfo.run,
+            fileInfo.camera,
+            fileInfo.label,
+        )
         logging.info("Writing plot: " + fileNamePlot)
         plt.savefig(fileNamePlot)
 
-        fileNameNpy = "%s/%s_r%d_c%d_%s_energyHistogram.npy" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
+        fileNameNpy = "%s/%s_r%d_c%d_%s_energyHistogram.npy" % (
+            fileInfo.outputDir,
+            fileInfo.className,
+            fileInfo.run,
+            fileInfo.camera,
+            fileInfo.label,
+        )
         logging.info("Writing npy: " + fileNameNpy)
         np.save(fileNameNpy, energyHist)
         plt.close()
@@ -145,17 +163,31 @@ class AnalyzeH5(object):
         print("mean energy above 0:", energy[energy > 0].mean())
         logging.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
-        ax.hist(energy[energy > 0], 100) # 100 bins
+        ax.hist(energy[energy > 0], 100)  # 100 bins
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
 
-        fileName = "%s/%s_r%d_c%d_%s_E.png" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
+        fileName = "%s/%s_r%d_c%d_%s_E.png" % (
+            fileInfo.outputDir,
+            fileInfo.className,
+            fileInfo.run,
+            fileInfo.camera,
+            fileInfo.label,
+        )
         logging.info("Writing plot: " + fileName)
         plt.savefig(fileName)
         plt.close()
 
     def save_fit_information(self, fitInfo, rows, cols, fileInfo):
-        fileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, rows-1, cols-1, fileInfo.label)
+        fileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" % (
+            fileInfo.outputDir,
+            fileInfo.className,
+            fileInfo.run,
+            fileInfo.camera,
+            rows - 1,
+            cols - 1,
+            fileInfo.label,
+        )
         logging.info("Writing npy: " + fileName)
         np.save(fileName, fitInfo)
 
@@ -167,36 +199,54 @@ class AnalyzeH5(object):
         ax.hist(goodGains, 100)
         ax.set_xlabel("energy (keV)")
         ax.set_title("pixel single photon fitted energy")
-        fileName = "%s/%s_r%d_c%d_%s_gainDistribution.png" % (fileInfo.outputDir, fileInfo.className, fileInfo.run, fileInfo.camera, fileInfo.label)
+        fileName = "%s/%s_r%d_c%d_%s_gainDistribution.png" % (
+            fileInfo.outputDir,
+            fileInfo.className,
+            fileInfo.run,
+            fileInfo.camera,
+            fileInfo.label,
+        )
         logging.info("Writing plot: " + fileName)
         plt.savefig(fileName)
 
     def analyzeSimpleClusters(self, clusters):
-        energy = clusters[:, :, 0] #.flatten()
+        energy = clusters[:, :, 0]  # .flatten()
         if self.shiftEnergy:
             energy *= 2  # temporary, due to bit shift
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 4)) # mean, std, mu, sigma
+        fitInfo = np.zeros((rows, cols, 4))  # mean, std, mu, sigma
         fitIndex = 0
 
         self.plot_overall_energy_distribution(energy, self.fileNameInfo)
-        
+
         print("Analysis Mode: " + str(self.analysisNum))
         logging.info("Analysis Mode: " + str(self.analysisNum))
         if self.analysisNum == 1:
             fitIndex = 2
-            fitInfo = pixelAnalysis.analysis_one(clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+            fitInfo = pixelAnalysis.analysis_one(
+                clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo
+            )
         else:
             fitIndex = 3
-            fitInfo = pixelAnalysis.analysis_two(clusters, self.nBins, self.sliceCoordinates, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo)
+            fitInfo = pixelAnalysis.analysis_two(
+                clusters,
+                self.nBins,
+                self.sliceCoordinates,
+                rows,
+                cols,
+                fitInfo,
+                self.lowEnergyCut,
+                self.highEnergyCut,
+                self.fileNameInfo,
+            )
 
         self.save_fit_information(fitInfo, rows, cols, self.fileNameInfo)
         self.plot_gain_distribution(fitInfo, self.fileNameInfo, fitIndex)
 
 
 if __name__ == "__main__":
-    print ("Starting new run!")
+    print("Starting new run!")
     logging.info("Starting new run!")
     ah5 = AnalyzeH5()
     ah5.getFiles()

@@ -1,7 +1,19 @@
 import numpy as np
 import pytest
-from scripts.fitFunctions import linear, saturatedLinear, saturatedLinearB, gaussian, gaussianArea, \
-    estimateGaussianParametersFromUnbinnedArray, estimateGaussianParametersFromXY, estimateGaussianParameters, getHistogramMeanStd, getBinCentersFromNumpyHistogram, getRestrictedHistogram
+from scripts.fitFunctions import (
+    linear,
+    saturatedLinear,
+    saturatedLinearB,
+    gaussian,
+    gaussianArea,
+    estimateGaussianParametersFromUnbinnedArray,
+    estimateGaussianParametersFromXY,
+    estimateGaussianParameters,
+    getHistogramMeanStd,
+    getBinCentersFromNumpyHistogram,
+    getRestrictedHistogram,
+)
+
 
 @pytest.mark.parametrize("a, b, expected", [(2, 3, np.array([5, 7, 9, 11, 13]))])
 def test_linear(a, b, expected):
@@ -9,11 +21,13 @@ def test_linear(a, b, expected):
     result = linear(x, a, b)
     np.testing.assert_array_equal(result, expected)
 
+
 @pytest.mark.parametrize("a, b, c, d, expected", [(2, 3, 4, 10, np.array([5, 7, 9, 10, 10]))])
 def test_saturatedLinear(a, b, c, d, expected):
     x = np.array([1, 2, 3, 4, 5])
     result = saturatedLinear(x, a, b, c, d)
     np.testing.assert_array_equal(result, expected)
+
 
 @pytest.mark.parametrize("a, b, d, expected", [(2, 3, 10, np.array([5, 7, 9, 10, 10]))])
 def test_saturatedLinearB(a, b, d, expected):
@@ -21,17 +35,30 @@ def test_saturatedLinearB(a, b, d, expected):
     result = saturatedLinearB(x, a, b, d)
     np.testing.assert_array_equal(result, expected)
 
-@pytest.mark.parametrize("a, mu, sigma, expected", [(1, 3, 0.5, np.array([0.0003354626279025118, 0.13533528323661267, 1.0, 0.13533528323661267, 0.0003354626279025118]))])
+
+@pytest.mark.parametrize(
+    "a, mu, sigma, expected",
+    [
+        (
+            1,
+            3,
+            0.5,
+            np.array([0.0003354626279025118, 0.13533528323661267, 1.0, 0.13533528323661267, 0.0003354626279025118]),
+        )
+    ],
+)
 def test_gaussian(a, mu, sigma, expected):
     x = np.array([1, 2, 3, 4, 5])
     result = gaussian(x, a, mu, sigma)
     np.testing.assert_allclose(result, expected)
 
+
 @pytest.mark.parametrize("a, sigma, expected", [(10, 0.5, 31.4)])
 def test_gaussianArea(a, sigma, expected):
     result = gaussianArea(a, sigma)
-    print (result)
+    print(result)
     assert np.isclose(result, expected)
+
 
 def test_estimateGaussianParameters():
     flatData = np.array([1, 2, 3, 4, 5])
@@ -39,6 +66,7 @@ def test_estimateGaussianParameters():
     expected_mean, expected_std = 3.0, 1.4142135623730951
     assert result_mean == expected_mean
     assert np.isclose(result_std, expected_std)
+
 
 def test_estimateGaussianParametersFromUnbinnedArray():
     flatData = np.array([1, 2, 3, 4, 5])
@@ -48,13 +76,16 @@ def test_estimateGaussianParametersFromUnbinnedArray():
     assert result_mean == expected_mean
     assert np.isclose(result_sigma, expected_sigma)
 
+
 def test_estimateGaussianParametersFromXY():
     x = np.array([1, 2, 3, 4, 5])
     y = np.array([2, 4, 6, 4, 2])
     result_amp, result_mean, result_sigma = estimateGaussianParametersFromXY(x, y)
     expected_amp, expected_mean, expected_sigma = 2.482238418490429, 3.0, 1.1547005383792515
-    print (result_amp, result_mean, result_sigma)
+    assert np.isclose(result_amp, expected_amp)
+    assert result_mean == expected_mean
     assert np.isclose(result_sigma, expected_sigma)
+
 
 def test_getHistogramMeanStd():
     binCenters = np.array([1, 2, 3, 4, 5])
@@ -64,12 +95,14 @@ def test_getHistogramMeanStd():
     assert result_mean == expected_mean
     assert np.isclose(result_std, expected_std)
 
+
 def test_getBinCentersFromNumpyHistogram():
     bins = np.array([1, 2, 3, 4, 5])
     result = getBinCentersFromNumpyHistogram(bins)
     expected = np.array([1.5, 2.5, 3.5, 4.5])
     np.testing.assert_array_equal(result, expected)
-    
+
+
 def test_getRestrictedHistogram():
     bins = np.array([1, 2, 3, 4, 5])
     counts = np.array([2, 4, 6, 4, 2])
