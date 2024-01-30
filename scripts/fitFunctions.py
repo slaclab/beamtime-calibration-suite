@@ -18,6 +18,14 @@ def saturatedLinearB(x, a, b, d):
 def gaussian(x, a, mu, sigma):
     return a * np.exp(-((x - mu) ** 2) / (2 * sigma**2))
 
+def gaussianArea(a, sigma):
+    return a * sigma * 6.28
+
+def estimateGaussianParametersFromUnbinnedArray(flatData):
+    sigma = flatData.std()
+    entries = len(flatData)
+    ## will crash if sigma is 0
+    return entries/(sigma*6.28), flatData.mean(), sigma
 
 def estimateGaussianParameters(flatData):
     return flatData.mean(), flatData.std()
