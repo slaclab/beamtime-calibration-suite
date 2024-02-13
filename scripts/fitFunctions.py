@@ -70,6 +70,7 @@ def getRestrictedHistogram(bins, counts, x0, x1):
     return x, y
 
 
+# Unused atm, estimateGaussianParameters not called correctly??
 def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     ## binned 1d data, optional fit restriction to [x0, x1]
     x = binCenters
@@ -87,7 +88,6 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     ## should perhaps return an object with attributes for future flexibility
     return popt, fittedFunc
     
-
 
 def fitNorm(data):
     mean, std = norm.fit(data)
