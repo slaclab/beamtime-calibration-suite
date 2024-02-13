@@ -191,6 +191,64 @@ class BasicSuiteScript(PsanaBase):
                 np.save(roiFile, roi)
         self.ROI = roi
 
+    def noCommonModeCorrection(self, frame):
+        return frame
+    
+    def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
+        ## this takes a 2d frame
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        regionCM = np.median(frame[region][frame[region]<arbitraryCut])
+        return frame - regionCM
+    
+    def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
+        ## this takes a 2d frame
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        ##rand = np.random.random()
+        for r in range(self.detRows):
+            colOffset = 0
+            ##for b in range(0, self.detNbanks):
+            for b in range(0, 2):
+                try:
+                    rowCM = np.median(frame[r, colOffset:colOffset + self.detColsPerBank][frame[r, colOffset:colOffset + self.detColsPerBank]<arbitraryCut])
+                    ##if r == 280 and rand > 0.999:
+                        ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
+                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
+                    frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM
+                    ##if r == 280 and rand > 0.999:
+                        ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
+                except:
+                    rowCM = -666
+                    print("rowCM problem")
+                    print(frame[r, colOffset:colOffset + self.detColsPerBank])
+                colOffset += self.detColsPerBank
+        return frame
+    
+    def colCommonModeCorrection(self, frame, arbitraryCut=1000):
+        ## this takes a 2d frame
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        ##rand = np.random.random()
+        for c in range(self.detCols):
+            rowOffset = 0
+            for b in range(0, self.detNbanksCol):
+            ##for b in range(0, 2):
+                try:
+                    colCM = np.median(frame[rowOffset:rowOffset + self.detRowsPerBank, c][frame[rowOffset:rowOffset + self.detRowsPerBank, c]<arbitraryCut])
+                    ##if r == 280 and rand > 0.999:
+                        ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
+                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
+                    frame[rowOffset:rowOffset + self.detRowsPerBank, c] -= colCM
+                    ##if r == 280 and rand > 0.999:
+                        ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
+                except:
+                    colCM = -666
+                    print("colCM problem")
+                    print(frame[rowOffset:rowOffset + self.detRowsPerBank], c)
+                rowOffset += self.detRowsPerBank
+        return frame
+
     def commonModeCorrection(self, frame, arbitraryCut=1000):
         ## this takes a 2d frame
         ## cut keeps photons in common mode - e.g. set to <<1 photon

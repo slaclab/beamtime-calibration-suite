@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import norm
+from scipy.optimize import curve_fit
 from statsmodels.nonparametric.bandwidths import bw_silverman
 
 
@@ -46,6 +47,18 @@ def getHistogramMeanStd(binCenters, counts):
     return mean, np.sqrt(var)
 
 
+def calculateFitR2(y, fit):
+    ss_res = np.sum((y - fit) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    
+    try:
+        r2 = 1 - (ss_res / ss_tot)
+    except:
+        r2 = 1 ## I guess
+
+    return r2
+
+
 def getBinCentersFromNumpyHistogram(bins):
     return (bins[1:] + bins[:-1]) / 2.0
 
@@ -57,26 +70,24 @@ def getRestrictedHistogram(bins, counts, x0, x1):
     return x, y
 
 
-# unused? and won't work in current state i think...
-"""
+# Unused atm, estimateGaussianParameters not called correctly??
 def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     ## binned 1d data, optional fit restriction to [x0, x1]
     x = binCenters
     y = counts
     if x0 is not None:
         x, y = getRestrictedHistogram(x, y, x0, x1)
-
-    mean, std = getHistogramMeanStd(x, y)
+        
+    a, mean, std = estimateGaussianParameters(zip(x,y))
     popt, pcov = curve_fit(fitFunctions.gaussian, x, y, [3, mean, std])
-    mu = popt[1]
-    sigma = popt[2]
-    fitInfo[i, j] = (mean, std, popt[1], popt[2])
+    ##a = popt[0]
+    ##mu = popt[1]
+    ##sigma = popt[2]
     fittedFunc = fitFunctions.gaussian(x, *popt)
 
     ## should perhaps return an object with attributes for future flexibility
-    return mu, sigma, fittedFunc
-"""
-
+    return popt, fittedFunc
+    
 
 def fitNorm(data):
     mean, std = norm.fit(data)

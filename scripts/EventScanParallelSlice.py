@@ -160,8 +160,10 @@ if __name__ == "__main__":
             continue
         if esp.fakePedestal is not None:
             frames = frames.astype("float") - esp.fakePedestalFrame
-            if esp.special is not None and "commonMode" in esp.special:
-                frames = np.array([esp.commonModeCorrection(frames[0])])
+            if esp.special is not None and "rowCommonMode" in esp.special:
+                frames = np.array([esp.rowCommonModeCorrection(frames[0])])
+            if esp.special is not None and "colCommonMode" in esp.special:
+                frames = np.array([esp.colCommonModeCorrection(frames[0])])
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):

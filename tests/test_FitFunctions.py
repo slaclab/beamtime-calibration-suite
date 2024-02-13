@@ -10,8 +10,10 @@ from scripts.fitFunctions import (
     estimateGaussianParametersFromXY,
     estimateGaussianParameters,
     getHistogramMeanStd,
+    calculateFitR2,
     getBinCentersFromNumpyHistogram,
     getRestrictedHistogram,
+    fitNorm
 )
 
 
@@ -56,7 +58,6 @@ def test_gaussian(a, mu, sigma, expected):
 @pytest.mark.parametrize("a, sigma, expected", [(10, 0.5, 31.4)])
 def test_gaussianArea(a, sigma, expected):
     result = gaussianArea(a, sigma)
-    print(result)
     assert np.isclose(result, expected)
 
 
@@ -96,6 +97,15 @@ def test_getHistogramMeanStd():
     assert np.isclose(result_std, expected_std)
 
 
+@pytest.mark.parametrize("y, fit, expected_r2", [
+    (np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4, 6]), 0.9)
+])
+def test_calculateFitR2(y, fit, expected_r2):
+    result_r2 = calculateFitR2(y, fit)
+    print (result_r2)
+    assert np.isclose(result_r2, expected_r2)
+
+
 def test_getBinCentersFromNumpyHistogram():
     bins = np.array([1, 2, 3, 4, 5])
     result = getBinCentersFromNumpyHistogram(bins)
@@ -112,3 +122,12 @@ def test_getRestrictedHistogram():
     expected_y = np.array([4, 6, 4])
     np.testing.assert_array_equal(result_x, expected_x)
     np.testing.assert_array_equal(result_y, expected_y)
+
+
+@pytest.mark.parametrize("data, expected_mean, expected_std", [
+    (np.array([1, 2, 3, 4, 5]), 3.0, 1.4142135623730951)
+])
+def test_fitNorm(data, expected_mean, expected_std):
+    result_mean, result_std = fitNorm(data)
+    assert np.isclose(result_mean, expected_mean)
+    assert np.isclose(result_std, expected_std)
