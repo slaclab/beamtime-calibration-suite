@@ -8,25 +8,16 @@ from basicSuiteScript import *
 class LinearityPlotsParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("scan")##self)
-        self.saturated = [True, False][0]
-        print("using saturation fit =", self.saturated)
-        self.residuals = [True, False][0]
-        self.profiles = [True, False][1]
-        self.seabornProfiles = [True, False][1]
-        try:
-            print('positive events:', 'positive' in self.special)
-        except:
-            pass
-        
+
     def plotAutorangingData(self, g0s, g1s, g0Fluxes, g1Fluxes, label):
         ## this is just be for single pixels
         ## index in case that's ever supported
         ## only really makes sense as calib
         for i, p in enumerate(self.singlePixels):
             if len(g0s[i])>0:
-                plt.scatter(g0Fluxes[i], g0s[i], c='r', marker='.', s=1)
+                plt.scatter(g0Fluxes[i], g0s[i], c='r', marker='.')
             if len(g1s[i])>0:
-                plt.scatter(g1Fluxes[i], g1s[i], c='b', marker='.', s=1)
+                plt.scatter(g1Fluxes[i], g1s[i], c='b', marker='.')
             plt.xlabel('wave8 flux (ADU)')
             if 'raw' in label:
                 plt.ylabel('Red medium, blue low (ADU)')
@@ -38,7 +29,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 if len(g1Fluxes[i])>0:
                     plt.xlim(g1Fluxes[i].min()*0.95, max(g1Fluxes[i].max(), g1Fluxes[i].max())*1.05)
                 else:
-                    plt.close()
+                    plt.clf()
                     return
                 ##lot of hackiness here
                 
@@ -46,21 +37,21 @@ class LinearityPlotsParallel(BasicSuiteScript):
             plt.savefig("%s/%s_p%d_r%d_c%d_%s.png" %(self.outputDir, self.className, i, self.run, self.camera, label))
             plt.close()
 
-    def plotAutorangingData_profile(self, g0s, g1s, g0Fluxes, g1Fluxes, label, partialMode=None, order=1):
+    def plotAutorangingData_profile(self, g0s, g1s, g0Fluxes, g1Fluxes, label, partialMode=None):
         ## this is just for single pixels
         ## index in case that's ever supported
-
+        ## only really makes sense as catlib
         import seaborn as sns
         for i, p in enumerate(self.singlePixels):
             fig, ax = plt.subplots()
             if partialMode != 1 and len(g0s[i])>0:
                 x = g0Fluxes[i]
                 y = g0s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker='.', ax=ax, order=order)##add fit_reg=None for no plot
+                sns.regplot(x=x, y=y, x_bins=40, marker='.', ax=ax)##add fit_reg=None for no plot
             if partialMode != 0 and len(g1s[i])>0:
                 x = g1Fluxes[i]
                 y = g1s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker='.', ax=ax, order=order)##add fit_reg=None for no plot
+                sns.regplot(x=x, y=y, x_bins=40, marker='.', ax=ax)##add fit_reg=None for no plot
             plt.xlabel('wave8 flux (ADU)')
             if 'raw' in label:
                 plt.ylabel('Red medium, blue low (ADU)')
@@ -72,7 +63,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 if len(g1Fluxes[i])>0:
                     plt.xlim(g1Fluxes[i].min()*0.95, max(g1Fluxes[i].max(), g1Fluxes[i].max())*1.05)
                 else:
-                    plt.close()
+                    plt.clf()
                     return
                 ##lot of hackiness here
                 
@@ -88,31 +79,12 @@ class LinearityPlotsParallel(BasicSuiteScript):
         else:
             ylabel = 'keV'
         for i, roi in enumerate(self.ROIs):
-            plt.scatter(flux, means[i], marker='.')
+            plt.scatter(flux, means[i])
             plt.xlabel('wave8 flux (ADU)')
             plt.ylabel('detector ROI mean (%s)' %(ylabel))
             plt.savefig("%s/%s_roi%d_r%d_c%d_%s.png" %(self.outputDir, self.className, i, self.run, self.camera, label))
-            plt.close()
+            plt.clf()
 
-    def fitData(self, x, y, saturated=False):##, gainMode, label):
-        if saturated:
-            ##f = fitFunctions.saturatedLinear
-            ##p0 = [1, 0, x.mean(), y.max()]
-            f = fitFunctions.linear
-            p0 = [0, y.mean()]
-            popt, pcov = curve_fit(f, x, y, p0=p0)
-            f = fitFunctions.saturatedLinearB
-            p0 = [popt[0], popt[1], y.max()]
-        else:
-            f = fitFunctions.linear
-            p0 = [0, y.mean()]
-        popt, pcov = curve_fit(f, x, y, p0=p0)
-        y_fit = f(x, *popt)
-        r2 = fitFunctions.calculateFitR2(y, y_fit)
-        
-        ##condition = np.linalg.cond(pcov)
-        return popt, pcov, y_fit, r2
-        
     def analyze_h5(self, dataFile, label):
         import h5py
         data = h5py.File(dataFile)
@@ -130,101 +102,18 @@ class LinearityPlotsParallel(BasicSuiteScript):
             g1s.append(pixels[:,s,1][pixels[:,s,0]==1])
             g1Fluxes.append(fluxes[pixels[:,s,0]==1])
 
-        if self.seabornProfiles:
-            lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label)
-            for order in [1,2]:
-                ##for order in [1]:
-                lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label+'highOrMed_poly%d' %(order), partialMode=0, order=order)
-                lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label+'low_poly%d' %(order), partialMode=1, order=order)
-                lpp.plotAutorangingData(g0s,g1s, g0Fluxes, g1Fluxes, label)
-                ##lpp.plotAutorangingData(g0s,g1s, g0Fluxes, g1Fluxes, label+"_yClip_xClip")
+        lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label)
+        lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label+'highOrMed', partialMode=0)
+        lpp.plotAutorangingData_profile(g0s,g1s, g0Fluxes, g1Fluxes, label+'low', partialMode=1)
+        lpp.plotAutorangingData(g0s,g1s, g0Fluxes, g1Fluxes, label)
+        ##lpp.plotAutorangingData(g0s,g1s, g0Fluxes, g1Fluxes, label+"_yClip_xClip")
         lpp.plotDataROIs(rois.T, fluxes, "ROIs")
 
-    def analyze_h5_slice(self, dataFile, label):
-        data = h5py.File(dataFile)
-        fluxes = data['fluxes'][()]
-        pixels = data['slice'][()]
-        rows = self.sliceEdges[0]
-        cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 8)) ##g0 slope, intercept, r2; g1 x3; max, min
-        for i in range(rows):
-            for j in range(cols):
-                g0 = pixels[:,i,j]<lpp.g0cut
-                g1 = np.logical_not(g0)
-                if len(g0[g0])>2:
-                    y = np.bitwise_and(pixels[:,i,j][g0], lpp.gainBitsMask)
-                    y_g0_max = y.max()
-                    x = fluxes[g0]
-                    if self.profiles:
-                        x, y, err = ancillaryMethods.makeProfile(x, y, 50)
-                        if x is None:##empty plot if single points/bin apparently
-                            print("empty profile for %d, %d" %(i,j))
-                            continue
-                    if x is not None:
-                        fitPar, covar, fitFunc, r2 = self.fitData(x, y, saturated=self.saturated)
-                        print(i,j, fitPar, r2, 0)
-                        ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
-                        ##np.save("temp_r%dc%d_y.py" %(i,j), y)
-                        ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
-                        fitInfo[i,j,0:2] = fitPar[0:2] ## indices for saturated case
-                        fitInfo[i,j, 2] = r2
-                        fitInfo[i,j, 6] = y_g0_max
-                        if i%2==0 and i == j:
-                            plt.figure(1)
-                            plt.scatter(x, y, zorder=1, marker='.', s=1)
-                            if self.saturated:
-                                plt.scatter(x, fitFunc, color='k', zorder=2, s=1)
-                            else:
-                                plt.plot(x, fitFunc, color='k', zorder=2)
-                            if self.profiles:
-                                plt.errorbar(x, y, err)
-                            if self.residuals:
-                                plt.figure(2)
-                                plt.scatter(x, y-fitFunc, color='k', zorder=2, s=1)
-                                plt.figure(1)
-
-                            
-                if len(g1[g1])>2:
-                    y = np.bitwise_and(pixels[:,i,j][g1], lpp.gainBitsMask)
-                    y_g1_min = y.min()
-                    x = fluxes[g1]
-                    if self.profiles:
-                        x, y, err = ancillaryMethods.makeProfile(x, y, 50)
-                        if x is None:##empty plot if single points/bin apparently
-                            print("empty profile for %d, %d" %(i,j))
-                    if x is not None:
-                        fitPar, covar, fitFunc, r2 = self.fitData(x, y)
-                        print(i,j, fitPar, r2, 1)
-                        fitInfo[i,j,3:5] = fitPar
-                        fitInfo[i,j, 5] = r2
-                        fitInfo[i,j, 7] = y_g1_min
-                        if i%2==0 and i == j:
-                            plt.scatter(x, y, zorder=3, marker='.')
-                            plt.plot(x, fitFunc, color='k', zorder=4)
-                            if self.profiles:
-                                plt.errorbar(x, y, err)
-                            if self.residuals:
-                                plt.figure(2)
-                                plt.scatter(x, y-fitFunc, zorder=3, marker='.')
-                                plt.figure(1)
-                                
-                if i%2==0 and i==j:                    
-                    plt.savefig("%s/%s_slice_%d_%d_r%d_c%d_%s.png" %(self.outputDir, self.className, i, j, self.run, self.camera, label))
-                    plt.close()
-                    if self.residuals:
-                        plt.figure(2)
-                        plt.savefig("%s/%s_slice_%d_%d_r%d_c%d_residuals_%s.png" %(self.outputDir, self.className, i, j, self.run, self.camera, label))
-                        plt.close()
-                    
-        np.save("%s/%s_r%d_sliceFits_%s.npy" %(self.outputDir, self.className, self.run, label), fitInfo)
-        
-                    
 if __name__ == "__main__":
     lpp = LinearityPlotsParallel()
     print("have built an LPP")
     if lpp.file is not None:
-        lpp.analyze_h5(lpp.file, lpp.label+'_raw')
-        lpp.analyze_h5_slice(lpp.file, lpp.label+'_raw')
+        lpp.analyze_h5(lpp.file, lpp.label)
         print("done with standalone analysis of %s, exiting" %(lpp.file))
         sys.exit(0)
     
@@ -238,6 +127,27 @@ if __name__ == "__main__":
     smd = lpp.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(lpp.outputDir, lpp.className, lpp.camera, lpp.run, size))
 
 
+    
+    ##    efs.setROI('roiFromSwitched_e398_rmfxx1005021.npy')
+    if lpp.run>= 550 and lpp.run < 590: ## pinhole study range
+        lpp.singlePixels = [[0, 115, 183], [0, 103,172],
+                            [0, 116, 160], [0, 117, 160],
+                            [0, 293, 232], [0, 300, 240]
+        ]
+        if doKazFlux:
+            for i in range(-5, 5):
+                for j in range(-5, 5):
+                    if i==j==0:
+                        continue
+                    lpp.singlePixels.append([0,115+i, 183+j])
+
+    if False and lpp.run>650:
+        if lpp.camera == 1:
+            lpp.singlePixels = [[0, 20, 130], [0, 45,133],
+                                [0, 95, 136], [0, 110, 139],
+                                [0, 125, 140], [0, 144, 145]
+            ]
+            
     nGoodEvents = 0
     fluxes = [] ## common for all ROIs
     roiMeans = [[] for i in lpp.ROIs]
@@ -246,14 +156,22 @@ if __name__ == "__main__":
     g0Fluxes = [[] for i in lpp.singlePixels]
     g1Fluxes = [[] for i in lpp.singlePixels]
     
+##    while True:
+##        if lpp.runRange is None:
+##            evt = lpp.getEvt()
+##        else:
+##            evt = lpp.getEvtFromRuns()
+##            evt = lpp.getEvtFromRuns()
+##        if evt is None:
+##            break
+
+## something weird about break in psana2 parallel
+## worry about multiple runs another day
     evtGen = lpp.myrun.events()
     for nevt, evt in enumerate(evtGen):
-        if evt is None:
-            continue
-        doFast = True ##False ## for 2400 etc Hz
+        doFast = True##False ## for 2400 etc Hz
         if doFast:
             ec = lpp.getEventCodes(evt)
-            beamEvent = lpp.isBeamEvent(evt)
             if ec[137]:
                 lpp.flux = lpp._getFlux(evt) ## fix this
                 lpp.fluxTS = lpp.getTimestamp(evt)
@@ -261,8 +179,7 @@ if __name__ == "__main__":
                 continue
                 #frames = lpp.det.calib(evt)
                 ##frames = lpp.det.raw(evt)&0x3fff
-            ##elif ec[281]:
-            elif beamEvent:
+            elif ec[281]:
                 lpp.framesTS = lpp.getTimestamp(evt)
                 rawFrames = lpp.getRawData(evt, gainBitsMasked=False)
                 frames = lpp.getCalibData(evt)
@@ -270,18 +187,17 @@ if __name__ == "__main__":
                 continue
         else:
             lpp.flux = lpp._getFlux(evt) ## fix this
-            lpp.frameTS = lpp.getTimestamp(evt)
             rawFrames = lpp.getRawData(evt, gainBitsMasked=False)
             frames = lpp.getCalibData(evt)
 
+        ##rawFrames = lpp.det.raw(evt)
+        ##frames = lpp.det.calib(evt)
+##        rawFrames = lpp.getRawData(evt, gainBitsMasked=True)
+##        frames = lpp.getCalibData(evt)
         if rawFrames is None:
             print("No contrib found")
             continue
-        ## could? should? check for calib here I guess
-        if lpp.special is not None and 'parity' in lpp.special:
-            if lpp.getPingPongParity(rawFrames[0][144:224, 0:80]) == ('negative' in lpp.special):
-                continue
-            ##print(nevt)
+        ## check for calib here I guess
         
         flux = lpp.getFlux(evt)
         if flux is None:
@@ -289,7 +205,6 @@ if __name__ == "__main__":
             continue
         delta = lpp.framesTS-lpp.fluxTS
         if delta > 1000:
-            ## probably not relevant when checking isBeamEvent
             print("frame - bld timestamp delta too large:", delta)
             continue
 
@@ -317,8 +232,7 @@ if __name__ == "__main__":
         smd.event(evt,
                   fluxes=flux,
                   rois=np.array(roiMeans),
-                  pixels=np.array(singlePixelData),
-                  slice=rawFrames[0][lpp.regionSlice]
+                  pixels=np.array(singlePixelData)
                   )
 
         nGoodEvents += 1
@@ -338,7 +252,6 @@ if __name__ == "__main__":
         np.save("%s/%s_g0Fluxes_r%d_c%d_%s.npy" %(lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g0Fluxes)
         np.save("%s/%s_g1Fluxes_r%d_c%d_%s.npy" %(lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g1Fluxes)
 
-    if False:
         label = "rawInTimeDot"
         if doKazFlux:
             label = "raw_smarterPoints"
@@ -348,5 +261,4 @@ if __name__ == "__main__":
         lpp.plotDataROIs(roiMeans, fluxes, "roiTest")
 
     smd.done()
-    
-    lpp.dumpEventCodeStatistics()
+

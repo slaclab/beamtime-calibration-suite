@@ -13,7 +13,7 @@ import numpy as np
 experimentHash = {'exp':'rixx1003721', 'location':'RixEndstation',
                   'fluxSource':'MfxDg1BmMon',
 ##                  'fluxChannels':[9, 10, 11, 12],
-                  'fluxChannels':[15],
+                  'fluxChannels':[11],
 ##                  'fluxChannels':[8, 14],
                   'fluxSign':-1,
                   'singlePixels': [

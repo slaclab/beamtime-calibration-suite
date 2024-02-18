@@ -1,254 +1,172 @@
 import h5py
 import numpy as np
-import pixelAnalysis
+import fitFunctions, ancillaryMethods
+##import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+##import sys
 import argparse
-import logging
 
-
-class FileNamingInfo:
-    def __init__(self, outputDir, className, run, camera, label):
-        self.outputDir = outputDir
-        self.className = className
-        self.run = run
-        self.camera = camera
-        self.label = label
-
-
-# Setup logging.
-# Log file gets appended to each new run, can manually delete for fresh log.
-# Could change so makes new unique log each run or overwrites existing log.
-logging.basicConfig(
-    filename="analyze_h5.log",
-    level=logging.INFO,  # For full logging set to INFO which includes ERROR logging too
-    format="%(asctime)s - %(levelname)s - %(message)s",  # levelname is log severity (ERROR, INFO, etc)
-)
-
-
-# Analysis of Hierarchical Data Format files (.h5 files)
 class AnalyzeH5(object):
     def __init__(self):
+        print('in init')
+        ## this parsing may be common - move elsewhere if so
         parser = argparse.ArgumentParser(
-            description="Configures calibration suite, overriding experimentHash",
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            description='Configures calibration suite, overriding experimentHash',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
-        parser.add_argument("-e", "--exp", help="experiment")
-        # parser.add_argument('-l', '--location', help='hutch location, e.g. MfxEndstation or DetLab')
-        parser.add_argument("-r", "--run", type=int, help="run")
-        parser.add_argument("-R", "--runRange", help="run range, format ...")
-        parser.add_argument("-p", "--path", type=str, default="../test/", help="the base path to the output directory")
-        parser.add_argument(
-            "-d", "--detType", type=str, default="", help="Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ..."
-        )
-        parser.add_argument(
-            "-f", "--files", type=str, default=None, help="run analysis on file or comma-separated files"
-        )
-        parser.add_argument("-s", "--slice_edges", type=str, help="two ints for row and col, separated by ','")
-        parser.add_argument("-L", "--label", type=str, default="testLabel", help="analysis label")
-        parser.add_argument("-sb", "--shift_energy_bits", action="store_true", help="use if want energy-values << 1")
-        parser.add_argument("-a", "--analysis_mode", type=int, help="choose analysis mode 1 or 2")
+        parser.add_argument('-e', '--exp', help='experiment')
+        ##parser.add_argument('-l', '--location', help='hutch location, e.g. MfxEndstation or DetLab')
+        parser.add_argument('-r', '--run', type=int, help='run')
+        parser.add_argument('-R', '--runRange', help='run range, format ...')
+        parser.add_argument('-p', '--path', type=str, default='../lowFlux/', help='the base path to the output directory')
+        parser.add_argument('-d', '--detType', type=str, default='', help='Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ...')
+        parser.add_argument('-f','--files', type=str, default=None, help='run analysis on file or comma-separated files')
+        parser.add_argument('-L','--label', type=str, default='foo', help='analysis label')
+
         args = parser.parse_args()
 
-        if args.files is None:
-            print("No input files specified, quitting...")
-            logging.info("No input files specified, quitting...")
-            exit(1)
-
-        self.files = args.files.replace(" ", "")
-        self.lowEnergyCut = 4  # fix - should be 0.5 photons or something
-        self.highEnergyCut = 30  # fix - should be 1.5 photons or something
-        self.sliceEdges = None
-        if args.slice_edges is not None:
-            self.sliceEdges = args.slice_edges.split(",")
-            self.sliceEdges = [int(curr) for curr in self.sliceEdges]
-        self.nBins = 100
-        self.shiftEnergy = False if args.shift_energy_bits is None else True
-        self.analysisNum = 1 if args.analysis_mode is None else int(args.analysis_mode)
-        self.fileNameInfo = FileNamingInfo(
-            args.path,
-            self.__class__.__name__,
-            args.run,
-            0,
-            args.label,
-        )
-        print("Output dir: " + self.fileNameInfo.outputDir)
-        logging.info("Output dir: " + self.fileNameInfo.outputDir)
-
+        self.run = args.run
+        self.files = args.files.replace(' ', '')
+        print(self.files)
+        self.outputDir = args.path
+        self.label = args.label
+        self.camera = 0
+        
     def getFiles(self):
-        fileNames = self.files.split(",")
+        fileNames = self.files.split(',')
         self.h5Files = []
-        for currName in fileNames:
-            currFile = h5py.File(currName)
-            self.h5Files.append(currFile)
-            print("Using input file: " + currFile.filename)
-            logging.info("Using input file: " + currFile.filename)
+        for f in fileNames:
+            print(f)
+            self.h5Files.append(h5py.File(f))
 
     def identifyAnalysis(self):
-        # script fails earlier if not >= 1 h5 file
-        if "analysisType" in self.h5Files[0]:
-            self.analysisType = self.h5Files[0]["analysisType"]
-            # '[()]' gets us the data and not a reference
-            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-        else:
-            # do something useful here, maybe
-            # but for now
-            self.analysisType = "cluster"
-            if self.sliceEdges is None:  # set if not already by cmdline args
-                self.sliceEdges = [288 - 270, 107 - 59]
+        try:
+            self.analysisType = self.h5Files[0]['analysisType']
+            self.sliceCoordinates = self.h5Files[0]['sliceCoordinates'][()]
+        except:
+            ## do something useful here, maybe
+            self.analysisType = None
+            ## but for now
+            self.analysisType = 'cluster'
             self.sliceCoordinates = [[270, 288], [59, 107]]
+            self.sliceEdges = [288-270, 107-59]
 
+    def sliceToDetector(self, sliceRow, sliceCol):
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+    
     def analyze(self):
-        if self.analysisType == "cluster":
+        if self.analysisType == 'cluster':
             self.clusterAnalysis()
         else:
-            errorString = "unknown analysis type %s" % (self.analysisType)
-            print(errorString)
-            logging.error(errorString)
+            print("unknown analysis type %s" %(self.analysisType))
 
     def clusterAnalysis(self):
-        # energyHist = None
-        clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
-
-        # concat never works here since h5 undefined
+        clusters = None
+        energyHist = None
+        clusters = np.concatenate([h5['clusterData'][()] for h5 in self.h5Files])
         try:
-            # meant to do similar thing as clusters above?
-            pass  # np.concatenate(energyHist, h5["energyHistogram"][()])
-            # self.plotEnergyHist(energyHist, self.fileNameInfo)
-        except Exception as e:
-            print(f"An exception occurred: {e}")
-            logging.error(f"An exception occurred: {e}")
+            energyHist = np.concatenate(energyHist, h5['energyHistogram'][()])
+        except:
             pass
 
-        fileName = "%s/r%d_clusters.npy" % (self.fileNameInfo.outputDir, self.fileNameInfo.run)
-        logging.info("Writing npy: " + fileName)
-        np.save(fileName, clusters)
-
+        self.nBins = 100
+        self.lowEnergyCut = 1 ## fix - should be 0.5 photons or something
+        self.highEnergyCut = 10 ## fix - should be 1.5 photons or something
+        ##tmp
+        np.save("%s/r%d_clusters.npy" %(self.outputDir,self.run), clusters)
         self.analyzeSimpleClusters(clusters)
 
-    def plotEnergyHist(self, energyHist, fileInfo):
+        if energyHist is None:
+            return
+            
         _, bins = np.histogram(energyHist, 250, [-5, 45])
-
-        plt.hist(bins[:-1], bins, weights=energyHist)  # , log=True)
-        plt.grid(which="major", linewidth=0.5)
+        plt.hist(bins[:-1], bins, weights=energyHist)##, log=True)
+        plt.grid(which='major',linewidth=0.5)
         plt.title = "All pixel energies in run after common mode correction"
         plt.xlabel = "energy (keV)"
         print("I hate matplotlib so much")
-        logging.info("I hate matplotlib so much")
-
-        fileNamePlot = "%s/%s_r%d_c%d_%s_energyHistogram.png" % (
-            fileInfo.outputDir,
-            fileInfo.className,
-            fileInfo.run,
-            fileInfo.camera,
-            fileInfo.label,
-        )
-        logging.info("Writing plot: " + fileNamePlot)
-        plt.savefig(fileNamePlot)
-
-        fileNameNpy = "%s/%s_r%d_c%d_%s_energyHistogram.npy" % (
-            fileInfo.outputDir,
-            fileInfo.className,
-            fileInfo.run,
-            fileInfo.camera,
-            fileInfo.label,
-        )
-        logging.info("Writing npy: " + fileNameNpy)
-        np.save(fileNameNpy, energyHist)
+        plt.savefig("%s/%s_r%d_c%d_%s_energyHistogram.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label))
+        np.save("%s/%s_r%d_c%d_%s_energyHistogram.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label), energyHist)
         plt.close()
 
-    def plot_overall_energy_distribution(self, energy, fileInfo):
+
+    
+    def analyzeSimpleClusters(self, clusters):
         ax = plt.subplot()
-
-        # print(energy[energy>0][666:777])
-        print("mean energy above 0:", energy[energy > 0].mean())
-        logging.info("mean energy above 0:" + str(energy[energy > 0].mean()))
-
-        ax.hist(energy[energy > 0], 100)  # 100 bins
+        energy = clusters[:, :, 0]##.flatten()
+        ##energy *= 2 ## temporary, due to bit shift
+        ##print(energy[energy>0][666:777])
+        print('mean energy above 0:', energy[energy>0].mean())
+        foo = ax.hist(energy[energy>0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
-
-        fileName = "%s/%s_r%d_c%d_%s_E.png" % (
-            fileInfo.outputDir,
-            fileInfo.className,
-            fileInfo.run,
-            fileInfo.camera,
-            fileInfo.label,
-        )
-        logging.info("Writing plot: " + fileName)
-        plt.savefig(fileName)
+        plt.savefig("%s/%s_r%d_c%d_%s_E.png" %(self.outputDir,
+                                               self.__class__.__name__,
+                                               self.run, self.camera,
+                                               self.label))
         plt.close()
 
-    def save_fit_information(self, fitInfo, rows, cols, fileInfo):
-        fileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" % (
-            fileInfo.outputDir,
-            fileInfo.className,
-            fileInfo.run,
-            fileInfo.camera,
-            rows - 1,
-            cols - 1,
-            fileInfo.label,
-        )
-        logging.info("Writing npy: " + fileName)
-        np.save(fileName, fitInfo)
-
-    def plot_gain_distribution(self, fitInfo, fileInfo, fitIndex):
-        gains = fitInfo[:, :, fitIndex]
-        goodGains = gains[np.bitwise_and(gains > 0, gains < 30)]
-
+        rows = self.sliceEdges[0]
+        cols = self.sliceEdges[1]
+        fitInfo = np.zeros((rows, cols, 5)) ## mean, std, area, mu, sigma
+        for i in range(rows):
+            for j in range(cols):
+                detRow, detCol = self.sliceToDetector(i,j)
+                ax = plt.subplot()
+                goodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=4, isSquare=1)
+                if len(goodClusters) <5:
+                    print("too few clusters in slice pixel %d, %d: %d" %(i,j, len(goodClusters)))
+                    continue
+                energies = ancillaryMethods.getClusterEnergies(goodClusters)
+                photonEcut = np.bitwise_and(energies>self.lowEnergyCut, energies<self.highEnergyCut)
+                nPixelClusters = (photonEcut>0).sum()
+                print("pixel %d,%d has about %d photons" %(i,j,nPixelClusters))
+                photonRegion = energies[photonEcut]
+                mean = photonRegion.mean()
+                std = photonRegion.std()
+                a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
+                area = fitFunctions.gaussianArea(a, sigma)
+                ax.set_xlabel('energy (keV)')
+                ax.set_title('pixel %d,%d, small cluster cuts' %(detRow, detCol))
+                plt.figtext(0.7, 0.8, "%d entries (peak)" %(area))
+                plt.figtext(0.7, 0.75, "mu %0.2f" %(mu))
+                plt.figtext(0.7, 0.7, "sigma %0.2f" %(sigma))
+                plt.savefig("%s/%s_r%d_c%d_r%d_c%d_%s_E.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label))
+                plt.close()
+                
+                np.save("%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label), fitInfo)
+                fitInfo[i,j] = mean, std, area, mu, sigma
+                
+        gains = fitInfo[:,:,3]
+        goodGains = gains[np.bitwise_and(gains>0, gains<15)]
         ax = plt.subplot()
         ax.hist(goodGains, 100)
         ax.set_xlabel("energy (keV)")
         ax.set_title("pixel single photon fitted energy")
-        fileName = "%s/%s_r%d_c%d_%s_gainDistribution.png" % (
-            fileInfo.outputDir,
-            fileInfo.className,
-            fileInfo.run,
-            fileInfo.camera,
-            fileInfo.label,
-        )
-        logging.info("Writing plot: " + fileName)
-        plt.savefig(fileName)
+        plt.savefig("%s/%s_r%d_c%d_%s_gainDistribution.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label))
+ 
 
-    def analyzeSimpleClusters(self, clusters):
-        energy = clusters[:, :, 0]  # .flatten()
-        if self.shiftEnergy:
-            energy *= 2  # temporary, due to bit shift
-        rows = self.sliceEdges[0]
-        cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 4))  # mean, std, mu, sigma
-        fitIndex = 0
+    def histogramAndFitGaussian(self, ax, energies, nBins):
+        y, bin_edges, _ = ax.hist(energies, nBins)
+        bins = (bin_edges[:-1] + bin_edges[1:])/2
+        ##print(y, bins)
+        a, mean, std = fitFunctions.estimateGaussianParametersFromUnbinnedArray(energies)
+        try:
+            popt, pcov = fitFunctions.curve_fit(fitFunctions.gaussian, bins, y, [a, mean, std])
+            mu = popt[1]
+            sigma = popt[2]
+            fittedFunc = fitFunctions.gaussian(bins, *popt)
+            ax.plot(bins, fittedFunc,color='b')
+            return popt
+        except:
+            return 0, 0, 0
 
-        self.plot_overall_energy_distribution(energy, self.fileNameInfo)
-
-        print("Analysis Mode: " + str(self.analysisNum))
-        logging.info("Analysis Mode: " + str(self.analysisNum))
-        if self.analysisNum == 1:
-            fitIndex = 2
-            fitInfo = pixelAnalysis.analysis_one(
-                clusters, energy, rows, cols, fitInfo, self.lowEnergyCut, self.highEnergyCut, self.fileNameInfo
-            )
-        else:
-            fitIndex = 3
-            fitInfo = pixelAnalysis.analysis_two(
-                clusters,
-                self.nBins,
-                self.sliceCoordinates,
-                rows,
-                cols,
-                fitInfo,
-                self.lowEnergyCut,
-                self.highEnergyCut,
-                self.fileNameInfo,
-            )
-
-        self.save_fit_information(fitInfo, rows, cols, self.fileNameInfo)
-        self.plot_gain_distribution(fitInfo, self.fileNameInfo, fitIndex)
-
-
+                
 if __name__ == "__main__":
-    print("Starting new run!")
-    logging.info("Starting new run!")
     ah5 = AnalyzeH5()
     ah5.getFiles()
     ah5.identifyAnalysis()
     ah5.analyze()
+
+    

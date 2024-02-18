@@ -120,20 +120,38 @@ if __name__ == "__main__":
     esp.setupPsana()
 
     smd = esp.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(esp.outputDir, esp.className, esp.camera, esp.run, size))
-    
+
+    esp.fluxTS = 0
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]
     pixelValues = [[] for i in esp.singlePixels]
     eventNumbers = []
     bitSliceSum = None
     evtGen = esp.myrun.events()
+    deltas = []
     for nevt,evt in enumerate(evtGen):
         if evt is None:
             continue
         ec = esp.getEventCodes(evt)
+        if ec[137]:
+            esp.flux = esp._getFlux(evt) ## fix this
+            esp.fluxTS = esp.getTimestamp(evt)
+            ##print(esp.fluxTS)
+            continue
+        elif ec[281]:
+            esp.framesTS = esp.getTimestamp(evt)
+            ##print(esp.framesTS)
+            d = esp.framesTS-esp.fluxTS
+            ##print(d)
+            deltas.append(d)
+            if d>3000:
+                continue
+        else:
+            continue
+
         if esp.only281:
             if not ec[281]:
-                ##print(ec)
+                print(ec)
                 continue
         frames = esp.getRawData(evt, gainBitsMasked=True)
         if frames is None:
@@ -200,3 +218,4 @@ if __name__ == "__main__":
         smd.save_summary({'summedBitSlice': allSum})
     smd.done()
     
+    np.save("deltas.npy", np.array(deltas))

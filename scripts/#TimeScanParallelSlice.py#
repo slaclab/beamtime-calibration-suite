@@ -139,9 +139,6 @@ if __name__ == "__main__":
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-        if not tsp.isBeamEvent(evt):
-            continue
-
             doFast = [True, False][0]
             fakeFlux = [True, False][0]
             if doFast:
@@ -247,4 +244,3 @@ if __name__ == "__main__":
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")
 
-        tsp.dumpEventCodeStatistics()

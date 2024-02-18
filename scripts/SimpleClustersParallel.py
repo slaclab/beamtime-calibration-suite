@@ -64,24 +64,7 @@ class SimpleClusters(BasicSuiteScript):
         import h5py
         data = h5py.File(dataFile)
         simpleClusters =  data['clusterData'][()]
-        ##self.plotData(simpleClusters, label)
-        energyHist = data['energyHistogram'][()]
-        _, bins = np.histogram(energyHist, 250, [-5, 45])
-        plt.hist(bins[:-1], bins, weights=energyHist)##, log=True)
-        plt.grid(which='major',linewidth=0.5)
-        plt.title = "All pixel energies in run after common mode correction"
-        plt.xlabel = "energy (keV)"
-        print("I hate matplotlib so much")
-        plt.savefig("%s/%s_r%d_c%d_%s_energyHistogram.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label))
-        np.save("%s/%s_r%d_c%d_%s_energyHistogram.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label), energyHist)
-        plt.close()
-        plt.hist(bins[:-1], bins, weights=energyHist, log=True)
-        plt.grid(which='major',linewidth=0.5)
-        plt.title = "All pixel energies in run after common mode correction"
-        plt.xlabel = "energy (keV)"
-        print("I hate matplotlib so much")
-        plt.savefig("%s/%s_r%d_c%d_%s_energyHistogramLog.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label))
-        
+        self.plotData(simpleClusters, label)
         
 if __name__ == "__main__":
     sic = SimpleClusters()
@@ -106,7 +89,7 @@ if __name__ == "__main__":
     ##sic.slices = [np.s_[0:288, 0:384]]
     ##sic.slices = [np.s_[270:288, 59:107]]
 
-    sic.useFlux = False
+    sic.useFlux = True
 
     
     sic.nGoodEvents = 0
@@ -117,56 +100,36 @@ if __name__ == "__main__":
 
     pedestal = None
     nComplaints = 0
-    gain = None
     if sic.special is not None:## and 'fakePedestal' in sic.special:
         if 'FH' in sic.special:
-            gain = 20 ##17.## my guess
+            gain = 17.## my guess
         elif 'FM' in sic.special:
-            gain = 6.66 #20/3
+            gain = 2.5## my guess
         print('using gain correction', gain)
         
-        if True: ## turn on when db works
+        if False: ## turn on when db works
             if 'FH' in sic.special:
                 gainMode = sic.gainModes['FH']
             if 'FM' in sic.special:
                 gainMode = sic.gainModes['FM']
-            print("you have decided this is gain mode %d" %(gainMode))
+            print("you have stupidly decided this is gain mode %d" %(gainMode))
             pedestal = sic.det.calibconst['pedestals'][0][gainMode]
-            if gain is None:
-                gain = sic.det.calibconst['pedestals'][0][gainMode]
-                ## something wrong with the overall logic here
-
-    hSum = None
+            gain = sic.det.calibconst['pedestals'][0][gainMode]
+            
     for nevt,evt in enumerate(evtGen):
         if evt is None:
             continue
-        if not sic.isBeamEvent(evt):
-            continue
-        
-        rawFrames = sic.getRawData(evt)
-        if rawFrames is None:
-            continue
-        
-        frames = None
+
         if sic.fakePedestal is not None:
-            frames = rawFrames.astype('float') - sic.fakePedestalFrame
-        elif pedestal is not None:
-            frames = rawFrames.astype('float') - pedestal
-        if frames is not None and gain is not None:
-            frames /= gain ## this helps with the bit shift
+            frames = sic.getRawData(evt).astype('float') - sic.fakePedestalFrame
+            if sic.special is not None and "commonMode" in sic.special:
+                frames = np.array([sic.commonModeCorrection(frames[0])])
+
+            frames /= gain
+            frame = frames[0]
         else:
             frame = sic.getCalibData(evt)[0]
-        frame = frames[0]
-        ## in keV now, hopefully with a sensible pedestal
-
-        if sic.special is not None:
-            if 'regionCommonMode' in sic.special:
-                frame = sic.regionCommonModeCorrection(frame, sic.regionSlice, 2.)
-            if "rowCommonMode" in sic.special:
-                frame = sic.rowCommonModeCorrection(frame, 2.)
-            if  "colCommonMode" in sic.special:
-                frame = sic.colCommonModeCorrection(frame, 2.)
-
+            
         if frame is None:
             ##print("no frame")
             continue
@@ -177,14 +140,6 @@ if __name__ == "__main__":
             if nComplaints < 10: print("flux is above threshold:", flux, sic.threshold, 10-nComplaints)
             nComplaints +=1
             continue
-
-        ## histogram frame to check pedestal
-        h, _ = np.histogram(frame[sic.regionSlice], 250, [-5, 45])
-        try:
-            hSum += h
-        except:
-            hSum = np.array(h)##.astype(np.uint32)
-            
         nClusters = 0
         clusterArray = np.zeros((maxClusters, nClusterElements))
         bc = BuildClusters(frame[sic.regionSlice], seedCut, neighborCut)
@@ -196,28 +151,23 @@ if __name__ == "__main__":
                 clusterArray[nClusters] = [c.eTotal, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
                 nClusters += 1
             if nClusters == maxClusters:
-                print("have found %d clusters, mean energy:" %(maxClusters), np.array(clusterArray)[:,0].mean())
-                ##print(frame)
-                continue
-
+                break
+                    
         smd.event(evt,
                   clusterData=clusterArray
                   )
                   
         sic.nGoodEvents += 1
-        if sic.nGoodEvents%1000 == 0:
-            print("n good events analyzed: %d, clusters this event: %d" %(sic.nGoodEvents, nClusters))
+        if sic.nGoodEvents%100 == 0:
+            print("n good events analyzed: %d" %(sic.nGoodEvents))
             f = frame[sic.regionSlice]
-            print("slice median, max, guess at single photon, guess at zero photon:", np.median(f), f.max(), np.median(f[f>4]), np.median(f[f<2]))
+            print("slice median, max, guess at photon:", np.median(f), f.max(), np.median(f[f>4]))
             
 ##    np.save("%s/means_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(roiMeans))
 ##    np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
 ##    sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if smd.summary:
-        sumhSum = smd.sum(hSum)
-        smd.save_summary({'energyHistogram':sumhSum})
+    ##if smd.summary:
+    ##smd.save_summary(
     smd.done()
-    
-    sic.dumpEventCodeStatistics()
     

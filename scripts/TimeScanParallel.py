@@ -4,11 +4,9 @@ from basicSuiteScript import *
 class TimeScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__()##self)
-        try:
-            print('positive events:', 'positive' in self.special)
-        except:
-            pass
-
+        self.doEveryPixel = False##True
+        ##get rid of this
+        print("doEveryPixel is", self.doEveryPixel)
         
     def plotData(self, rois, pixels, delays, label):
         for i, roi in enumerate(self.ROIs):
@@ -41,7 +39,7 @@ class TimeScanParallel(BasicSuiteScript):
             ##plt.yscale('log')
             plt.legend(loc='upper right')
         plt.savefig("%s/%s_r%d_c%d_%s_All%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
-        plt.close()
+        plt.clf()
         # plt.show()
 
         for i, p in enumerate(self.singlePixels):
@@ -54,22 +52,7 @@ class TimeScanParallel(BasicSuiteScript):
             plt.xlabel('Delay (Ticks)')
             plt.ylabel('Pixel ADU')
             plt.savefig("%s/%s_r%d_c%d_%s_pixel%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
-            plt.close()
-
-    def plotSliceData(self, sliceData, delays, label):
-        for i in range(9):
-            ##slicePixel = [i*2, i*2]
-            ax = plt.subplot()
-            ##ax.plot(delays, sliceData[:,tuple(slicePixel)], label="slicePixel%d" %(i))
-            ax.plot(delays, sliceData[:,i*2,i*2], label="slicePixel%d" %(i))
-            plt.grid(which='major',linewidth=0.75)
-            minor_locator = AutoMinorLocator(5)
-            ax.xaxis.set_minor_locator(minor_locator)
-            plt.grid(which='minor', linewidth=0.5)
-            plt.xlabel('Delay (Ticks)')
-            plt.ylabel('Pixel ADU')
-            plt.savefig("%s/%s_r%d_c%d_%s_slicePixel%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
-            plt.close()
+            plt.clf()
 
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
@@ -91,24 +74,20 @@ class TimeScanParallel(BasicSuiteScript):
         delays.sort()
         d = np.array([a[str(k)] for k in delays])
         delays = np.array([d for d in delays])
-        print(delays)
 
+        print(delays)
+        offset = len(self.ROIs)
+        rois = d[:,0:offset]
+        pixels = d[:,offset:]
         runString = '_r%d' %(self.run)
-        if norm != 'slice':
-            offset = len(self.ROIs)
-            rois = d[:,0:offset]
-            pixels = d[:,offset:]
-            self.plotData(rois.T, pixels.T, delays, norm + label + runString)
-        else:
-            self.plotSliceData(d, delays, norm + label + runString)
+        self.plotData(rois.T, pixels.T, delays, norm + label + runString)
             
 if __name__ == "__main__":
     tsp = TimeScanParallel()
     print("have built a", tsp.className, "class")
     if tsp.file is not None:
-##        tsp.analyze_h5(tsp.file, 'means', tsp.label)
-##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
-        tsp.analyze_h5(tsp.file, 'slice', tsp.label)
+        tsp.analyze_h5(tsp.file, 'means', tsp.label)
+        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         print("done with standalone analysis of %s, exiting" %(tsp.file))
         sys.exit()
     
@@ -119,7 +98,6 @@ if __name__ == "__main__":
     stepMeans = {}
     stepMeans['means'] = {}
     stepMeans['ratios'] = {}
-    stepMeans['slice'] = {}
     
     offset = len(tsp.ROIs)
 
@@ -134,16 +112,11 @@ if __name__ == "__main__":
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
                 
         nGoodInStep = 0
-        stepSliceSum = np.zeros([666,666])[tsp.regionSlice].astype('float32')
-        stepSliceSum = None
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-        if not tsp.isBeamEvent(evt):
-            continue
-
             doFast = [True, False][0]
-            fakeFlux = [True, False][0]
+            fakeFlux = [True, False][1]
             if doFast:
                 ec = tsp.getEventCodes(evt)
                 if ec[137]:
@@ -163,30 +136,25 @@ if __name__ == "__main__":
             if frames is None:
                 ##print("no frame")
                 continue
-
-            if tsp.special is not None and 'parity' in tsp.special:
-                if tsp.getPingPongParity(frames[0][144:224, 0:80]) == ('negative' in tsp.special):
-                    continue
-
             flux = tsp.getFlux(evt)
             if fakeFlux:
                 flux = 1.
             elif flux is None:
                 print("no flux")
                 continue
-            elif tsp.threshold is not None and flux < tsp.threshold:
+            elif flux < tsp.threshold:
                 print("flux =", flux, "<", tsp.threshold, "skip")
                 continue
             nGoodInStep += 1
             
-            try:
-                stepSliceSum += frames[0][tsp.regionSlice]
-                ##stepEvents += 1
-            except:
-                stepSliceSum = frames[0][tsp.regionSlice].astype(np.float32)
-                ##stepEvents = 1
+            if False and tsp.doEveryPixel:
+                try:
+                    stepSum += frames.astype(float)
+                    stepEvents += 1
+                except:
+                    stepSum = frames
+                    stepEvents = 1
 
-            
             for i, roi in enumerate(tsp.ROIs):
                 ##m = np.multiply(roi, frames).mean()
                 m = frames[roi==1].mean()
@@ -217,14 +185,6 @@ if __name__ == "__main__":
         step_sums = smd.sum(roiAndPixelSums)
         step_ratio_sums = smd.sum(ratioSums)
         step_nsum = smd.sum(nGoodInStep)
-        try:
-            step_slice_sum = smd.sum(stepSliceSum)
-        except:
-            print(tsp.nGoodEvents)
-            print(stepSliceSum.shape)
-            ##print(stepSliceSum)
-            step_slice_sum = np.zeros([666,666])[tsp.regionSlice].astype('float32')
-
         if False and roiAndPixelSums is not None:
             step_sums = smd.sum(roiAndPixelSums)
             step_ratio_sums = smd.sum(ratioSums)
@@ -232,7 +192,7 @@ if __name__ == "__main__":
         if step_sums is not None:
             stepMeans['means'][str(scanValue)] = step_sums/step_nsum
             stepMeans['ratios'][str(scanValue)] = step_ratio_sums/step_nsum
-            stepMeans['slice'][str(scanValue)] = step_slice_sum/step_nsum
+
     if smd.summary:
         ##smd.save_summary(unNormalized=stepMeans, fluxNormalized=stepRatioMeans)
         smd.save_summary(stepMeans)
@@ -247,4 +207,3 @@ if __name__ == "__main__":
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")
 
-        tsp.dumpEventCodeStatistics()
