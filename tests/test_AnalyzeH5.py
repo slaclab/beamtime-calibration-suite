@@ -12,7 +12,7 @@ def test_run_analyzeh5_and_compare():
     subprocess.run(
         [
             "python",
-            "../scripts/AnalyzeH5.py",
+            "../standalone_scripts/AnalyzeH5.py",
             "-f",
             "testData/lowFlux/SimpleClusters_c0_r334_n100.h5",
             "-p",

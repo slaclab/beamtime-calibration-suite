@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from scripts.fitFunctions import (
+from library.fitFunctions import (
     linear,
     saturatedLinear,
     saturatedLinearB,
@@ -8,7 +8,6 @@ from scripts.fitFunctions import (
     gaussianArea,
     estimateGaussianParametersFromUnbinnedArray,
     estimateGaussianParametersFromXY,
-    estimateGaussianParameters,
     getHistogramMeanStd,
     calculateFitR2,
     getBinCentersFromNumpyHistogram,
@@ -59,14 +58,6 @@ def test_gaussian(a, mu, sigma, expected):
 def test_gaussianArea(a, sigma, expected):
     result = gaussianArea(a, sigma)
     assert np.isclose(result, expected)
-
-
-def test_estimateGaussianParameters():
-    flatData = np.array([1, 2, 3, 4, 5])
-    result_mean, result_std = estimateGaussianParameters(flatData)
-    expected_mean, expected_std = 3.0, 1.4142135623730951
-    assert result_mean == expected_mean
-    assert np.isclose(result_std, expected_std)
 
 
 def test_estimateGaussianParametersFromUnbinnedArray():
