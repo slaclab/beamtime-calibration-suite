@@ -1,4 +1,4 @@
-from library.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import *
 
 class RoiFromThreshold(BasicSuiteScript):
     def __init__(self):

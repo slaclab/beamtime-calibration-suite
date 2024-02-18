@@ -1,4 +1,4 @@
-from library.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import *
 
 class RoiFromSwitched(BasicSuiteScript):
     def __init__(self):

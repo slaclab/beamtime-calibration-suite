@@ -3,12 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import sys
-from library.rixSuiteConfig import *
+from calibrationSuite.rixSuiteConfig import *
 ##from mfxRixSuiteConfig import *
 import h5py
 from scipy.optimize import curve_fit ## here?
-import library.fitFunctions
-import library.ancillaryMethods
+import calibrationSuite.fitFunctions
+import calibrationSuite.ancillaryMethods
 
 def sortArrayByList(a, data):
     return [x for _,x in sorted(zip(a, data), key=lambda pair:pair[0])]

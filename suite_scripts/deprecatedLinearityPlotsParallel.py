@@ -1,4 +1,4 @@
-from library.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import *
 
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means

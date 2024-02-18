@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from library.fitFunctions import (
+from calibrationSuite.fitFunctions import (
     linear,
     saturatedLinear,
     saturatedLinearB,

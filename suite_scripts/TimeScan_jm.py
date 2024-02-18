@@ -1,4 +1,4 @@
-from library.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import *
 ##from fitFineScan import *
 
 class TimeScan(BasicSuiteScript):

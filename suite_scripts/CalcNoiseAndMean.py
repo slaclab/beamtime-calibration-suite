@@ -1,4 +1,4 @@
-from library.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import *
 import Stats
 
 class CalcNoise(BasicSuiteScript):
