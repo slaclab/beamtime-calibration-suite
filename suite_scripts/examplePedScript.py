@@ -1,5 +1,5 @@
 ##import psana
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 import sys
 import numpy as np
 

@@ -1,4 +1,4 @@
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means

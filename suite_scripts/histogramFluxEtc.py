@@ -1,4 +1,4 @@
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 
 class HistogramFluxEtc(BasicSuiteScript):
     def __init__(self):

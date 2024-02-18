@@ -1,4 +1,4 @@
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 from cluster import Cluster, BuildClusters
 
 class SimpleClusters(BasicSuiteScript):

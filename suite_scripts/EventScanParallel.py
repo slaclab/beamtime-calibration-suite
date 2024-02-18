@@ -1,4 +1,4 @@
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):

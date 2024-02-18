@@ -1,4 +1,4 @@
-from basicSuiteScript import *
+from library.basicSuiteScript import *
 
 class SimplePhotonCounter(BasicSuiteScript):
     def __init__(self):
