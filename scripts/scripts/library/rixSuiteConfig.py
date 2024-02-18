@@ -1,10 +1,10 @@
 import os
 if os.getenv('foo') == '1':
     print("psana1")
-    from psana1Base import *
+    from library.psana1Base import *
 else:
     print("psana2")
-    from psana2Base import *
+    from library.psana2Base import *
 
 import numpy as np
 
