@@ -1,4 +1,7 @@
 from calibrationSuite.basicSuiteScript import *
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+import sys
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
@@ -119,7 +122,7 @@ if __name__ == "__main__":
     
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(esp.outputDir, esp.className, esp.camera, esp.run, size))
+    smd = esp.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(esp.outputDir, esp.className, esp.camera, esp.run, esp.size))
     
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]

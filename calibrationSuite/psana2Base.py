@@ -1,84 +1,160 @@
-from psana import *
-##from PSCalib.NDArrIO import load_txt
-
-## for parallelism
+import numpy as np
 import os
-os.environ['PS_SMD_N_EVENTS'] = '50'
-os.environ['PS_SRV_NODES']='1'
-## psana2 only
-
-## standard
+from psana import *
+from calibrationSuite.rixSuiteConfig import experimentHash
+from calibrationSuite.argumentParser import ArgumentParser
 from mpi4py import MPI
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
 
+# psana2 only?
+# how many events SMD0 will send to each EB core
+os.environ['PS_SMD_N_EVENTS'] = '50'
+# total number of SRV nodes (how many cores writing h5 files)
+# will have a '...part<n>.h5' file for each core.
+os.environ['PS_SRV_NODES']='1'
 
 class PsanaBase(object):
     def __init__(self, analysisType='scan'):
         self.psanaType = 2
         print("in psana2Base")
+
+        # Initialize MPI communicator and get rank and size
+        self.comm = MPI.COMM_WORLD
+        self.rank = self.comm.Get_rank()
+        self.size = self.comm.Get_size()
+
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
-        ##self.g0cut = 1<<15 ## 2022
+        self.desiredCodes = {'120Hz':272, '4kHz':273, '5kHz':274}
+
+        self.camera = 0
+        self.outputDir = '../%s/' %(analysisType)
+        self.className = self.__class__.__name__
         self.g0cut = 1<<14 ## 2023
         self.gainBitsMask = self.g0cut - 1
-
         self.allowed_timestamp_mismatch = 1000
 
-##        self.setupPsana()
-
-    def get_ds(self, run=None):
-        if run is None:
-            run = self.run
-        return DataSource(exp=self.exp,run=run,
-                          intg_det='epixhr', max_events=self.maxNevents)
-
-
-    def setupPsana(self):
-        ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
-        if self.runRange is None:
-            self.ds = self.get_ds(self.run)
-        else:
-            self.run = self.runRange[0]
-            self.ds = self.get_ds()
-
-        self.myrun = next(self.ds.runs())
-        try:
-            self.step_value = self.myrun.Detector('step_value')
-            self.step_docstring = self.myrun.Detector('step_docstring')
-        except:
-            self.step_value = self.step_docstring = None
-
-##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
-        ## make this less dumb to accomodate epixM etc.
-        ## use a dict etc.
-        self.det = self.myrun.Detector('epixhr')
         ## could set to None and reset with first frame I guess, or does the det object know?
+        # Define detector dimensions and other related properties\
         self.detRows = 288
         self.detCols = 384
         self.detColsPerBank = 96
         self.detNbanks = int(self.detCols/self.detColsPerBank)
         self.detNbanksCol = 2 ## assumes four asics
         self.detRowsPerBank = int(self.detRows/self.detNbanksCol)
-        
-        self.timing = self.myrun.Detector('timing')
-        self.desiredCodes = {'120Hz':272, '4kHz':273, '5kHz':274}
+        self.detEvts = 0
+        self.flux = None
+        self.evrs = None
 
+        # Init vals from experimentHash
+        self.location = experimentHash.get('location', None)
+        self.exp = experimentHash.get("exp", None)
+        self.singlePixels = experimentHash.get("singlePixels", None)
+        self.ROIfileNames = experimentHash.get("ROIs", [])
+        self.ROIs = []
+        for f in self.ROIfileNames:
+            try:
+                self.ROIs.append(np.load(f + ".npy"))
+            except:
+                print("had trouble finding", self.ROIfileNames)
+        self.ROI = self.ROIs[0] if len(self.ROIs) > 0 else None
+        self.regionSlice = experimentHash.get("regionSlice", None)
+        if self.regionSlice is not None:
+            self.sliceCoordinates = [
+                [self.regionSlice[0].start, self.regionSlice[0].stop],
+                [self.regionSlice[1].start, self.regionSlice[1].stop],
+            ]
+            sc = self.sliceCoordinates
+            self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
+        self.fluxSource = experimentHash.get("fluxSource", None)
+        self.fluxChannels = experimentHash.get("fluxChannels", range(8, 16))
+        self.fluxSign = experimentHash.get("fluxSign", 1)
+
+        # Parameters for non-120 Hz running
+        self.nRunCodeEvents = 0
+        self.nDaqCodeEvents = 0
+        self.nBeamCodeEvents = 0
+        self.runCode = 280
+        self.daqCode = 281
+        self.beamCode = 283 ## per Matt
+        self.fakeBeamCode = False
+
+        # Parse command-line arguments
+        args_parser = ArgumentParser()
+        args = args_parser.parse_args()
+
+        # Handle cmdline arguments
+        self.file = args.file
+        self.label = args.label or ""
+
+        # Run number
+        self.run = args.run if args.run is not None else None
+        self.camera = args.camera if args.camera is not None else self.camera
+        # Experiment name
+        self.exp = args.exp if args.exp is not None else self.exp
+        self.location = args.location if args.location is not None else self.location
+        self.maxNevents = args.maxNevents if args.maxNevents is not None else None
+        self.skipNevents = args.skipNevents if args.skipNevents is not None else None
+        self.outputDir = args.path if args.path is not None else self.outputDir
+        self.detObj = args.detObj
+        self.threshold = eval(args.threshold) if args.threshold is not None else None
+        self.fluxCut = args.fluxCut if args.fluxCut is not None else None
+        try:
+            self.runRange = eval(args.runRange)  ## in case needed
+        except Exception as e:
+            print(f"An exception occurred: {e}")
+            self.runRange = None
+        self.fivePedestalRun = args.fivePedestalRun if args.fivePedestalRun is not None else None
+        self.fakePedestal = args.fakePedestal if args.fakePedestal is not None else None
+        self.fakePedestalFrame = np.load(self.fakePedestal) if self.fakePedestal is not None else None
+        if args.detType == '':
+            ## assume epix10k for now
+            if args.nModules is not None:
+                self.detType = self.ePix10k_cameraTypes[args.nModules]
+        else:
+            self.detType = args.detType
+        self.special = args.special
+        self.ds = None
+        self.det = None ## do we need multiple dets in an array? or self.secondDet?
+        # Done handling cmdline arguments
+
+    # Create a data source object
+    def get_ds(self, run=None):
+        if run is None:
+            run = self.run
+
+        intDetectorName = 'epixhr' # Integrating detector name
+        return DataSource(exp=self.exp, run=run, intg_det=intDetectorName, max_events=self.maxNevents)
+
+    # Get run and initialize Detector objects
+    def setupPsana(self):
+        if self.runRange is None:
+            self.ds = self.get_ds(self.run)
+        else:
+            self.run = self.runRange[0]
+            self.ds = self.get_ds()
+        self.myrun = next(self.ds.runs())
+
+        try:
+            self.step_value = self.myrun.Detector('step_value')
+            self.step_docstring = self.myrun.Detector('step_docstring')
+        except:
+            self.step_value = self.step_docstring = None
+
+        ## self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
+        ## make this less dumb to accomodate epixM etc.
+        ## use a dict etc.
+        self.det = self.myrun.Detector('epixhr')
+        self.timing = self.myrun.Detector('timing')
         try:
             self.mfxDg1 = self.myrun.Detector('MfxDg1BmMon')
         except:
             self.mfxDg1 = None
-            print("No flux source found")## if self.verbose?
+            print("No flux source found")
         try:
             self.mfxDg2 = self.myrun.Detector('MfxDg2BmMon')
         except:
             self.mfxDg2 = None
-        ## fix hardcoding in the fullness of time
-        self.detEvts = 0
-        self.flux = None
         
-        self.evrs = None
         try:
             self.wave8 = Detector(self.fluxSource, self.ds.env())
         except:
@@ -89,8 +165,7 @@ class PsanaBase(object):
         except:
             self.controlData = None
 
-##        if self.mfxDg1 is None:
-
+    # Set info for run in object member variables
     def getFivePedestalRunInfo(self):
         ## could do load_txt but would require full path so
         if self.det is None:
@@ -101,7 +176,8 @@ class PsanaBase(object):
         self.fpPedestals = self.det.pedestals(evt)
         self.fpStatus = self.det.status(evt)## does this work?
         self.fpRMS = self.det.rms(evt)## does this work?
-        
+
+    # Get the next event from the current run, but keep self.ds holding the same event
     def getEvtOld(self, run=None):
         oldDs = self.ds
         if run is not None:
@@ -170,7 +246,6 @@ class PsanaBase(object):
             ##print("get event from new run")
             evt = next(self.ds.events())
             return evt
-        
 
     def getAllFluxes(self, evt):
         if evt is None:
@@ -184,7 +259,7 @@ class PsanaBase(object):
         if self.mfxDg1 is None:
             return None
 
-##        f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
+        ##        f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
             ##print(f)
@@ -199,7 +274,6 @@ class PsanaBase(object):
         return f
 
     def getFlux(self, evt):
-        ##return 1
         return self.flux
     
     def get_evrs(self):
@@ -210,7 +284,6 @@ class PsanaBase(object):
         for key in list(self.config.keys()):
             if key.type() == EvrData.ConfigV7:
                 self.evrs.append(key.src())
-
 
     def getEventCodes(self, evt):
         return self.timing.raw.eventcodes(evt)
@@ -279,11 +352,3 @@ class PsanaBase(object):
         delta = evensEvenRowsOddsOddRows.mean() - oddsEvenRowsEvensOddRows.mean()
         ##print("delta:", delta)
         return delta>0
-    
-if __name__ == "__main__":
-    bSS = BasicSuiteScript()
-    print("have built a BasicSuiteScript")
-    bSS.setupPsana()
-    evt = bSS.getEvt()
-    print(dir(evt))
-
