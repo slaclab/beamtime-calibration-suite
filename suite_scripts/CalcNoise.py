@@ -1,5 +1,5 @@
 from calibrationSuite.basicSuiteScript import *
-import Stats
+import calibrationSuite.Stats
 
 class CalcNoise(BasicSuiteScript):
     def __init__(self):
