@@ -1,5 +1,5 @@
 from calibrationSuite.basicSuiteScript import *
-from cluster import Cluster, BuildClusters
+from calibrationSuite.cluster import Cluster, BuildClusters
 
 class SimpleClusters(BasicSuiteScript):
     def __init__(self):
