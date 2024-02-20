@@ -1,9 +1,9 @@
 from calibrationSuite.basicSuiteScript import *
-from cluster import Cluster, BuildClusters
+from calibrationSuite.cluster import Cluster, BuildClusters
 
 class SimpleClusters(BasicSuiteScript):
     def __init__(self):
-        super().__init__("lowFlux")##self)
+        super().__init__("lowFlux")
         
     def plotData(self, clusters, label):
         ax = plt.subplot()
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         sys.exit(0)
     
     sic.setupPsana()
-    smd = sic.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(sic.outputDir, sic.className, sic.camera, sic.run, size))
+    smd = sic.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(sic.outputDir, sic.className, sic.camera, sic.run, sic.size))
 
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors

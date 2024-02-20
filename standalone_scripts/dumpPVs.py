@@ -18,4 +18,3 @@ while True:
         data[n].append(det(evt))
 
 np.save("%s_r%d_PVs_%s.npy" %(exp, run, allNames), np.array(data))
-

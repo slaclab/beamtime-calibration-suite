@@ -13,4 +13,3 @@ plt.ylabel("Raw")
 title = "pixel %d,%d in %s" %(row, col, dataFile)
 plt.title(title)
 plt.savefig(title.replace(" ","_") + ".png")
-

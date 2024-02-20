@@ -1,4 +1,3 @@
-import argparse
 import os
 import numpy as np
 from calibrationSuite.rixSuiteConfig import experimentHash
@@ -96,11 +95,9 @@ class BasicSuiteScript(PsanaBase):
                 self.nBeamCodeEvents)
               )
 
-
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
-

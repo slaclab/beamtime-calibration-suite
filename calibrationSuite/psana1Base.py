@@ -10,7 +10,7 @@ class PsanaBase(object):
         self.g0cut = 1<<14
         self.gainBitsMask = self.g0cut - 1
 
-##        self.setupPsana()
+        ## self.setupPsana()
 
     def get_ds(self, run=None):
         if run is None:
