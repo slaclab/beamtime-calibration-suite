@@ -32,12 +32,10 @@ main branch tag v1.0.0 are the scripts used for the 2/17/24 beamtime
 
 To run tests:   
 
-ssh into psana  
-source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh  
-clone this repo  
 cd beamtime-calibration-suite/tests  
 pytest .  
 
+()
 
 Developers:
 
