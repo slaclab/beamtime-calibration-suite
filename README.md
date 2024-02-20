@@ -1,7 +1,7 @@
 # beamtime-calibration-suite
 [![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
 
-To run to suite_scripts or use the library in scripts outside the project directory, you need to append the project directory to your PYTHONPATH, for example:
+To run any suite_scripts or use the library in scripts outside the project directory, you need to append the project directory to your PYTHONPATH, for example:
 export PYTHONPATH="${PYTHONPATH}:~/beamtime_slaclab/beamtime-calibration-suite"
 
 (can add this to your ~/.bashrc so persists between terminal sessions. Library can later have
@@ -21,6 +21,9 @@ from calibrationSuite.cluster import *
 
 /standalone_scripts: scripts that do not use the calibrationSuite library code
 
+/tests: tests files, can be ran with 'pytest .' from the root project directory
+(Currently only test for the fitFunctions libraryh file is running, more tests are to be added)
+
 
 Current Status:
 
@@ -29,18 +32,8 @@ main branch tag v1.0.0 are the scripts used for the 2/17/24 beamtime
     -large changes will be merged into ontop of this, but original scripts can be accessed by checking out this tag
     -future beamtimes can be tagged as well
 
-
-To run tests:   
-
-cd beamtime-calibration-suite/tests  
-pytest .  
-
-()
-
 Developers:
 
 If you are new to git/github, start here: https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=428802060
 
 Then read the following for an overview of the development process: https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=429562464
-
-
