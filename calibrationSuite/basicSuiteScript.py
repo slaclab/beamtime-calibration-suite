@@ -7,8 +7,8 @@ from calibrationSuite.rixSuiteConfig import *
 ##from mfxRixSuiteConfig import *
 import h5py
 from scipy.optimize import curve_fit ## here?
-import calibrationSuite.fitFunctions
-import calibrationSuite.ancillaryMethods
+from calibrationSuite.fitFunctions import *
+from calibrationSuite.ancillaryMethods import *
 
 def sortArrayByList(a, data):
     return [x for _,x in sorted(zip(a, data), key=lambda pair:pair[0])]
