@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
-import calibrationSuite.fitFunctions, calibrationSuite.ancillaryMethods
+from calibrationSuite.fitFunctions import *
+from calibrationSuite.ancillaryMethods import *
 ##import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator

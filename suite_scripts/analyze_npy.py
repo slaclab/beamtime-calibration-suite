@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import calibrationSuite.fitFunctions, calibrationSuite.ancillaryMethods
+from calibrationSuite.fitFunctions import *
+from calibrationSuite.ancillaryMethods import *
 import sys
 
 class AnalyzeLinearity(object):
