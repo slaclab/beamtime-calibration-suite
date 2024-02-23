@@ -30,12 +30,12 @@ class PsanaBase(object):
         self.evrs = None
         try:
             self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except:
+        except Exception as e:
             self.wave8 = None
         self.config = None
         try:
             self.controlData = Detector('ControlData')
-        except:
+        except Exception as e:
             self.controlData = None
             
     def getFivePedestalRunInfo(self):
@@ -69,7 +69,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except:
+            except Exception as e:
                 continue
 
     def getEvtFromRuns(self):
@@ -82,7 +82,7 @@ class PsanaBase(object):
                 self.run = self.runRange[i+1]
                 print("switching to run %d" %(self.run))
                 self.ds = self.get_ds(self.run)
-            except:
+            except Exception as e:
                 print("have run out of new runs")
                 return None
             ##print("get event from new run")
@@ -99,9 +99,9 @@ class PsanaBase(object):
             try:
                 if f<self.fluxCut:
                     return None
-            except:
+            except Exception as e:
                 pass
-        except:
+        except Exception as e:
             return None
         return f
 
@@ -117,7 +117,7 @@ class PsanaBase(object):
     def isKicked(self, evt):
         try:
             evr = evt.get(EvrData.DataV4, self.evrs[0])
-        except:
+        except Exception as e:
             self.get_evrs()
             evr = evt.get(EvrData.DataV4, self.evrs[0])
 
@@ -131,7 +131,7 @@ class PsanaBase(object):
             for ec in evr.fifoEvents():
                 if ec.eventCode() == 137:
                     kicked = False
-        except:
+        except Exception as e:
             pass
         return kicked
 

@@ -57,11 +57,11 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.location = experimentHash['location']
-        except:
+        except Exception as e:
             pass
         try:
             self.exp = experimentHash['exp']
-        except:
+        except Exception as e:
             pass
         try:
         ##if True:
@@ -71,20 +71,20 @@ class BasicSuiteScript(PsanaBase):
                 self.ROIs.append(np.load(f+'.npy'))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
-            except:
+            except Exception as e:
                 pass
         ##if False:
-        except:
+        except Exception as e:
             print("had trouble finding", self.ROIfileNames)
             self.ROI = None
             self.ROIs = None
         try:
             self.singlePixels = experimentHash['singlePixels']
-        except:
+        except Exception as e:
             self.singlePixels = None
         try:
             self.regionSlice = experimentHash['regionSlice']
-        except:
+        except Exception as e:
             self.regionSlice = None
         if self.regionSlice is not None:
             self.sliceCoordinates = [[self.regionSlice[0].start,
@@ -99,13 +99,13 @@ class BasicSuiteScript(PsanaBase):
             self.fluxSource = experimentHash['fluxSource']
             try:
                 self.fluxChannels = experimentHash['fluxChannels']
-            except:
+            except Exception as e:
                 self.fluxChannels = range(8,16) ## wave8
             try:
                 self.fluxSign = experimentHash['fluxSign']
-            except:
+            except Exception as e:
                 self.fluxSign = 1
-        except:
+        except Exception as e:
             self.fluxSource = None
 
         ## for non-120 Hz running
@@ -153,7 +153,7 @@ class BasicSuiteScript(PsanaBase):
             self.fluxCut = args.fluxCut
         try:
             self.runRange = eval(args.runRange) ## in case needed
-        except:
+        except Exception as e:
             self.runRange = None
             
         self.fivePedestalRun = args.fivePedestalRun ## in case needed
@@ -227,7 +227,7 @@ class BasicSuiteScript(PsanaBase):
                     frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM
                     ##if r == 280 and rand > 0.999:
                         ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except:
+                except Exception as e:
                     rowCM = -666
                     print("rowCM problem")
                     print(frame[r, colOffset:colOffset + self.detColsPerBank])
@@ -251,7 +251,7 @@ class BasicSuiteScript(PsanaBase):
                     frame[rowOffset:rowOffset + self.detRowsPerBank, c] -= colCM
                     ##if r == 280 and rand > 0.999:
                         ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except:
+                except Exception as e:
                     colCM = -666
                     print("colCM problem")
                     print(frame[rowOffset:rowOffset + self.detRowsPerBank], c)
