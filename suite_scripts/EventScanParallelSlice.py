@@ -40,7 +40,7 @@ class EventScanParallel(BasicSuiteScript):
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which='minor', linewidth=0.5)
             figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
-            logger.info("Wrote figure file: " + figFileName)
+            logger.info("Wrote file: " + figFileName)
             plt.savefig(figFileName)
             plt.clf()
  
@@ -58,7 +58,7 @@ class EventScanParallel(BasicSuiteScript):
             plt.legend(loc='upper right')
         
         figFileName = "%s/%s_r%d_c%d_%s_All%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
-        logger.info("Wrote figure file: " + figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.savefig(figFileName)
         plt.clf()
         # plt.show()
@@ -74,7 +74,7 @@ class EventScanParallel(BasicSuiteScript):
             plt.ylabel('Pixel ADU')
             figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i) 
             plt.savefig(figFileName)
-            logger.info("Wrote figure file: " + figFileName)
+            logger.info("Wrote file: " + figFileName)
             plt.close()
 
             if True:
@@ -84,7 +84,7 @@ class EventScanParallel(BasicSuiteScript):
                 plt.title("Event scan projection of pixel %d" %(i))
                 pltFileName = "%s/%s_r%d_c%d_%s_pixel%d_hist.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
                 plt.savefig(pltFileName)
-                logger.info("Wrote plot file: " + pltFileName)
+                logger.info("Wrote file: " + pltFileName)
                 plt.close()
             
     def analyzeData(self, delays, data, label):
@@ -113,7 +113,7 @@ class EventScanParallel(BasicSuiteScript):
         try:
             bitSlice = data['summedBitSlice'][()]
             npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp) 
-            logger.info("Saved np file: " + npyFileName)
+            logger.info("Wrote file: " + npyFileName)
             np.save(npyFileName, np.array(bitSlice))
         except:
             pass
@@ -121,7 +121,7 @@ class EventScanParallel(BasicSuiteScript):
         pulseIds.sort()
         
         npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp)
-        logger.info("Saved np file: " + npyFileName)
+        logger.info("Wrote file: " + npyFileName)
         np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:]-pulseIds[0:-1]
         
@@ -225,16 +225,16 @@ if __name__ == "__main__":
          
     npyFileName = "%s/means_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp)       
     np.save(npyFileName, np.array(roiMeans))
-    logger.info("Saved npy file: " + npyFileName)
+    logger.info("Wrote file: " + npyFileName)
 
     npyFileName = "%s/eventNumbers_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp)
     np.save(npyFileName, np.array(eventNumbers))
-    logger.info("Saved npy file: " + npyFileName)
+    logger.info("Wrote file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
     if smd.summary and esp.fakePedestal is None:
         allSum = smd.sum(bitSliceSum)
         smd.save_summary({'summedBitSlice': allSum})
     smd.done()
-    logger.info("Wrote to smd file: " + h5FileName)
+    logger.info("Wrote file: " + h5FileName)
 
