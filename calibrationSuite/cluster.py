@@ -1,4 +1,6 @@
 import numpy
+import logging
+logger = logging.getLogger(__name__)
 
 class Cluster(object):
     def __init__(self, row, col, energy):

@@ -13,11 +13,15 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
+import logging
+logger = logging.getLogger(__name__)
 
 class PsanaBase(object):
     def __init__(self, analysisType='scan'):
         self.psanaType = 2
         print("in psana2Base")
+        logger.info("in psana2Base")
+
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         ##self.g0cut = 1<<15 ## 2022
@@ -26,7 +30,7 @@ class PsanaBase(object):
 
         self.allowed_timestamp_mismatch = 1000
 
-##        self.setupPsana()
+        ##self.setupPsana()
 
     def get_ds(self, run=None):
         if run is None:
@@ -47,7 +51,7 @@ class PsanaBase(object):
         try:
             self.step_value = self.myrun.Detector('step_value')
             self.step_docstring = elf.myrun.Detector('step_docstring')
-        except Exception as e:
+        except Exception:
             self.step_value = self.step_docstring = None
 
 ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
@@ -67,12 +71,13 @@ class PsanaBase(object):
 
         try:
             self.mfxDg1 = self.myrun.Detector('MfxDg1BmMon')
-        except Exception as e:
+        except Exception:
             self.mfxDg1 = None
             print("No flux source found")## if self.verbose?
+            logger.exception("No flux source found")        
         try:
             self.mfxDg2 = self.myrun.Detector('MfxDg2BmMon')
-        except Exception as e:
+        except Exception:
             self.mfxDg2 = None
         ## fix hardcoding in the fullness of time
         self.detEvts = 0
@@ -86,7 +91,7 @@ class PsanaBase(object):
         self.config = None
         try:
             self.controlData = Detector('ControlData')
-        except Exception as e:
+        except Exception:
             self.controlData = None
 
 ##        if self.mfxDg1 is None:
@@ -120,7 +125,7 @@ class PsanaBase(object):
         for nevt, evt in enumerate(gen):
             try:
                 self.flux = self._getFlux(evt)
-            except Exception as e:
+            except Exception:
                 pass
             if self.det.raw.raw(evt) is None:
                 continue
@@ -151,7 +156,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except Exception as e:
+            except Exception:
                 continue
 
     def getEvtFromRuns(self):
@@ -163,9 +168,11 @@ class PsanaBase(object):
             try:
                 self.run = self.runRange[i+1]
                 print("switching to run %d" %(self.run))
+                logger.info("switching to run %d" %(self.run))
                 self.ds = self.get_ds(self.run)
             except Exception as e:
                 print("have run out of new runs")
+                logger.exception("have run out of new runs")
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
@@ -177,7 +184,7 @@ class PsanaBase(object):
             return None
         try:
             return self.mfxDg1.raw.peakAmplitude(evt)
-        except Exception as e:
+        except Exception:
             return None
 
     def _getFlux(self, evt):
@@ -188,13 +195,13 @@ class PsanaBase(object):
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
             ##print(f)
-        except Exception as e:
+        except Exception:
             #print(e)
             return None
         try:
             if f<self.fluxCut:
                 return None
-        except Exception as e:
+        except Exception:
             pass
         return f
 
@@ -252,6 +259,7 @@ class PsanaBase(object):
             ##print(payload)
             sv = eval(payload.split()[-1][:-1])
             print("step", int(self.step_value(step)), sv)
+            logger.info("step", int(self.step_value(step)), sv)
             return sv
         return self.step_value(step)
 

@@ -2,6 +2,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
+import logging
+logger = logging.getLogger(__name__)
 
 def linear(x, a, b):
     return a*x + b
@@ -87,7 +89,9 @@ def twoGaussSilvermanModeTest(x0, x1):
         ##plt.hist(a, 100)
         plt.show()
     print(a.mean(), a.std(), d.mean(), d.std())
-    print(x0, x1, bw_silverman(a), bw_silverman(d))
+    print(x0, x1, bw_silverman(a), bw_silverman(d))    
+    logger.info(a.mean(), a.std(), d.mean(), d.std())
+    logger.info(x0, x1, bw_silverman(a), bw_silverman(d))
     return d.std()/a.std(), bw_silverman(d)/bw_silverman(a)
 
 def testSilvermanModeTest():
@@ -113,6 +117,10 @@ def testSilvermanModeTest():
     print("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
     print("rms for a gap in gaussian/notched gaussian:", a.std()/b[c][:1000].std())
     print("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a)/bw_silverman(b[c][:1000]))
+    logger.info("rms for a gap in gaussian, notched gaussian:", a.std(), b[c][:1000].std())
+    logger.info("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
+    logger.info("rms for a gap in gaussian/notched gaussian:", a.std()/b[c][:1000].std())
+    logger.info("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a)/bw_silverman(b[c][:1000]))
 
     
 def missingBinTest(binCenters, counts):
@@ -164,4 +172,5 @@ def testMissingBinTest():
     mbt_b = missingBinTest(binCenters, hb)
     print("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
     print((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())
-
+    logger.info("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
+    logger.info((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())

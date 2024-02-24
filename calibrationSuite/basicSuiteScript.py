@@ -46,6 +46,8 @@ class BasicSuiteScript(PsanaBase):
             sys.exit(1)
         experimentHash = config.experimentHash
 
+        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
+ 
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         self.camera = 0
@@ -57,11 +59,11 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.location = experimentHash['location']
-        except Exception as e:
+        except Exception:
             pass
         try:
             self.exp = experimentHash['exp']
-        except Exception as e:
+        except Exception:
             pass
         try:
         ##if True:
@@ -71,20 +73,21 @@ class BasicSuiteScript(PsanaBase):
                 self.ROIs.append(np.load(f+'.npy'))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
-            except Exception as e:
+            except Exception:
                 pass
         ##if False:
-        except Exception as e:
+        except Exception:
             print("had trouble finding", self.ROIfileNames)
+            logger.exception("had trouble finding", self.ROIfileNames)        
             self.ROI = None
             self.ROIs = None
         try:
             self.singlePixels = experimentHash['singlePixels']
-        except Exception as e:
+        except Exception:
             self.singlePixels = None
         try:
             self.regionSlice = experimentHash['regionSlice']
-        except Exception as e:
+        except Exception:
             self.regionSlice = None
         if self.regionSlice is not None:
             self.sliceCoordinates = [[self.regionSlice[0].start,
@@ -99,13 +102,13 @@ class BasicSuiteScript(PsanaBase):
             self.fluxSource = experimentHash['fluxSource']
             try:
                 self.fluxChannels = experimentHash['fluxChannels']
-            except Exception as e:
+            except Exception:
                 self.fluxChannels = range(8,16) ## wave8
             try:
                 self.fluxSign = experimentHash['fluxSign']
-            except Exception as e:
+            except Exception:
                 self.fluxSign = 1
-        except Exception as e:
+        except Exception:
             self.fluxSource = None
 
         ## for non-120 Hz running
@@ -153,7 +156,7 @@ class BasicSuiteScript(PsanaBase):
             self.fluxCut = args.fluxCut
         try:
             self.runRange = eval(args.runRange) ## in case needed
-        except Exception as e:
+        except Exception:
             self.runRange = None
             
         self.fivePedestalRun = args.fivePedestalRun ## in case needed
@@ -227,9 +230,10 @@ class BasicSuiteScript(PsanaBase):
                     frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM
                     ##if r == 280 and rand > 0.999:
                         ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except Exception as e:
+                except Exception:
                     rowCM = -666
                     print("rowCM problem")
+                    logger.exception("rowCM problem")
                     print(frame[r, colOffset:colOffset + self.detColsPerBank])
                 colOffset += self.detColsPerBank
         return frame
@@ -251,9 +255,10 @@ class BasicSuiteScript(PsanaBase):
                     frame[rowOffset:rowOffset + self.detRowsPerBank, c] -= colCM
                     ##if r == 280 and rand > 0.999:
                         ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except Exception as e:
+                except Exception:
                     colCM = -666
                     print("colCM problem")
+                    logger.exception("colCM problem")
                     print(frame[rowOffset:rowOffset + self.detRowsPerBank], c)
                 rowOffset += self.detRowsPerBank
         return frame
@@ -278,11 +283,19 @@ class BasicSuiteScript(PsanaBase):
                 self.nDaqCodeEvents,
                 self.nBeamCodeEvents)
               )
+        logger.info("have counted %d run triggers, %d DAQ triggers, %d beam events"
+              %(self.nRunCodeEvents,
+                self.nDaqCodeEvents,
+                self.nBeamCodeEvents)
+              )
+        
 
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
+    logger.info("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+    logger.info(dir(evt))
 

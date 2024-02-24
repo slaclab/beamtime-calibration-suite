@@ -1,10 +1,13 @@
 from psana import *
 from PSCalib.NDArrIO import load_txt
+import logging
+logger = logging.getLogger(__name__)
 
 class PsanaBase(object):
     def __init__(self, analysisType='scan'):
         self.psanaType = 1
         print("in psana1Base")
+        logger.info("in psana1Base")
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         self.g0cut = 1<<14
@@ -19,7 +22,8 @@ class PsanaBase(object):
 
 
     def setupPsana(self):
-        ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
+        logger.info("have built basic script class, exp %s run %d" %(self.exp, self.run))
+
         if self.runRange is None:
             self.ds = self.get_ds(self.run)
         else:
@@ -30,12 +34,12 @@ class PsanaBase(object):
         self.evrs = None
         try:
             self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except Exception as e:
+        except Exception:
             self.wave8 = None
         self.config = None
         try:
             self.controlData = Detector('ControlData')
-        except Exception as e:
+        except Exception:
             self.controlData = None
             
     def getFivePedestalRunInfo(self):
@@ -69,7 +73,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except Exception as e:
+            except Exception:
                 continue
 
     def getEvtFromRuns(self):
@@ -81,9 +85,11 @@ class PsanaBase(object):
             try:
                 self.run = self.runRange[i+1]
                 print("switching to run %d" %(self.run))
+                logger.info("switching to run %d" %(self.run))
                 self.ds = self.get_ds(self.run)
-            except Exception as e:
+            except Exception:
                 print("have run out of new runs")
+                logger.exception("have run out of new runs")
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
@@ -94,14 +100,15 @@ class PsanaBase(object):
             fluxes = self.wave8.get(evt).peakA()
             if fluxes is None:
                 print("No flux found")## if self.verbose?
+                logger.error("No flux found")
                 return None
             f = fluxes[self.fluxChannels].mean()*self.fluxSign
             try:
                 if f<self.fluxCut:
                     return None
-            except Exception as e:
+            except Exception:
                 pass
-        except Exception as e:
+        except Exception:
             return None
         return f
 
@@ -117,7 +124,7 @@ class PsanaBase(object):
     def isKicked(self, evt):
         try:
             evr = evt.get(EvrData.DataV4, self.evrs[0])
-        except Exception as e:
+        except Exception:
             self.get_evrs()
             evr = evt.get(EvrData.DataV4, self.evrs[0])
 
@@ -131,7 +138,7 @@ class PsanaBase(object):
             for ec in evr.fifoEvents():
                 if ec.eventCode() == 137:
                     kicked = False
-        except Exception as e:
+        except Exception:
             pass
         return kicked
 

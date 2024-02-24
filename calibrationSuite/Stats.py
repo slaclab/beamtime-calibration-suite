@@ -1,4 +1,6 @@
 import numpy
+import logging
+logger = logging.getLogger(__name__)
 
 class Stats(object):
     def __init__(self, shape):
@@ -38,3 +40,6 @@ if __name__ == '__main__':
     print(s.mean())
     print(s.rms())
     print(s.corr(s.mean()[7], s.rms()[7]))
+    logger.info(s.mean())
+    logger.info(s.rms())
+    logger.info(s.corr(s.mean()[7], s.rms()[7]))
