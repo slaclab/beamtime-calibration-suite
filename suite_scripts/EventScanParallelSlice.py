@@ -1,4 +1,17 @@
 from calibrationSuite.basicSuiteScript import *
+import logging
+
+# Setup logging to file '<filename>.log', and configures the underlying calibration-library logging.
+# Log file gets appended to each new run, and can manually delete for fresh log.
+# (Could change so makes new unique log each run or overwrites existing log.)
+logging.basicConfig(
+    filename= os.path.basename(__file__)[:-3] + ".log",
+    level=logging.INFO, # For full logging set to INFO which includes ERROR logging too
+    format='%(asctime)s - %(levelname)s - %(message)s' # levelname is log severity (ERROR, INFO, etc)
+)
+
+# for logging from current file
+logger = logging.getLogger(__name__)
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
@@ -6,6 +19,8 @@ class EventScanParallel(BasicSuiteScript):
         self.only283 = [True, False][0] ## special beam event code
         print("only analyzing event code 283 flag set to", self.only283)
         
+        logging.info("Output dir: " + self.outputDir)
+
     def plotData(self, data, pixels, eventNumbers, dPulseId, label):
         if 'timestamp' in label:
             xlabel = 'Timestamp (s)'
@@ -13,7 +28,7 @@ class EventScanParallel(BasicSuiteScript):
         else:
             xlabel = 'Event number'
         print(xlabel,label)
-        
+
         for i, roi in enumerate(self.ROIs):
             ##data[i] -= data[i].mean()
             ax = plt.subplot()
@@ -29,9 +44,11 @@ class EventScanParallel(BasicSuiteScript):
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which='minor', linewidth=0.5)
-            plt.savefig("%s/%s_r%d_c%d_%s_ROI%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
+            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
+            logger.info("Wrote figure file: " + figFileName)
+            plt.savefig(figFileName)
             plt.clf()
-            
+ 
         for i, roi in enumerate(self.ROIs):
             ax = plt.subplot()
             ##ax.plot(eventNumbers, data[i], label=self.ROIfileNames[i])
@@ -44,7 +61,10 @@ class EventScanParallel(BasicSuiteScript):
             plt.ylabel('Mean (ADU)')
             ##plt.yscale('log')
             plt.legend(loc='upper right')
-        plt.savefig("%s/%s_r%d_c%d_%s_All%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
+        
+        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
+        logger.info("Wrote figure file: " + figFileName)
+        plt.savefig(figFileName)
         plt.clf()
         # plt.show()
 
@@ -57,7 +77,9 @@ class EventScanParallel(BasicSuiteScript):
             ##ax.scatter(eventNumbers, pixels[i], marker='.', s=1, label=str(p))
             plt.xlabel(xlabel)
             plt.ylabel('Pixel ADU')
-            plt.savefig("%s/%s_r%d_c%d_%s_pixel%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
+            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i) 
+            plt.savefig(figFileName)
+            logger.info("Wrote figure file: " + figFileName)
             plt.close()
 
             if True:
@@ -65,7 +87,9 @@ class EventScanParallel(BasicSuiteScript):
                 ax.hist(pixels[i], 100,range=[pixels[i].min().astype('int'), pixels[i].max().astype('int')])
                 plt.xlabel('Pixel ADU')
                 plt.title("Event scan projection of pixel %d" %(i))
-                plt.savefig("%s/%s_r%d_c%d_%s_pixel%d_hist.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i))
+                pltFileName = "%s/%s_r%d_c%d_%s_pixel%d_hist.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, label, i)
+                plt.savefig(pltFileName)
+                logger.info("Wrote plot file: " + pltFileName)
                 plt.close()
             
     def analyzeData(self, delays, data, label):
@@ -84,6 +108,7 @@ class EventScanParallel(BasicSuiteScript):
         import h5py
         data = h5py.File(dataFile)
         print(data.keys())
+        logger.info("keys: " + str(data.keys))
         ts = data['timestamps'][()]
         print(ts)
         pulseIds = data['pulseIds'][()]
@@ -92,12 +117,17 @@ class EventScanParallel(BasicSuiteScript):
 
         try:
             bitSlice = data['summedBitSlice'][()]
-            np.save("%s/bitSlice_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp), np.array(bitSlice))
+            npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp) 
+            logger.info("Saved np file: " + npyFileName)
+            np.save(npyFileName, np.array(bitSlice))
         except:
             pass
         
         pulseIds.sort()
-        np.save("%s/pulseIds_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp), np.array(pulseIds))
+        
+        npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" %(self.outputDir, self.camera, self.run, self.exp)
+        logger.info("Saved np file: " + npyFileName)
+        np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:]-pulseIds[0:-1]
         
         pixels = sortArrayByList(ts, pixels)
@@ -105,22 +135,28 @@ class EventScanParallel(BasicSuiteScript):
         ts.sort()
         ts = ts-ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
-        print(ts)
+        print("ts: ", ts)
 
         self.plotData(np.array(rois).T, np.array(pixels).T, ts, dPulseId, 'timestamps' + label)
             
 if __name__ == "__main__":
+    commandUsed = sys.executable + ' ' + ' '.join(sys.argv)
+    logger.info ("Ran with cmd: " + commandUsed)
+
     esp = EventScanParallel()
-    print("have built a", esp.className, "class")
+    print("have built a" + esp.className + "class")
+    logger.info("have built a" + esp.className + "class")
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
         print("done with standalone analysis of %s, exiting" %(esp.file))
+        logger.info("done with standalone analysis of %s, exiting" %(esp.file))
         sys.exit(0)
     
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename='%s/%s_c%d_r%d_n%d.h5' %(esp.outputDir, esp.className, esp.camera, esp.run, size))
-    
+    h5FileName = '%s/%s_c%d_r%d_n%d.h5'%(esp.outputDir, esp.className, esp.camera, esp.run, size)
+    smd = esp.ds.smalldata(filename=h5FileName)
+
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]
     pixelValues = [[] for i in esp.singlePixels]
@@ -186,17 +222,24 @@ if __name__ == "__main__":
         esp.nGoodEvents += 1
         if esp.nGoodEvents%100 == 0:
             print("n good events analyzed: %d" %(esp.nGoodEvents))
+            logger.info("n good events analyzed: %d" %(esp.nGoodEvents))
 
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-            
-    np.save("%s/means_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp), np.array(roiMeans))
-    np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp), np.array(eventNumbers))
+         
+    npyFileName = "%s/means_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp)       
+    np.save(npyFileName, np.array(roiMeans))
+    logger.info("Saved npy file: " + npyFileName)
+
+    npyFileName = "%s/eventNumbers_c%d_r%d_%s.npy" %(esp.outputDir, esp.camera, esp.run, esp.exp)
+    np.save(npyFileName, np.array(eventNumbers))
+    logger.info("Saved npy file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
     if smd.summary and esp.fakePedestal is None:
         allSum = smd.sum(bitSliceSum)
         smd.save_summary({'summedBitSlice': allSum})
     smd.done()
-    
+    logger.info("Wrote to smd file: " + h5FileName)
+

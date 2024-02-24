@@ -78,7 +78,8 @@ class BasicSuiteScript(PsanaBase):
         ##if False:
         except Exception:
             print("had trouble finding", self.ROIfileNames)
-            logger.exception("had trouble finding", self.ROIfileNames)        
+            for currName in self.ROIfileNames:
+                logger.exception("had trouble finding" + currName)        
             self.ROI = None
             self.ROIs = None
         try:
