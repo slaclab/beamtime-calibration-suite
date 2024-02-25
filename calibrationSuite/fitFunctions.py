@@ -42,7 +42,7 @@ def calculateFitR2(y, fit):
     
     try:
         r2 = 1 - (ss_res / ss_tot)
-    except Exception as e:
+    except:
         r2 = 1 ## I guess
 
     return r2
@@ -64,11 +64,11 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
         x, y = getRestrictedHistogram(x, y, x0, x1)
         
     a, mean, std = estimateGaussianParameters(zip(x,y))
-    popt, pcov = curve_fit(fitFunctions.gaussian, x, y, [3, mean, std])
+    popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]
     ##sigma = popt[2]
-    fittedFunc = fitFunctions.gaussian(x, *popt)
+    fittedFunc = gaussian(x, *popt)
 
     ## should perhaps return an object with attributes for future flexibility
     return popt, fittedFunc
@@ -89,9 +89,7 @@ def twoGaussSilvermanModeTest(x0, x1):
         ##plt.hist(a, 100)
         plt.show()
     print(a.mean(), a.std(), d.mean(), d.std())
-    print(x0, x1, bw_silverman(a), bw_silverman(d))    
-    logger.info(a.mean(), a.std(), d.mean(), d.std())
-    logger.info(x0, x1, bw_silverman(a), bw_silverman(d))
+    print(x0, x1, bw_silverman(a), bw_silverman(d))
     return d.std()/a.std(), bw_silverman(d)/bw_silverman(a)
 
 def testSilvermanModeTest():
@@ -117,10 +115,6 @@ def testSilvermanModeTest():
     print("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
     print("rms for a gap in gaussian/notched gaussian:", a.std()/b[c][:1000].std())
     print("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a)/bw_silverman(b[c][:1000]))
-    logger.info("rms for a gap in gaussian, notched gaussian:", a.std(), b[c][:1000].std())
-    logger.info("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
-    logger.info("rms for a gap in gaussian/notched gaussian:", a.std()/b[c][:1000].std())
-    logger.info("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a)/bw_silverman(b[c][:1000]))
 
     
 def missingBinTest(binCenters, counts):
@@ -172,5 +166,3 @@ def testMissingBinTest():
     mbt_b = missingBinTest(binCenters, hb)
     print("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
     print((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())
-    logger.info("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
-    logger.info((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())

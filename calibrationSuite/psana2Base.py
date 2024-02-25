@@ -50,8 +50,8 @@ class PsanaBase(object):
         self.myrun = next(self.ds.runs())
         try:
             self.step_value = self.myrun.Detector('step_value')
-            self.step_docstring = elf.myrun.Detector('step_docstring')
-        except Exception:
+            self.step_docstring = self.myrun.Detector('step_docstring')
+        except:
             self.step_value = self.step_docstring = None
 
 ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
@@ -71,13 +71,13 @@ class PsanaBase(object):
 
         try:
             self.mfxDg1 = self.myrun.Detector('MfxDg1BmMon')
-        except Exception:
+        except:
             self.mfxDg1 = None
             print("No flux source found")## if self.verbose?
             logger.exception("No flux source found")        
         try:
             self.mfxDg2 = self.myrun.Detector('MfxDg2BmMon')
-        except Exception:
+        except:
             self.mfxDg2 = None
         ## fix hardcoding in the fullness of time
         self.detEvts = 0
@@ -86,12 +86,12 @@ class PsanaBase(object):
         self.evrs = None
         try:
             self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except Exception as e:
+        except:
             self.wave8 = None
         self.config = None
         try:
             self.controlData = Detector('ControlData')
-        except Exception:
+        except:
             self.controlData = None
 
 ##        if self.mfxDg1 is None:
@@ -125,7 +125,7 @@ class PsanaBase(object):
         for nevt, evt in enumerate(gen):
             try:
                 self.flux = self._getFlux(evt)
-            except Exception:
+            except:
                 pass
             if self.det.raw.raw(evt) is None:
                 continue
@@ -156,7 +156,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except Exception:
+            except:
                 continue
 
     def getEvtFromRuns(self):
@@ -170,7 +170,7 @@ class PsanaBase(object):
                 print("switching to run %d" %(self.run))
                 logger.info("switching to run %d" %(self.run))
                 self.ds = self.get_ds(self.run)
-            except Exception as e:
+            except:
                 print("have run out of new runs")
                 logger.exception("have run out of new runs")
                 return None
@@ -184,7 +184,7 @@ class PsanaBase(object):
             return None
         try:
             return self.mfxDg1.raw.peakAmplitude(evt)
-        except Exception:
+        except:
             return None
 
     def _getFlux(self, evt):
@@ -195,13 +195,13 @@ class PsanaBase(object):
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
             ##print(f)
-        except Exception:
+        except Exception as e:
             #print(e)
             return None
         try:
             if f<self.fluxCut:
                 return None
-        except Exception:
+        except:
             pass
         return f
 
@@ -245,7 +245,7 @@ class PsanaBase(object):
             ## dumb to do the below everywhere, should best not call this method
             ##try:
             ##    self.flux = self._getFlux(evt)
-            ##except Exception as e:
+            ##except:
             ##    pass
 
         except StopIteration:
@@ -259,7 +259,7 @@ class PsanaBase(object):
             ##print(payload)
             sv = eval(payload.split()[-1][:-1])
             print("step", int(self.step_value(step)), sv)
-            logger.info("step", int(self.step_value(step)), sv)
+            logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return sv
         return self.step_value(step)
 

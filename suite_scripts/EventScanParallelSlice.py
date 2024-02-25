@@ -5,8 +5,10 @@ logger = logging.getLogger(__name__)
 
 import calibrationSuite.loggingSetup as ls
 import os
+
+# log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.INFO)
+ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR) # change to logging.INFO for full logging output
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):

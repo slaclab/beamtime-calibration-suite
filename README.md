@@ -51,10 +51,12 @@ If you are new to git/github, start here: [https://confluence.slac.stanford.edu/
 
 Then read the following for an overview of the development process: [https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=429562464](https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=429562464)
 
+For commit messages, we can try to follow the PyDM guidelines: https://slaclab.github.io/pydm/development/development.html#commit-guidelines
+
 ### Logging
 
-Logging is added to the library code, and also to the [EventScanParallelSlice.py](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/EventScanParallelSlice.py) and
-[AnalyzeH5.py](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/AnalyzeH5.py) files in /suite_scripts which act as examples of generating logs from both the library
+Loggings calls are added to the library code, and also to the [EventScanParallelSlice.py](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/EventScanParallelSlice.py) and
+[AnalyzeH5.py](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/AnalyzeH5.py) files in /suite_scripts to act as examples of generating logs from both the library
 and high-level scripts.
 
 Using the following method will append log messages to the log-file if it already exists, or create a new
@@ -81,9 +83,12 @@ import logging
 logger = logging.getLogger(__name__)
 ```
 
-Then add log statements throughout the script with:
+Then can add log statements throughout the script with:
 
 ``` 
 logger.error("Example error msg!") # for logging when the program goes wrong
+logger.exception("Example exception msg!) # for logging error and also including stack-trace in log 
 logger.info("Example info msg!") # for logging useful info on the state of the program
 ```
+
+_(Note: these must take a statement evaluating to a single string, if a,b,c are strings can't do 'logger.info(a,b,c)' but can do 'logger.info(a+b+c)'. Also for example if a is an int, must do 'logger.info(str(a)))_
