@@ -7,25 +7,13 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 ##import sys
 import argparse
+from calibrationSuite.argumentParser import ArgumentParser
 
 class AnalyzeH5(object):
     def __init__(self):
         print('in init')
-        ## this parsing may be common - move elsewhere if so
-        parser = argparse.ArgumentParser(
-            description='Configures calibration suite, overriding experimentHash',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
-        )
-        parser.add_argument('-e', '--exp', help='experiment')
-        ##parser.add_argument('-l', '--location', help='hutch location, e.g. MfxEndstation or DetLab')
-        parser.add_argument('-r', '--run', type=int, help='run')
-        parser.add_argument('-R', '--runRange', help='run range, format ...')
-        parser.add_argument('-p', '--path', type=str, default='../lowFlux/', help='the base path to the output directory')
-        parser.add_argument('-d', '--detType', type=str, default='', help='Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ...')
-        parser.add_argument('-f','--files', type=str, default=None, help='run analysis on file or comma-separated files')
-        parser.add_argument('-L','--label', type=str, default='foo', help='analysis label')
 
-        args = parser.parse_args()
+        args = ArgumentParser().parse_args()
 
         self.run = args.run
         self.files = args.files.replace(' ', '')
