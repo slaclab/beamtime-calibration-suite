@@ -1,14 +1,22 @@
 import argparse
 import numpy as np
+import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import sys
-from calibrationSuite.rixSuiteConfig import *
-##from mfxRixSuiteConfig import *
 import h5py
 from scipy.optimize import curve_fit ## here?
 from calibrationSuite.fitFunctions import *
 from calibrationSuite.ancillaryMethods import *
+
+import os
+if os.getenv('foo') == '1':
+    print("psana1")
+    from calibrationSuite.psana1Base import *
+else:
+    print("psana2")
+    from calibrationSuite.psana2Base import *
+
 
 def sortArrayByList(a, data):
     return [x for _,x in sorted(zip(a, data), key=lambda pair:pair[0])]
@@ -19,6 +27,49 @@ class BasicSuiteScript(PsanaBase):
         super().__init__()
         ##print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
         
+                
+        parser = argparse.ArgumentParser(
+            description='Configures calibration suite, overriding experimentHash',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+        parser.add_argument('-e', '--exp', help='experiment')
+        parser.add_argument('-l', '--location', help='hutch location, e.g. MfxEndstation or DetLab')
+        parser.add_argument('-r', '--run', type=int, help='run')
+        parser.add_argument('-R', '--runRange', help='run range, format ...')
+        parser.add_argument('-cf', '--configFile', type=str, help='config file path, can be relative')
+        parser.add_argument('--fivePedestalRun', type=int, help='5 pedestal run')
+        parser.add_argument('--fakePedestal', type=str, help='fake pedestal file')
+        parser.add_argument('-c', '--camera', type=int, help='camera.n')
+        parser.add_argument('-p', '--path', type=str, help='the base path to the output directory')
+        parser.add_argument('-n', '--nModules', type=int, help='nModules')
+        parser.add_argument('-d', '--detType', type=str, default='', help='Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ...')
+        parser.add_argument('--maxNevents', type=int, default='666666', help='max number of events to analyze')
+        parser.add_argument('--skipNevents', type=int, default=0, help='max number of events to skip at the start of each step')
+        parser.add_argument('--configScript', type=str, default='experimentSuiteConfig.py', help='name of python config file to load if any')
+        parser.add_argument('--detObj', help='"raw", "calib", "image"')
+        parser.add_argument('-f','--file', type=str, help='run analysis only on file')
+        parser.add_argument('-L','--label', type=str, help='analysis label')
+        parser.add_argument('-t', '--threshold', help="threshold (ADU or keV or wave8) depending on --detObj")
+        parser.add_argument('--fluxCut', type=float, help="minimum flux to be included in analysis")
+        parser.add_argument('--special', type=str, help='comma-separated list of special behaviors - maybe this is too lazy.  E.g. positiveParity,doKazEvents,...')
+        args = parser.parse_args()
+        
+        ##mymodule = importlib.import_module(full_module_name)
+
+        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that.
+        # if neither are set, use the default 'suiteConfig.py' file.
+        defaultConfigFileName = "suiteConfig.py"
+        secondaryConfigFileName = defaultConfigFileName if args.configFile is None else args.configFile
+        # secondaryConfigFileName is returned if env var not set
+        configFileName = os.environ.get('SUITE_CONFIG', secondaryConfigFileName)
+        config = self.importConfigFile(configFileName)
+        if config is None:
+            print("\ncould not find or read config file: " + configFileName)
+            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            print("exiting...")
+            sys.exit(1)
+        experimentHash = config.experimentHash
+
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         self.camera = 0
@@ -90,33 +141,6 @@ class BasicSuiteScript(PsanaBase):
         self.beamCode = 283 ## per Matt
         ##self.beamCode = 281 ## don't see 283...
         self.fakeBeamCode = False
-        
-        parser = argparse.ArgumentParser(
-            description='Configures calibration suite, overriding experimentHash',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
-        )
-        parser.add_argument('-e', '--exp', help='experiment')
-        parser.add_argument('-l', '--location', help='hutch location, e.g. MfxEndstation or DetLab')
-        parser.add_argument('-r', '--run', type=int, help='run')
-        parser.add_argument('-R', '--runRange', help='run range, format ...')
-        parser.add_argument('--fivePedestalRun', type=int, help='5 pedestal run')
-        parser.add_argument('--fakePedestal', type=str, help='fake pedestal file')
-        parser.add_argument('-c', '--camera', type=int, help='camera.n')
-        parser.add_argument('-p', '--path', type=str, help='the base path to the output directory')
-        parser.add_argument('-n', '--nModules', type=int, help='nModules')
-        parser.add_argument('-d', '--detType', type=str, default='', help='Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ...')
-        parser.add_argument('--maxNevents', type=int, default='666666', help='max number of events to analyze')
-        parser.add_argument('--skipNevents', type=int, default=0, help='max number of events to skip at the start of each step')
-        parser.add_argument('--configScript', type=str, default='experimentSuiteConfig.py', help='name of python config file to load if any')
-        parser.add_argument('--detObj', help='"raw", "calib", "image"')
-        parser.add_argument('-f','--file', type=str, help='run analysis only on file')
-        parser.add_argument('-L','--label', type=str, help='analysis label')
-        parser.add_argument('-t', '--threshold', help="threshold (ADU or keV or wave8) depending on --detObj")
-        parser.add_argument('--fluxCut', type=float, help="minimum flux to be included in analysis")
-        parser.add_argument('--special', type=str, help='comma-separated list of special behaviors - maybe this is too lazy.  E.g. positiveParity,doKazEvents,...')
-        args = parser.parse_args()
-        
-        ##mymodule = importlib.import_module(full_module_name)
 
         ## for standalone analysis
         self.file = args.file
@@ -171,6 +195,15 @@ class BasicSuiteScript(PsanaBase):
 
         ##self.setupPsana()
         ##do this later or skip for -file
+
+    def importConfigFile(self, file_path):
+        if not os.path.exists(file_path):
+            print(f"The file '{file_path}' does not exist")
+            return None
+        spec = importlib.util.spec_from_file_location("config", file_path)
+        config_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(config_module)
+        return config_module
 
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,
