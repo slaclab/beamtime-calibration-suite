@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 try:
                     statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
                 except:
-                    statsArray[i] = Stats.Stats(frames.shape)
+                    statsArray[i] = Stats(frames.shape)
                     statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
         stats = statsArray[2] ## only matters for cross-correlation
         noise = stats.rms()
