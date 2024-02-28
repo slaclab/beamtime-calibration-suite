@@ -10,6 +10,8 @@ import argparse
 
 class AnalyzeH5(object):
     def __init__(self):
+        
+        print ("Nolan")
         print('in init')
         ## this parsing may be common - move elsewhere if so
         parser = argparse.ArgumentParser(
