@@ -3,8 +3,8 @@ from calibrationSuite.basicSuiteScript import *
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("misc")##self)
-        self.only281 = [True, False][0]
-        print("only analyzing event code 281 flag set to", self.only281)
+        self.only283 = [True, False][0] ## special beam event code
+        print("only analyzing event code 283 flag set to", self.only283)
         
     def plotData(self, data, pixels, eventNumbers, dPulseId, label):
         if 'timestamp' in label:
@@ -131,8 +131,8 @@ if __name__ == "__main__":
         if evt is None:
             continue
         ec = esp.getEventCodes(evt)
-        if esp.only281:
-            if not ec[281]:
+        if esp.only283:
+            if not ec[283]:
                 ##print(ec)
                 continue
         frames = esp.getRawData(evt, gainBitsMasked=True)
