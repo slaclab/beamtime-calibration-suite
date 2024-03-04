@@ -1,11 +1,3 @@
-import os
-if os.getenv('foo') == '1':
-    print("psana1")
-    from calibrationSuite.psana1Base import *
-else:
-    print("psana2")
-    from calibrationSuite.psana2Base import *
-
 import numpy as np
 
 ##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
