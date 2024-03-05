@@ -3,58 +3,71 @@ from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
 import logging
+
 logger = logging.getLogger(__name__)
 
+
 def linear(x, a, b):
-    return a*x + b
+    return a * x + b
+
 
 def saturatedLinear(x, a, b, c, d):
-    return [a*X + b if X < c else d for X in x]
+    return [a * X + b if X < c else d for X in x]
+
 
 def saturatedLinearB(x, a, b, d):
-    return [a*X + b if a*X+b < d else d for X in x]
+    return [a * X + b if a * X + b < d else d for X in x]
+
 
 def gaussian(x, a, mu, sigma):
-    return a*np.exp(-(x-mu)**2/(2*sigma**2))
+    return a * np.exp(-((x - mu) ** 2) / (2 * sigma**2))
+
 
 def gaussianArea(a, sigma):
     return a * sigma * 6.28
+
 
 def estimateGaussianParametersFromUnbinnedArray(flatData):
     sigma = flatData.std()
     entries = len(flatData)
     ## will crash if sigma is 0
-    return entries/(sigma*6.28), flatData.mean(), sigma
+    return entries / (sigma * 6.28), flatData.mean(), sigma
+
 
 def estimateGaussianParametersFromXY(x, y):
     mean, sigma = getHistogramMeanStd(x, y)
     ## will crash if sigma is 0
-    return sum(y)/(sigma*6.28), mean, sigma
+    return sum(y) / (sigma * 6.28), mean, sigma
+
 
 def getHistogramMeanStd(binCenters, counts):
     mean = np.average(binCenters, weights=counts)
-    var = np.average((binCenters - mean)**2, weights=counts)
+    var = np.average((binCenters - mean) ** 2, weights=counts)
     return mean, np.sqrt(var)
+
 
 def calculateFitR2(y, fit):
     ss_res = np.sum((y - fit) ** 2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
-    
+
     try:
         r2 = 1 - (ss_res / ss_tot)
     except:
-        r2 = 1 ## I guess
+        r2 = 1  ## I guess
 
     return r2
 
+
 def getBinCentersFromNumpyHistogram(bins):
-    return (bins[1:] + bins[:-1])/2.
+    return (bins[1:] + bins[:-1]) / 2.0
+
 
 def getRestrictedHistogram(bins, counts, x0, x1):
-    cut = np.where(np.logical_and(bins>=x0, bins<=x1))
+    cut = np.where(np.logical_and(bins >= x0, bins <= x1))
     x = bins[cut]
     y = counts[cut]
     return x, y
+
 
 def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     ## binned 1d data, optional fit restriction to [x0, x1]
@@ -62,8 +75,8 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     y = counts
     if x0 is not None:
         x, y = getRestrictedHistogram(x, y, x0, x1)
-        
-    a, mean, std = estimateGaussianParameters(zip(x,y))
+
+    a, mean, std = estimateGaussianParameters(zip(x, y))
     popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]
@@ -72,7 +85,8 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
 
     ## should perhaps return an object with attributes for future flexibility
     return popt, fittedFunc
-    
+
+
 def fitNorm(data):
     mean, std = norm.fit(data)
     return mean, std
@@ -85,12 +99,14 @@ def twoGaussSilvermanModeTest(x0, x1):
     d = np.append(b, c)
     if False:
         import matplotlib.pyplot as plt
+
         plt.hist(d, 100)
         ##plt.hist(a, 100)
         plt.show()
     print(a.mean(), a.std(), d.mean(), d.std())
     print(x0, x1, bw_silverman(a), bw_silverman(d))
-    return d.std()/a.std(), bw_silverman(d)/bw_silverman(a)
+    return d.std() / a.std(), bw_silverman(d) / bw_silverman(a)
+
 
 def testSilvermanModeTest():
     a = np.linspace(0, 3, 10)
@@ -102,43 +118,44 @@ def testSilvermanModeTest():
         S.append(r1)
 
     import matplotlib.pyplot as plt
+
     plt.plot(noise, S)
     plt.title("Two gaussian test of Silverman's test separating peaks")
     plt.xlabel("two peak rms/one peak rms")
     plt.ylabel("two peak Silverman/one peak Silverman")
     plt.show()
-    
+
     a = np.random.normal(0, 100, 1000)
     b = np.random.normal(0, 100, 10000)
-    c = np.where(b!=50)
+    c = np.where(b != 50)
     print("rms for a gap in gaussian, notched gaussian:", a.std(), b[c][:1000].std())
     print("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
-    print("rms for a gap in gaussian/notched gaussian:", a.std()/b[c][:1000].std())
-    print("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a)/bw_silverman(b[c][:1000]))
+    print("rms for a gap in gaussian/notched gaussian:", a.std() / b[c][:1000].std())
+    print("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a) / bw_silverman(b[c][:1000]))
 
-    
+
 def missingBinTest(binCenters, counts):
     mu, sigma = getHistogramMeanStd(binCenters, counts)
-    binCenters, counts = getRestrictedHistogram(binCenters, counts, mu-sigma, mu+sigma)
+    binCenters, counts = getRestrictedHistogram(binCenters, counts, mu - sigma, mu + sigma)
     ##print(len(b), len(c))
     n = len(counts)
-    if n>=10:
-        step = int(n/10)
+    if n >= 10:
+        step = int(n / 10)
     else:
         step = n
-        
+
     cuts = range(1, 6)
     missingBins = np.zeros(len(cuts))
-        
+
     for i in range(step):
-        i0 = step*i
-        i1 = min(step*(i+1), n)
+        i0 = step * i
+        i1 = min(step * (i + 1), n)
         med = np.median(counts[i0:i1])
         mean = counts[i0:i1].mean()
         rootN = np.sqrt(mean)
         for k in cuts:
             for j in range(i0, i1):
-                if counts[j]<med-k*rootN:
+                if counts[j] < med - k * rootN:
                     missingBins[k] += 1
                     ##print(n, step, i, i0, i1, k, j, binCenters[j], counts[j], med-k*rootN)
     return missingBins
@@ -147,22 +164,23 @@ def missingBinTest(binCenters, counts):
 def testMissingBinTest():
     nSamples = 5000
     a = np.random.normal(0, 100, nSamples)
-    b = np.random.normal(0, 100, nSamples*2)
+    b = np.random.normal(0, 100, nSamples * 2)
     missingValue = 30
-    c = np.where(np.logical_or(b>(missingValue+1), b<missingValue))
+    c = np.where(np.logical_or(b > (missingValue + 1), b < missingValue))
     b = b[c][:nSamples]
     ##print(50 in a, 50 in b)
     ha, bins = np.histogram(a, 600, [-300, 300])
-    hb,_ = np.histogram(b, 600, [-300, 300])
+    hb, _ = np.histogram(b, 600, [-300, 300])
     binCenters = getBinCentersFromNumpyHistogram(bins)
     ##print(binCenters, ha, hb)
     if True:
         import matplotlib.pyplot as plt
+
         plt.stairs(ha, bins)
-        plt.stairs(hb, bins, color='b')
+        plt.stairs(hb, bins, color="b")
         plt.show()
 
     mbt_a = missingBinTest(binCenters, ha)
     mbt_b = missingBinTest(binCenters, hb)
     print("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
-    print((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())
+    print((range(1, 6) * mbt_a).sum(), (range(1, 6) * mbt_b).sum())

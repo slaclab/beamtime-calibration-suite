@@ -4,10 +4,10 @@ import numpy as np
 
 exp = sys.argv[1]
 run = eval(sys.argv[2])
-pvList = sys.argv[3].split(',')
-allNames =  pvList.join('_')
+pvList = sys.argv[3].split(",")
+allNames = pvList.join("_")
 
-detList = [DataSource(exp=exp,run=run,intg_det=pv) for pv in pvList]
+detList = [DataSource(exp=exp, run=run, intg_det=pv) for pv in pvList]
 data = [[]] * len(pvList)
 myrun = next(ds.runs())
 while True:
@@ -17,5 +17,4 @@ while True:
     for n, ds in enumerate(dsList):
         data[n].append(det(evt))
 
-np.save("%s_r%d_PVs_%s.npy" %(exp, run, allNames), np.array(data))
-
+np.save("%s_r%d_PVs_%s.npy" % (exp, run, allNames), np.array(data))

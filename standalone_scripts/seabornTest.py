@@ -12,23 +12,23 @@ y = np.random.normal(x**2, np.abs(x) + 1)
 if mode == 0:
     sns.regplot(x=x, y=y, x_bins=10, fit_reg=None)
     plt.show()
-elif mode==1:
+elif mode == 1:
     fig, ax = plt.subplots()
     sns.regplot(x=x, y=y, x_bins=10, fit_reg=None)
     plt.show()
-elif mode==2:
+elif mode == 2:
     fig, ax = plt.subplots()
-    sns.regplot(x=x, y=y, x_bins=10, fit_reg=None,ax=ax)
+    sns.regplot(x=x, y=y, x_bins=10, fit_reg=None, ax=ax)
     y = np.random.normal(x**2, np.abs(x) + 2)
-    sns.regplot(x=x, y=y, x_bins=10, fit_reg=None,ax=ax)
+    sns.regplot(x=x, y=y, x_bins=10, fit_reg=None, ax=ax)
     plt.show()
-elif mode==3:
+elif mode == 3:
     fig, ax = plt.subplots()
     sns.regplot(x=x, y=y, x_bins=10, ax=ax)
     y = np.random.normal(x**2, np.abs(x) + 2)
     sns.regplot(x=x, y=y, x_bins=10, ax=ax)
     plt.show()
-elif mode==4:
+elif mode == 4:
     fig, ax = plt.subplots()
     sns.regplot(x=x, y=y, x_bins=10, ax=ax)
     x = np.random.uniform(0, 2, 10000)

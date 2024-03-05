@@ -7,15 +7,15 @@ run = eval(sys.argv[2])
 try:
     special = sys.argv[3]
 except:
-    special = ''
+    special = ""
 
-ds = DataSource(exp=exp,run=run,intg_det='epixhr')
+ds = DataSource(exp=exp, run=run, intg_det="epixhr")
 
 myrun = next(ds.runs())
-det = myrun.Detector('epixhr')
+det = myrun.Detector("epixhr")
 try:
-    digIn = myrun.Detector('ePixHR_Dig_in')
-    anaIn = myrun.Detector('ePixHR_Ana_in')
+    digIn = myrun.Detector("ePixHR_Dig_in")
+    anaIn = myrun.Detector("ePixHR_Ana_in")
 except:
     digIn = anaIn = None
 
@@ -38,26 +38,26 @@ while True:
         pass
 
     try:
-        pedestals = det.calibconst['pedestals'][0]
+        pedestals = det.calibconst["pedestals"][0]
         lowPed = pedestals[2]
         print("pedestal:", pedestals)
         print("pedestal mean, std")
         print(lowPed.mean(), lowPed.std())
-        if 'pedestal' in special:
-            np.save("pedestals_%d.npy" %(run), pedestals)
-            
+        if "pedestal" in special:
+            np.save("pedestals_%d.npy" % (run), pedestals)
+
     except:
         print("no pedestal")
 
     try:
-        gains = det.calibconst['pixel_gain'][0]
-        print(gains.mean(axis=(1,2,3)))
+        gains = det.calibconst["pixel_gain"][0]
+        print(gains.mean(axis=(1, 2, 3)))
     except:
         print("no gain: pain")
     try:
-        print('dig:', digIn(evt))
-        print('ana:', anaIn(evt))
+        print("dig:", digIn(evt))
+        print("ana:", anaIn(evt))
     except:
         print("no PV")
-        
+
     break
