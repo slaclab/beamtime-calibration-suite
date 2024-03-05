@@ -2,19 +2,22 @@
 [![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
 
 ## Environment Variables
-To run any suite_scripts or use the library in scripts outside the project directory, you need to append the location of your project directory to your PYTHONPATH, for example:
+
+In order to run the library code, first execute the following cmd:
 ``` 
-export PYTHONPATH="${PYTHONPATH}:~/nolan/repos/beamtime-calibration-suite"
+source setup.sh
 ```
-_(can add this to your ~/.bashrc so persists between terminal sessions. Library can later have a better release method than cloning and adding to path (pip?))_
+_(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)_
+
+This script just appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.
 
 Additionally you can specify which config file to use by setting the 'SUITE_CONFIG' environment variable, for example:
 ``` 
-export SUITE_CONFIG="rixConfig.py" 
+export SUITE_CONFIG="rixSuiteConfig.py" 
 ```
 _(relative or full paths work)_  
 You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments _(note: if set, the environment variable overrides this cmd-line option)_  
-If neither of the above are set, the suite will try to use 'suiteConfig.py'. If no config file can be found and read, the library will fail-out early.
+If neither of the above are set, the suite will try to use _suiteConfig.py_. If no config file can be found and read, the library will fail-out early.
 
 ## File organization: 
 * /calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:
