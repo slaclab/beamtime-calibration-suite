@@ -2,6 +2,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
+import logging
+logger = logging.getLogger(__name__)
 
 def linear(x, a, b):
     return a*x + b
@@ -62,11 +64,11 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
         x, y = getRestrictedHistogram(x, y, x0, x1)
         
     a, mean, std = estimateGaussianParameters(zip(x,y))
-    popt, pcov = curve_fit(fitFunctions.gaussian, x, y, [3, mean, std])
+    popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]
     ##sigma = popt[2]
-    fittedFunc = fitFunctions.gaussian(x, *popt)
+    fittedFunc = gaussian(x, *popt)
 
     ## should perhaps return an object with attributes for future flexibility
     return popt, fittedFunc
@@ -164,4 +166,3 @@ def testMissingBinTest():
     mbt_b = missingBinTest(binCenters, hb)
     print("per n sigma check for gap in gaussian, notched gaussian:", mbt_a, mbt_b)
     print((range(1,6)*mbt_a).sum(), (range(1,6)*mbt_b).sum())
-

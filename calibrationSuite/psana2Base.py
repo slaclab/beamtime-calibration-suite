@@ -13,11 +13,15 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
+import logging
+logger = logging.getLogger(__name__)
 
 class PsanaBase(object):
     def __init__(self, analysisType='scan'):
         self.psanaType = 2
         print("in psana2Base")
+        logger.info("in psana2Base")
+
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         ##self.g0cut = 1<<15 ## 2022
@@ -26,7 +30,7 @@ class PsanaBase(object):
 
         self.allowed_timestamp_mismatch = 1000
 
-##        self.setupPsana()
+        ##self.setupPsana()
 
     def get_ds(self, run=None):
         if run is None:
@@ -70,6 +74,7 @@ class PsanaBase(object):
         except:
             self.mfxDg1 = None
             print("No flux source found")## if self.verbose?
+            logger.exception("No flux source found")        
         try:
             self.mfxDg2 = self.myrun.Detector('MfxDg2BmMon')
         except:
@@ -163,9 +168,11 @@ class PsanaBase(object):
             try:
                 self.run = self.runRange[i+1]
                 print("switching to run %d" %(self.run))
+                logger.info("switching to run %d" %(self.run))
                 self.ds = self.get_ds(self.run)
             except:
                 print("have run out of new runs")
+                logger.exception("have run out of new runs")
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
@@ -252,6 +259,7 @@ class PsanaBase(object):
             ##print(payload)
             sv = eval(payload.split()[-1][:-1])
             print("step", int(self.step_value(step)), sv)
+            logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return sv
         return self.step_value(step)
 

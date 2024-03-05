@@ -9,6 +9,17 @@ from matplotlib.ticker import AutoMinorLocator
 import argparse
 from calibrationSuite.argumentParser import ArgumentParser
 
+import logging
+# for logging from current file
+logger = logging.getLogger(__name__)
+
+import calibrationSuite.loggingSetup as ls
+import os
+
+# log to file named <curr script name>.log
+currFileName = os.path.basename(__file__)
+ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR) # change to logging.INFO for full logging output
+
 class AnalyzeH5(object):
     def __init__(self):
         print('in init')
@@ -19,6 +30,7 @@ class AnalyzeH5(object):
         self.files = args.files.replace(' ', '')
         print(self.files)
         self.outputDir = args.path
+        logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
         
@@ -49,6 +61,7 @@ class AnalyzeH5(object):
             self.clusterAnalysis()
         else:
             print("unknown analysis type %s" %(self.analysisType))
+            logging.info("unknown analysis type %s" %(self.analysisType))
 
     def clusterAnalysis(self):
         clusters = None
@@ -63,7 +76,10 @@ class AnalyzeH5(object):
         self.lowEnergyCut = 1 ## fix - should be 0.5 photons or something
         self.highEnergyCut = 10 ## fix - should be 1.5 photons or something
         ##tmp
-        np.save("%s/r%d_clusters.npy" %(self.outputDir,self.run), clusters)
+        npyFileName = "%s/r%d_clusters.npy" %(self.outputDir,self.run) 
+        np.save(npyFileName, clusters)
+        logger.info("Wrote file: " + npyFileName)
+        
         self.analyzeSimpleClusters(clusters)
 
         if energyHist is None:
@@ -75,25 +91,34 @@ class AnalyzeH5(object):
         plt.title = "All pixel energies in run after common mode correction"
         plt.xlabel = "energy (keV)"
         print("I hate matplotlib so much")
-        plt.savefig("%s/%s_r%d_c%d_%s_energyHistogram.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label))
-        np.save("%s/%s_r%d_c%d_%s_energyHistogram.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label), energyHist)
+
+        figFileName = "%s/%s_r%d_c%d_%s_energyHistogram.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label)
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName) 
+        npyFileName = "%s/%s_r%d_c%d_%s_energyHistogram.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label)
+        np.save(npyFileName, energyHist)
+        logger.info("Wrote file: " + npyFileName)
         plt.close()
 
 
-    
+
     def analyzeSimpleClusters(self, clusters):
         ax = plt.subplot()
         energy = clusters[:, :, 0]##.flatten()
         ##energy *= 2 ## temporary, due to bit shift
         ##print(energy[energy>0][666:777])
-        print('mean energy above 0:', energy[energy>0].mean())
+        print('mean energy above 0:' + str(energy[energy>0].mean()))
+        logger.info('mean energy above 0:' + str(energy[energy>0].mean()))
+
         foo = ax.hist(energy[energy>0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
-        plt.savefig("%s/%s_r%d_c%d_%s_E.png" %(self.outputDir,
+        figFileName = "%s/%s_r%d_c%d_%s_E.png" %(self.outputDir,
                                                self.__class__.__name__,
                                                self.run, self.camera,
-                                               self.label))
+                                               self.label)
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.close()
 
         rows = self.sliceEdges[0]
@@ -103,14 +128,16 @@ class AnalyzeH5(object):
             for j in range(cols):
                 detRow, detCol = self.sliceToDetector(i,j)
                 ax = plt.subplot()
-                goodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=4, isSquare=1)
-                if len(goodClusters) <5:
-                    print("too few clusters in slice pixel %d, %d: %d" %(i,j, len(goodClusters)))
+                currGoodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=4, isSquare=1)
+                if len(currGoodClusters) <5:
+                    print("too few clusters in slice pixel %d, %d: %d" %(i,j, len(currGoodClusters)))
+                    logger.info("too few clusters in slice pixel %d, %d: %d" %(i,j, len(currGoodClusters)))
                     continue
-                energies = ancillaryMethods.getClusterEnergies(goodClusters)
+                energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
                 photonEcut = np.bitwise_and(energies>self.lowEnergyCut, energies<self.highEnergyCut)
                 nPixelClusters = (photonEcut>0).sum()
                 print("pixel %d,%d has about %d photons" %(i,j,nPixelClusters))
+                logger.info("pixel %d,%d has about %d photons" %(i,j,nPixelClusters))
                 photonRegion = energies[photonEcut]
                 mean = photonRegion.mean()
                 std = photonRegion.std()
@@ -121,10 +148,14 @@ class AnalyzeH5(object):
                 plt.figtext(0.7, 0.8, "%d entries (peak)" %(area))
                 plt.figtext(0.7, 0.75, "mu %0.2f" %(mu))
                 plt.figtext(0.7, 0.7, "sigma %0.2f" %(sigma))
-                plt.savefig("%s/%s_r%d_c%d_r%d_c%d_%s_E.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label))
+                figFileName = "%s/%s_r%d_c%d_r%d_c%d_%s_E.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label)
+                plt.savefig(figFileName)
+                logger.info("Wrote file: " + figFileName)
                 plt.close()
                 
-                np.save("%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label), fitInfo)
+                npyFileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" %(self.outputDir,self.__class__.__name__, self.run, self.camera, detRow, detCol, self.label)
+                np.save(npyFileName, fitInfo)
+                logger.info("Wrote file: " + npyFileName)
                 fitInfo[i,j] = mean, std, area, mu, sigma
                 
         gains = fitInfo[:,:,3]
@@ -133,8 +164,9 @@ class AnalyzeH5(object):
         ax.hist(goodGains, 100)
         ax.set_xlabel("energy (keV)")
         ax.set_title("pixel single photon fitted energy")
-        plt.savefig("%s/%s_r%d_c%d_%s_gainDistribution.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label))
- 
+        figFileName = "%s/%s_r%d_c%d_%s_gainDistribution.png" %(self.outputDir,self.__class__.__name__, self.run, self.camera, self.label)
+        plt.savefig(figFileName)
+    
 
     def histogramAndFitGaussian(self, ax, energies, nBins):
         y, bin_edges, _ = ax.hist(energies, nBins)

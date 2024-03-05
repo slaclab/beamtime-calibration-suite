@@ -46,6 +46,8 @@ class BasicSuiteScript(PsanaBase):
             sys.exit(1)
         experimentHash = config.experimentHash
 
+        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
+ 
         self.gainModes = {"FH":0, "FM":1, "FL":2, "AHL-H":3, "AML-M":4, "AHL-L":5, "AML-L":6}
         self.ePix10k_cameraTypes = {1:"Epix10ka", 4:"Epix10kaQuad", 16:"Epix10ka2M"}
         self.camera = 0
@@ -76,6 +78,8 @@ class BasicSuiteScript(PsanaBase):
         ##if False:
         except:
             print("had trouble finding", self.ROIfileNames)
+            for currName in self.ROIfileNames:
+                logger.exception("had trouble finding" + currName)        
             self.ROI = None
             self.ROIs = None
         try:
@@ -230,6 +234,7 @@ class BasicSuiteScript(PsanaBase):
                 except:
                     rowCM = -666
                     print("rowCM problem")
+                    logger.error("rowCM problem")
                     print(frame[r, colOffset:colOffset + self.detColsPerBank])
                 colOffset += self.detColsPerBank
         return frame
@@ -254,6 +259,7 @@ class BasicSuiteScript(PsanaBase):
                 except:
                     colCM = -666
                     print("colCM problem")
+                    logger.error("colCM problem")
                     print(frame[rowOffset:rowOffset + self.detRowsPerBank], c)
                 rowOffset += self.detRowsPerBank
         return frame
@@ -278,11 +284,19 @@ class BasicSuiteScript(PsanaBase):
                 self.nDaqCodeEvents,
                 self.nBeamCodeEvents)
               )
+        logger.info("have counted %d run triggers, %d DAQ triggers, %d beam events"
+              %(self.nRunCodeEvents,
+                self.nDaqCodeEvents,
+                self.nBeamCodeEvents)
+              )
+        
 
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
+    logger.info("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+    logger.info(dir(evt))
 

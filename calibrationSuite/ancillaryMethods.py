@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.stats import binned_statistic
+import logging
+logger = logging.getLogger(__name__)
 
 def makeProfile(x, y, bins, range=None, spread=False):
     ## NaN for empty bins are suppressed
@@ -16,6 +18,7 @@ def makeProfile(x, y, bins, range=None, spread=False):
     if bin_N.sum()==0:
         ##no data
         print("no data in profile")
+        logger.error("no data in profile")
         return None, None, None
     
     ##yErr = np.sqrt(means2 - means**2)
