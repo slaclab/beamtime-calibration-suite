@@ -73,7 +73,7 @@ ls.setupScriptLogging(currFileName[:-3] + ".log", logging.INFO)
 ```
 
 You can pass a chosen log-file name to the setupScriptLogging function,
-but using the above will create and write to file named <curr script name>.log
+but using the above will create and write to file named _\<curr script name>.log_
  
 To add additional logging from the high-level script itself(to the same file specified to setupScriptLogging),
 you can also add the following to the top of the script:
