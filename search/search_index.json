@@ -1,1 +1,1 @@
-{"config":{"lang":["en"],"separator":"[\\s\\-]+","pipeline":["stopWordFilter"]},"docs":[{"location":"","title":"Test","text":"<p>This is tests for calibration suite docs site!</p>"}]}
+{"config":{"indexing":"full","lang":["en"],"min_search_length":3,"prebuild_index":false,"separator":"[\\s\\-]+"},"docs":[{"location":"","text":"Test This is tests for calibration suite docs site!","title":"Home"},{"location":"#test","text":"This is tests for calibration suite docs site!","title":"Test"}]}
