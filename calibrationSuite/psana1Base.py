@@ -1,12 +1,15 @@
 from psana import *
 from PSCalib.NDArrIO import load_txt
 import logging
-
+import sys
 logger = logging.getLogger(__name__)
 
 
 class PsanaBase(object):
     def __init__(self, analysisType="scan"):
+        commandUsed = sys.executable + " " + " ".join(sys.argv)
+        logger.info("Ran with cmd: " + commandUsed)
+
         self.psanaType = 1
         print("in psana1Base")
         logger.info("in psana1Base")
