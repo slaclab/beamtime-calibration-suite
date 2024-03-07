@@ -6,7 +6,7 @@ echo "Setting environment variables..."
 current_dir=$(pwd)
 
 export PYTHONPATH="$PYTHONPATH:$current_dir"
-echo "PYTHONPATH appended with: $current_dir
+echo "PYTHONPATH appended with: $current_dir"
 
-# if you usually use same config file, convenient to add the following
-# source <full_path>setup.sh
+#if you usually use same config file, convenient to add the following
+#export SUITE_CONFIG="<config file name>.py"
