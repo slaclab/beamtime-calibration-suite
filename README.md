@@ -91,6 +91,8 @@ Then read the following for an overview of the development process: [https://con
 
 For commit messages, we can try to follow the PyDM guidelines: https://slaclab.github.io/pydm/development/development.html#commit-guidelines
 
+Docs: https://slaclab.github.io/beamtime-calibration-suite/
+
 ### Logging
 
 Loggings calls are added to the library code, and also to the [EventScanParallelSlice.py](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/EventScanParallelSlice.py) and
