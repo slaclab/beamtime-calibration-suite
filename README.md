@@ -3,7 +3,9 @@
 
 # To get running quick!
 * First, follow steps **1** through **4**: [setup git and github](https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=428802060)
-* Next, run the following cmds in a terminal (linux or mac terminal works):
+* Next, run the following commands in a terminal (linux or mac terminal should work):  
+_(note: lines starting with '#' are comments with explanation and don't need to be ran)_  
+_(note: in the 1st command: replace \<slac-username> with your slac linux-username)_
 ```
 # ssh into the s3df machines
 ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
@@ -13,8 +15,7 @@ ssh psana
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 
 # download the code
-mkdir repos
-cd repos
+mkdir repos && cd repos
 git clone git@github.com:slaclab/beamtime-calibration-suite.git
 cd beamtime-calibration-suite
 git checkout development
@@ -28,7 +29,7 @@ cd suite_scripts
 cp ../data/OffXavierV4_2.npy . && cp ../data/XavierV4_2.npy .
 python EventScanParallel.py -r 457
 ```
-if everything is working, the script should start spitting output like:
+if everything is working, the script should start spitting terminal-output like:
 ```
 ...
 3259 True
