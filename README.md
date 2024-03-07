@@ -20,7 +20,7 @@ git clone git@github.com:slaclab/beamtime-calibration-suite.git
 cd beamtime-calibration-suite
 git checkout development
 
-# do more environment setup for suite-script
+# do more environment setup for suite-scripts
 source setup.sh
 export SUITE_CONFIG="rixSuiteConfig.py"
 
