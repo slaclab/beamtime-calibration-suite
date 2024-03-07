@@ -5,7 +5,7 @@ nav:
   - Home: index.md
 
 theme:
-  name: 'material'
+  name: 'readthedocs'
 
 plugins:
   - search
