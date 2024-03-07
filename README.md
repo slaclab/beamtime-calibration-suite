@@ -1,7 +1,44 @@
 # beamtime-calibration-suite
 [![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
 
-## Environment Variables
+# To get running quick!
+* First, follow steps **1** through **4**: [setup git and github](https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=428802060)
+* Next, run the following cmds in a terminal (linux or mac terminal works):
+```
+# ssh into the s3df machines
+ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
+ssh psana
+
+# do setup for s3df environment
+source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
+
+# download the code
+mkdir repos
+cd repos
+git clone git@github.com:slaclab/beamtime-calibration-suite.git
+cd beamtime-calibration-suite
+git checkout development
+
+# do more environment setup for suite-script
+source setup.sh
+export SUITE_CONFIG="rixSuiteConfig.py"
+
+# run an example script
+cd suite_scripts
+cp ../data/OffXavierV4_2.npy . && cp ../data/XavierV4_2.npy .
+python EventScanParallel.py -r 457
+```
+if everything is working, the script should start spitting output like:
+```
+...
+3259 True
+3257 True
+3256 True
+3260 True
+Event number foo
+```
+
+## Setup (do this before running):
 
 In order to run the library code, first execute the following cmd:
 ``` 
