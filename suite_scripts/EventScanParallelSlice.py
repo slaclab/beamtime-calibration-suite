@@ -1,16 +1,14 @@
 from calibrationSuite.basicSuiteScript import *
+import calibrationSuite.loggingSetup as ls
 import logging
+import h5py
+import os
 
 # for logging from current file
 logger = logging.getLogger(__name__)
-
-import calibrationSuite.loggingSetup as ls
-import os
-
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
-
+ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
@@ -132,17 +130,17 @@ class EventScanParallel(BasicSuiteScript):
         return edge
 
     def analyze_h5(self, dataFile, label):
-        import h5py
-
         data = h5py.File(dataFile)
         print(data.keys())
-        logger.info("keys: " + str(data.keys))
+
         ts = data["timestamps"][()]
-        print(ts)
+        print("ts: ", ts)
+
         pulseIds = data["pulseIds"][()]
         pixels = data["pixels"][()]
         rois = data["rois"][()]
 
+        # get summedBitSlice and save it to a numpy file
         try:
             bitSlice = data["summedBitSlice"][()]
             npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
@@ -151,30 +149,30 @@ class EventScanParallel(BasicSuiteScript):
         except:
             pass
 
+        # sort and save pulseIds to a numpy file
         pulseIds.sort()
-
         npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
         logger.info("Wrote file: " + npyFileName)
         np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
+        # sort pixels and rois based on timestamps
         pixels = sortArrayByList(ts, pixels)
         rois = sortArrayByList(ts, rois)
+
+        
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
         print("ts: ", ts)
-
         self.plotData(np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label)
 
 
 if __name__ == "__main__":
-    commandUsed = sys.executable + " " + " ".join(sys.argv)
-    logger.info("Ran with cmd: " + commandUsed)
-
     esp = EventScanParallel()
-    print("have built a" + esp.className + "class")
-    logger.info("have built a" + esp.className + "class")
+    print("have built a " + esp.className + "class")
+    logger.info("have built a " + esp.className + "class")
+
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
         print("done with standalone analysis of %s, exiting" % (esp.file))
