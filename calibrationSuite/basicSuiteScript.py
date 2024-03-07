@@ -27,10 +27,11 @@ def sortArrayByList(a, data):
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
         super().__init__()
-        ##print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
+        print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
+        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
 
         args = ArgumentParser().parse_args()
-
+        logger.info("parsed cmdline args: " + str(args))
         ##mymodule = importlib.import_module(full_module_name)
 
         # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that.
@@ -47,13 +48,12 @@ class BasicSuiteScript(PsanaBase):
             sys.exit(1)
         experimentHash = config.experimentHash
 
-        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
-
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
         ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
         self.outputDir = "../%s/" % (analysisType)
+        logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 
         self.className = self.__class__.__name__
@@ -147,6 +147,15 @@ class BasicSuiteScript(PsanaBase):
             self.skipNevents = args.skipNevents
         if args.path is not None:
             self.outputDir = args.path
+        # check if outputDir exists, if does not create it and tell user
+        if not os.path.exists(self.outputDir):
+            print("could not find output dir: " + self.outputDir)
+            print("so creating dir: " + self.outputDir)
+            logger.info("could not find output dir: " + self.outputDir)
+            logger.info("creating dir: " + self.outputDir)
+            os.makedirs(self.outputDir)
+            # give dir read, write, execute permissions
+            os.chmod(self.outputDir, 0o777)
         self.detObj = args.detObj
         if args.threshold is not None:
             self.threshold = eval(args.threshold)

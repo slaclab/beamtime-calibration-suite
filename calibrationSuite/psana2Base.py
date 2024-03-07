@@ -4,6 +4,7 @@ from psana import *
 
 ## for parallelism
 import os
+import sys
 
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"
@@ -23,6 +24,9 @@ logger = logging.getLogger(__name__)
 
 class PsanaBase(object):
     def __init__(self, analysisType="scan"):
+        commandUsed = sys.executable + " " + " ".join(sys.argv)
+        logger.info("Ran with cmd: " + commandUsed)
+
         self.psanaType = 2
         print("in psana2Base")
         logger.info("in psana2Base")
