@@ -74,7 +74,7 @@ _(documentation on the library functionality is still to come, but example usage
 * /tests: tests files, can be ran with 'pytest .' from the root project directory 
 _(Currently only test for the fitFunctions library file is running, more tests are to be added)_
 
-* /data: misc data files from the rixx1003721 scripts directory, saving for now but most files will probably be deleted later
+* /data: example data-files used for running the scripts
 
 ## Current Status:
 
