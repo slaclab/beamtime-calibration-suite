@@ -169,7 +169,7 @@ class PsanaBase(object):
     def getEvtFromRuns(self):
         try:  ## can't get yield to work
             evt = next(self.ds.events())
-            return evt
+            return(evt)
         except StopIteration:
             i = self.runRange.index(self.run)
             try:
@@ -272,6 +272,19 @@ class PsanaBase(object):
         frames = self.det.raw.raw(evt)
         if frames is None:
             return None
+        if self.special:
+            if 'thirteenBits' in self.special:
+                frames = (frames & 0xfffe)
+                ##print("13bits")
+            elif 'twelveBits' in self.special:
+                frames = (frames & 0xfffc)
+                ##print("12bits")
+            elif 'elevenBits' in self.special:
+                frames = (frames & 0xfff8)
+                ##print("11bits")
+            elif 'tenBits' in self.special:
+                frames = (frames & 0xfff0)
+                ##print("10bits")
         if gainBitsMasked:
             return frames & self.gainBitsMask
         return frames
