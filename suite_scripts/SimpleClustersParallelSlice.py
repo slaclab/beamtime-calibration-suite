@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = int(50 * 50 / 3 / 3 * 0.1 * 2)
-    seedCut = 2
+    seedCut = 4
     neighborCut = 0.5
     sic.clusterElements = ["energy", "row", "col", "nPixels", "isSquare"]
     nClusterElements = len(sic.clusterElements)
