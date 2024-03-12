@@ -218,6 +218,11 @@ if __name__ == "__main__":
                 ##oldFrames = frames
                 frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)])
                 ##print(frames-oldFrames)
+        else:
+            frame = frames.astype('float')[0]
+            frames = np.array([frame])
+            if esp.special is not None and 'regionCommonMode' in esp.special:
+                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666666)])
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):

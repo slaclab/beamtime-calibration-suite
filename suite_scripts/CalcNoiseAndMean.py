@@ -33,17 +33,22 @@ if __name__ == "__main__":
             ##if ec[281] or skip281:
             if beamEvent or skip281:
                 if cn.special is not None and "CommonMode" in cn.special:
-                    frames = cn.getCalibData(evt)
+                    commonModeCut = 2.## keV, calib
+                    if cn.detObj and cn.detObj == 'raw':
+                        frames = cn.getRawData(evt).astype('float')
+                        commonModeCut = 16384
+                    else:
+                        frames = cn.getCalibData(evt)
                     if frames is None:
                         continue
                     if "noCommonMode" in cn.special:
                         frames = cn.noCommonModeCorrection(frames[0])
                     elif "rowCommonMode" in cn.special:
-                        frames = cn.rowCommonModeCorrection(frames[0], 2.0)
+                        frames = cn.rowCommonModeCorrection(frames[0], 2.)
                     elif "colCommonMode" in cn.special:
-                        frames = cn.colCommonModeCorrection(frames[0], 2.0)
+                        frames = cn.colCommonModeCorrection(frames[0], 2.)
                     elif "regionCommonMode" in cn.special:
-                        frames = cn.regionCommonModeCorrection(frames[0], cn.regionSlice, 2.0)
+                        frames = cn.regionCommonModeCorrection(frames[0], cn.regionSlice, commonModeCut)
                 else:
                     frames = cn.getRawData(evt, gainBitsMasked=True)
                     if cn.special is not None and "parity" in cn.special:
@@ -79,8 +84,8 @@ if __name__ == "__main__":
             means = means[cn.regionSlice]
         else:
             pass
-        np.save("%s/CalcNoiseAndMean_rms_r%d_step%s.npy" % (cn.outputDir, cn.run, nstep), noise)
-        np.save("%s/CalcNoiseAndMean_mean_r%d_step%s.npy" % (cn.outputDir, cn.run, nstep), means)
+        np.save("%s/CalcNoiseAndMean_rms_%s_r%d_step%s.npy" % (cn.outputDir, cn.label, cn.run, nstep), noise)
+        np.save("%s/CalcNoiseAndMean_mean_%s_r%d_step%s.npy" % (cn.outputDir, cn.label, cn.run, nstep), means)
         for i, p in enumerate(cn.singlePixels):
             try:
                 np.save(
