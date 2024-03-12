@@ -33,7 +33,7 @@ if __name__ == "__main__":
             ##if ec[281] or skip281:
             if beamEvent or skip281:
                 if cn.special is not None and "CommonMode" in cn.special:
-                    commonModeCut = 2.## keV, calib
+                    commonModeCut = 2.0## keV, calib
                     if cn.detObj and cn.detObj == 'raw':
                         frames = cn.getRawData(evt).astype('float')
                         commonModeCut = 16384
@@ -44,9 +44,9 @@ if __name__ == "__main__":
                     if "noCommonMode" in cn.special:
                         frames = cn.noCommonModeCorrection(frames[0])
                     elif "rowCommonMode" in cn.special:
-                        frames = cn.rowCommonModeCorrection(frames[0], 2.)
+                        frames = cn.rowCommonModeCorrection(frames[0], 2.0)
                     elif "colCommonMode" in cn.special:
-                        frames = cn.colCommonModeCorrection(frames[0], 2.)
+                        frames = cn.colCommonModeCorrection(frames[0], 2.0)
                     elif "regionCommonMode" in cn.special:
                         frames = cn.regionCommonModeCorrection(frames[0], cn.regionSlice, commonModeCut)
                 else:
