@@ -1,3 +1,2 @@
 # Test
-
-This is tests for calibration suite docs site!
+This is a test for the calibration-suite docs site!
