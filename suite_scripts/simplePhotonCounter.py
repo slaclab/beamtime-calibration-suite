@@ -55,7 +55,7 @@ if __name__ == "__main__":
         thresholded = thresholded[0][spc.regionSlice]
 
     np.save(
-        "%s/%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.run, spc.camera, spc.exp), thresholded / nGoodEvents
+        "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp), thresholded / nGoodEvents
     )
     print(
         "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"

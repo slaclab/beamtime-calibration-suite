@@ -251,7 +251,7 @@ if __name__ == "__main__":
         print("not doing Kaz events")
 
     lpp.setupPsana()
-    smd = lpp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.camera, lpp.run, size))
+    smd = lpp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size))
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs
@@ -344,19 +344,19 @@ if __name__ == "__main__":
             break
 
     if False:
-        np.save("%s/%s_means_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), roiMeans)
-        np.save("%s/%s_fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), fluxes)
+        np.save("%s/%s_%s_means_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), roiMeans)
+        np.save("%s/%s_%s_fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), fluxes)
         np.save(
-            "%s/%s_singlePixel_g0s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g0s
+            "%s/%s_%s_singlePixel_g0s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), g0s
         )
         np.save(
-            "%s/%s_singlePixel_g1s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g1s
+            "%s/%s_%s_singlePixel_g1s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), g1s
         )
         np.save(
-            "%s/%s_g0Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g0Fluxes
+            "%s/%s_%s_g0Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), g0Fluxes
         )
         np.save(
-            "%s/%s_g1Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.run, lpp.camera, lpp.exp), g1Fluxes
+            "%s/%s_%s_g1Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), g1Fluxes
         )
 
     if False:

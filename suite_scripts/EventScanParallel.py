@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size))
+    smd = esp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, size))
 
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]
@@ -153,8 +153,8 @@ if __name__ == "__main__":
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-    np.save("%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp), np.array(roiMeans))
-    np.save("%s/eventNumbers_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp), np.array(eventNumbers))
+    np.save("%s/means_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp), np.array(roiMeans))
+    np.save("%s/eventNumbers_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp), np.array(eventNumbers))
     esp.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
     ##if smd.summary:
