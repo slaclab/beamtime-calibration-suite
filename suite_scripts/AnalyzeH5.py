@@ -77,8 +77,8 @@ class AnalyzeH5(object):
             pass
 
         self.nBins = 100
-        self.lowEnergyCut = 1  ## fix - should be 0.5 photons or something
-        self.highEnergyCut = 10  ## fix - should be 1.5 photons or something
+        self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
+        self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
         np.save(npyFileName, clusters)
@@ -145,7 +145,7 @@ class AnalyzeH5(object):
             for j in range(cols):
                 detRow, detCol = self.sliceToDetector(i, j)
                 ax = plt.subplot()
-                currGoodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=4, isSquare=1)
+                currGoodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=3, isSquare=1)
                 if len(currGoodClusters) < 5:
                     print("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
                     logger.info("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
