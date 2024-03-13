@@ -127,6 +127,12 @@ if __name__ == "__main__":
         sys.exit()
 
     tsp.setupPsana()
+    tsp.use_281_for_old_data = False
+    ## this is a hack
+    if tsp.run < 500: ## guess
+        tsp.use_281_for_old_data = True
+        print("using all event code 281 frames for old data")
+    
     smd = tsp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, size))
 
     tsp.nGoodEvents = 0
@@ -152,21 +158,25 @@ if __name__ == "__main__":
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-        if not tsp.isBeamEvent(evt):
-            continue
+        ##if not tsp.isBeamEvent(evt):
+            ##continue
 
             doFast = [True, False][0]
-            fakeFlux = [True, False][0]
+            fakeFlux = [True, False][1] ## 0 for ASC lab or until bug found
             if doFast:
                 ec = tsp.getEventCodes(evt)
-                if ec[137]:
-                    tsp.flux = tsp._getFlux(evt)  ## fix this
-                    continue
-                    # frames = tsp.det.calib(evt)
-                    ##frames = tsp.det.raw(evt)&0x3fff
-                elif ec[281]:
+
+                if tsp.isBeamEvent(evt):
                     frames = tsp.getRawData(evt, gainBitsMasked=True)
+                    print("real beam on event", nstep, nevt)
+                elif tsp.use_281_for_old_data and ec[281]:
+                    frames = tsp.getRawData(evt, gainBitsMasked=True)
+                    ##print("281 only...")
+                elif ec[137]:
+                    tsp.flux = tsp._getFlux(evt) ## fix this
+                    continue
                 else:
+                    print("not beam event, not frame event, not bld...")
                     continue
             else:
                 tsp.flux = tsp._getFlux(evt)  ## fix this
