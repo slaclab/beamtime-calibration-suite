@@ -147,6 +147,9 @@ class BasicSuiteScript(PsanaBase):
             self.skipNevents = args.skipNevents
         if args.path is not None:
             self.outputDir = args.path
+        # if set, output folders will be relative to OUTPUT_ROOT
+        # if not, they will be relative to the current script file
+        self.outputDir = os.getenv("OUTPUT_ROOT", "") + self.outputDir
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
             print("could not find output dir: " + self.outputDir)

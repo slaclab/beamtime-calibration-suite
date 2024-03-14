@@ -22,7 +22,6 @@ git checkout development
 
 # do more environment setup for suite-scripts
 source setup.sh
-export SUITE_CONFIG="rixSuiteConfig.py"
 
 # run an example script
 cd suite_scripts
