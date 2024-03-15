@@ -19,7 +19,7 @@ class ArgumentParser:
         self.parser.add_argument(
             "-d", "--detType", type=str, default="", help="Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ..."
         )
-        self.parser.add_argument("--maxNevents", type=int, default="666666", help="max number of events to analyze")
+        self.parser.add_argument("--maxNevents", type=int, default="1000000", help="max number of events to analyze")
         self.parser.add_argument(
             "--skipNevents", type=int, default=0, help="max number of events to skip at the start of each step"
         )

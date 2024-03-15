@@ -10,7 +10,7 @@ import calibrationSuite.fitFunctions as fitFunctions
 class LinearityPlotsParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("scan")  ##self)
-        self.saturated = [True, False][0]
+        self.saturated = [True, False][1]
         print("using saturation fit =", self.saturated)
         self.residuals = [True, False][0]
         self.profiles = [True, False][1]
