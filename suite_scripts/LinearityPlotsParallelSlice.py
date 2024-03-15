@@ -1,4 +1,5 @@
 from calibrationSuite.basicSuiteScript import *
+import calibrationSuite.fitFunctions as fitFunctions
 
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means

@@ -42,17 +42,16 @@ class AnalyzeOneScan(object):
     def analyze(self):
         if self.ratio:
             for array in self.statsArray:
-                self.plotRatio(array)
+                self.plotRatio(*tuple(array))
         else:
             for array in self.statsArray:
                 if len(array) == 2:
                     self.analyzePairs(array)
                 else:
-                    self.plotStat(array)
+                    self.plotStat(*tuple(array))
 
     def analyzePairs(self, statsArray):
-        for statPair in statsArray:
-            self.plotPair(*tuple(statPair))
+        self.plotPair(*tuple(statsArray))
 
     ##    def analyzeRatio(self)
     ##        self.plotRatio("g1slope", "g0slope", clipRange=[0, 0.05])
@@ -107,7 +106,8 @@ class AnalyzeOneScan(object):
         fig, ax = plt.subplots(2, 1)
         d = self.data[:, :, indexA] / self.data[:, :, indexB]
         print(statA, statB, "ratio median:", np.median(d))
-        d = d.clip(*tuple(clipRange))
+        if clipRange is not None:
+            d = d.clip(*tuple(clipRange)) #???
         ##im = ax[0,0].imshow(d.clip(*tuple(g0Range)))
         im = ax[0].imshow(d)
         fig.colorbar(im)
