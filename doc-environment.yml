@@ -1,0 +1,8 @@
+name: calibrationsuite-deployment-docs
+channels:
+  - conda-forge
+dependencies:
+  - mkdocs
+  - mkdocs-material
+  - pip
+  - python
