@@ -124,10 +124,19 @@ class BasicSuiteScript(PsanaBase):
 
         ##mymodule = importlib.import_module(full_module_name)
 
+        # if set, output folders will be relative to OUTPUT_ROOT
+        # if not, they will be relative to the current script file
+        self.outputDir = os.getenv("OUTPUT_ROOT", "")
+        print ("output dir: ", self.outputDir)
         ## for standalone analysis
         self.file = None
         if args.files is not None:
-            self.file = args.files
+            if "," in args.files:
+                self.files = args.files.split(",")
+                for i in range(len(self.files)):
+                    self.files[i] = self.outputDir + self.files[i]
+            else:
+                self.file = self.outputDir + args.files
         self.label = ""
         if args.label is not None:
             self.label = args.label
@@ -147,9 +156,6 @@ class BasicSuiteScript(PsanaBase):
             self.skipNevents = args.skipNevents
         if args.path is not None:
             self.outputDir = args.path
-        # if set, output folders will be relative to OUTPUT_ROOT
-        # if not, they will be relative to the current script file
-        self.outputDir = os.getenv("OUTPUT_ROOT", "") + self.outputDir
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
             print("could not find output dir: " + self.outputDir)
