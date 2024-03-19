@@ -153,12 +153,16 @@ class BasicSuiteScript(PsanaBase):
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
             print("could not find output dir: " + self.outputDir)
-            print("so creating dir: " + self.outputDir)
             logger.info("could not find output dir: " + self.outputDir)
-            logger.info("creating dir: " + self.outputDir)
-            os.makedirs(self.outputDir)
+            print("please create this dir, exiting...")
+            logger.info("please create this dir, exiting...")
+            exit(1)
+            # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
+            #print("so creating dir: " + self.outputDir)
+            #logger.info("creating dir: " + self.outputDir)
+            #os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
-            os.chmod(self.outputDir, 0o777)
+            #os.chmod(self.outputDir, 0o777)
         self.detObj = args.detObj
         if args.threshold is not None:
             self.threshold = eval(args.threshold)
