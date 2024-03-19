@@ -1,9 +1,18 @@
+import os
+import h5py
 from calibrationSuite.basicSuiteScript import *
+import calibrationSuite.loggingSetup as ls
+from matplotlib.ticker import AutoMinorLocator
 
+# for logging from current file
+logger = logging.getLogger(__name__)
+# log to file named <curr script name>.log
+currFileName = os.path.basename(__file__)
+ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
-        super().__init__()  ##self)
+        super().__init__()
 
     def plotData(self, data, pixels, eventNumbers, label):
         if "timestamp" in label:
@@ -28,10 +37,10 @@ class EventScanParallel(BasicSuiteScript):
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
-            plt.savefig(
-                "%s/%s_r%d_c%d_%s_ROI%d.png"
-                % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
-            )
+
+            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            plt.savefig(figFileName)
+            logger.info("Wrote file: " + figFileName)
             plt.clf()
 
         for i, roi in enumerate(self.ROIs):
@@ -46,9 +55,10 @@ class EventScanParallel(BasicSuiteScript):
             plt.ylabel("Mean (ADU)")
             ##plt.yscale('log')
             plt.legend(loc="upper right")
-        plt.savefig(
-            "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
-        )
+
+        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i) 
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.clf()
         # plt.show()
 
@@ -60,10 +70,10 @@ class EventScanParallel(BasicSuiteScript):
             ##ax.scatter(eventNumbers, pixels[i], marker='.', s=1, label=str(p))
             plt.xlabel(xlabel)
             plt.ylabel("Pixel ADU")
-            plt.savefig(
-                "%s/%s_r%d_c%d_%s_pixel%d.png"
-                % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
-            )
+
+            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            plt.savefig(figFileName)
+            logger.info("Wrote file: " + figFileName)
             plt.clf()
 
     def analyzeData(self, delays, data, label):
@@ -79,15 +89,17 @@ class EventScanParallel(BasicSuiteScript):
         return edge
 
     def analyze_h5(self, dataFile, label):
-        import h5py
-
         data = h5py.File(dataFile)
+
         ts = data["timestamps"][()]
         print(ts)
+        
         pixels = data["pixels"][()]
         rois = data["rois"][()]
         pixels = sortArrayByList(ts, pixels)
         rois = sortArrayByList(ts, rois)
+        
+        # get time differences
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
@@ -105,15 +117,19 @@ class EventScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     esp = EventScanParallel()
-    print("have built a", esp.className, "class")
+    print("have built a " + esp.className + "class")
+    logger.info("have built a " + esp.className + "class")
+
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
         print("done with standalone analysis of %s, exiting" % (esp.file))
+        logger.info("done with standalone analysis of %s, exiting" % (esp.file))
         sys.exit(0)
 
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, size))
+    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, size)
+    smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]
@@ -149,14 +165,21 @@ if __name__ == "__main__":
         esp.nGoodEvents += 1
         if esp.nGoodEvents % 100 == 0:
             print("n good events analyzed: %d" % (esp.nGoodEvents))
+            logger.info("n good events analyzed: %d" % (esp.nGoodEvents))
 
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-    np.save("%s/means_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp), np.array(roiMeans))
-    np.save("%s/eventNumbers_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp), np.array(eventNumbers))
+    npMeansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp)
+    np.save(npMeansFileName, np.array(roiMeans))
+    npEventFileName = "%s/eventNumbers_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp)
+    np.save(npEventFileName, np.array(eventNumbers))
+    logger.info("Wrote file: " + npMeansFileName)
+    logger.info("Wrote file: " + npEventFileName)
+
     esp.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
     ##if smd.summary:
     ##smd.save_summary(
     smd.done()
+    logger.info("Wrote file: " + h5FileName)
