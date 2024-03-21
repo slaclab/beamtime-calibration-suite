@@ -41,6 +41,8 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
+    <ul class="current">
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -53,6 +55,10 @@
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="logging/">Logging</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="script_descriptions/">Script Descs</a>
                 </li>
               </ul>
       </div>
@@ -79,29 +85,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>File organization:</p>
-<pre><code>/calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:
-
-from calibrationSuite.basicSuiteScript import * 
+                <h1 id="beamtime-calibration-suite">Beamtime calibration suite</h1>
+<p>Scripts for running during (or in-between) beamtimes to gather and analyze detectors.</p>
+<h1 id="repository-file-organization">Repository file organization:</h1>
+<ul>
+<li>/calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:</li>
+</ul>
+<pre><code>from calibrationSuite.basicSuiteScript import * 
 from calibrationSuite.fitFunctions import * 
 from calibrationSuite.Stats import * 
 from calibrationSuite.cluster import *
 </code></pre>
-<p>(documentation on the library functionality is still to come, but example usage is seen in the /suite_scripts folder)</p>
-<pre><code>/suite_scripts: scripts that use the calibrationSuite library code ('high-level scripts')
-
-/standalone_scripts: scripts that do not use the calibrationSuite library code ('high-level scripts')
-
-/tests: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)
-
-/data: example data-files used for running the scripts
-</code></pre>
-<p>Current Status:</p>
-<p>main branch tag v1.0.0 are the scripts used for the 2/17/24 beamtime</p>
-<pre><code>only changes made are to file organization, and to import statements so work with new organization
-large changes will be merged into ontop of this, but original scripts can be accessed by checking out this tag
-future beamtimes can be tagged as well
-</code></pre>
+<p><em>(documentation on the library functionality is still to come, but example usage is seen in the /suite_scripts folder)</em></p>
+<ul>
+<li>/suite_scripts: scripts that use the calibrationSuite library code ('high-level scripts')</li>
+<li>/standalone_scripts: scripts that do not use the calibrationSuite library code ('high-level scripts')</li>
+<li>/tests: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)</li>
+<li>/data: example data-files used for running the scripts</li>
+</ul>
+<h1 id="important-branches">Important branches:</h1>
+<ul>
+<li>development: Contains the newest 'good' code, usually has new changes and bug fixes.</li>
+<li>main: Stable code used during beamtimes. The ode used during each beamtime is tagged.</li>
+</ul>
               
             </div>
           </div><footer>
@@ -154,5 +160,5 @@ future beamtimes can be tagged as well
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-03-21 19:56:38.755838+00:00
+Build Date UTC : 2024-03-21 20:23:11.534814+00:00
 -->

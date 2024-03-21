@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Running - Calibration Suite Docs</title>
+    <title>Script Descs - Calibration Suite Docs</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Running";
-        var mkdocs_page_input_path = "running.md";
+        var mkdocs_page_name = "Script Descs";
+        var mkdocs_page_input_path = "script_descriptions.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -47,16 +47,18 @@
                 <li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">Running</a>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../running/">Running</a>
                 </li>
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../script_descriptions/">Script Descs</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Script Descs</a>
+    <ul class="current">
+    </ul>
                 </li>
               </ul>
       </div>
@@ -73,9 +75,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Running</li>
+      <li class="breadcrumb-item active">Script Descs</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/running.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/script_descriptions.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -83,23 +85,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>In order to run the library code, first execute the following cmd:</p>
-<pre><code>source setup.sh
-</code></pre>
-<p><em>(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)</em></p>
-<p>This script just appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.</p>
-<p>Additionally you can specify which config file to use by setting the 'SUITE_CONFIG' environment variable, for example:</p>
-<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
-</code></pre>
-<p><em>(relative or full paths work)</em></p>
-<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments (note: if set, the environment variable overrides this cmd-line option)
-If neither of the above are set, the suite will try to use suiteConfig.py. If no config file can be found and read, the library will fail-out early.</p>
+                <h1 id="suite-scripts">Suite scripts:</h1>
+<ul>
+<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/suite_scripts/AnalyzeH5.py">AnalyzeH5.py</a></li>
+<li>runAnalyzeH5.py</li>
+<li>runInfo.py</li>
+<li>searchForNonSwitching.py</li>
+<li>SimpleClustersParallel.py</li>
+<li>SimpleClustersParallelSlice.py</li>
+<li>simplePhotonCounter.py</li>
+<li>imeScan_jm.py  </li>
+<li>roiFromSwitched.py</li>
+<li>analyze_npy.py                       </li>
+<li>batchModeXav.sh                      </li>
+<li>CalcNoiseAndMean.py                  </li>
+<li>DeltaTtest.py                        </li>
+<li>deprecatedLinearityPlotsParallel.py  </li>
+<li>EventScanM.py                        </li>
+<li>EventScanParallel.py      </li>
+<li>TimeScanParallel.py           </li>
+<li>EventScanParallelSlice.py            </li>
+<li>findMinSwitchValue.py                </li>
+<li>histogramFluxEtc.py                  </li>
+<li>LinearityPlotsParallelSlice.py</li>
+<li>TimeScanParallelSlice.py            </li>
+<li>TimeScanParallel_bhavna.py</li>
+<li>PersistenceCheckParallel.py          </li>
+<li>persistenceCheck.py                  </li>
+<li>TimeScanParallelXav.py</li>
+<li>roiFromThreshold.py</li>
+<li>rixSuiteConfig.py                  </li>
+</ul>
+<h1 id="standalone-scripts">Standalone scripts:</h1>
+<ul>
+<li>cfg_utils.py        </li>
+<li>dumpPVs.py              </li>
+<li>plotWave8.py</li>
+<li>compareConfigs.py   </li>
+<li>MapCompEnOn.py           </li>
+<li>roiCombinationExample.py</li>
+<li>DamageCounter.py    </li>
+<li>MapCompEnOnThreshold.py  </li>
+<li>seabornTest.py</li>
+<li>Debugging.py        </li>
+<li>nonBasicScript.py        </li>
+<li>simpler_epixhr.py</li>
+<li>dumbBandPlotter.py  </li>
+<li>OpenXav.py</li>
+</ul>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../setup/" class="btn btn-neutral float-left" title="Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../logging/" class="btn btn-neutral float-right" title="Logging">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../logging/" class="btn btn-neutral float-left" title="Logging"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -126,10 +164,8 @@ If neither of the above are set, the suite will try to use suiteConfig.py. If no
         </span>
     
     
-      <span><a href="../setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../logging/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../logging/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
