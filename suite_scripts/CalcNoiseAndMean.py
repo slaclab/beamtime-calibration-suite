@@ -62,6 +62,7 @@ if __name__ == "__main__":
                     if cn.special is not None and "parity" in cn.special:
                         if cn.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in cn.special):
                             continue
+                    
                     try:
                         frames = frames[0]
                     except:

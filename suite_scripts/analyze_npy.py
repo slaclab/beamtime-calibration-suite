@@ -79,6 +79,7 @@ class AnalyzeOneScan(object):
 
         figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0, stat1)
         plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.close()
 
     def plotPair(self, stat0, stat1):
@@ -196,19 +197,29 @@ class CompareMultipleScans(object):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("no .npy file specified, exiting script...")
+        logger.info("no .npy file specified, exiting script...")
+
     f = sys.argv[1]
     statsArray = None
     plainStatsArray = None
     ratioStatsArray = None
 
-    try:
+    if len(sys.argv) < 3:
+        print("no stats specified in cmdline")
+        logger.info("no stats specified cmdline")
+    else:
+        print("stats specified in cmdline")
+        logger.info("stats specified cmdline")
         statsArray = [sys.argv[2].split(",")]
-    except:
-        pass
+
 
     label = f.split(".npy")[0]
     if "," in f:
         print("compare files...", label, statsArray)
+        logger.info("compare files..." + label + ", " + statsArray)
+
         dataArray = [np.load(g) for g in f.split(",")]
         dataArray = np.array(dataArray)
         ##        runList = [eval(re.search(r'_r(\d+)_', a).group(1)) for a in f.split(',')]
