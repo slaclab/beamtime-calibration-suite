@@ -149,7 +149,10 @@ class BasicSuiteScript(PsanaBase):
             self.outputDir = args.path
         # if set, output folders will be relative to OUTPUT_ROOT
         # if not, they will be relative to the current script file
-        self.outputDir = os.getenv("OUTPUT_ROOT", "") + self.outputDir
+        outputRoot = os.getenv("OUTPUT_ROOT", "")
+        self.outputDir = outputRoot + self.outputDir
+        print ("output folders using root: " + outputRoot)
+        logger.info ("output folders using root: " + outputRoot)
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
             print("could not find output dir: " + self.outputDir)
