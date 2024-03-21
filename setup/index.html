@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Setup - Calibration Suite Docs</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Setup";
+        var mkdocs_page_input_path = "setup.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Calibration Suite Docs
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Calibration Suite Docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Setup</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/setup.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Beamtime calibration suite git/github setup</p>
+<p>1) Make a github.com account</p>
+<p>-if already have github account and want to use it, skip to 2)</p>
+<p>-else, follow the steps here: https://github.com/join</p>
+<p>-username can be anything, some people use ‘<slac_username>-slac’ convention (ex: nstelter-slac)</p>
+<ul>
+<li>for email can use ‘@slac.stanford.edu’ address, or any other address if you want (just make sure to use the same email in step 3))</li>
+</ul>
+<p>-will need a code from email to verify during creating account</p>
+<p>2) Register github account with ‘SLAC Lab’ github group</p>
+<p>-join ‘#comp-general’ channel on Slack</p>
+<p>-when viewing this Slack channel, should see ‘Pinned’ and next to it ‘Workflows’ at top of the page
+-click ‘Workflows’ -&gt; ‘SLAC GitHub Access’, and fill out the form with your info</p>
+<p>-should receive an email later asking you to join the ‘SLAC Lab’ group, then follow the further instructions in this email</p>
+<p>For steps 3), 4), 5), make sure you terminal (linux or mac) is setup first with the following commands:</p>
+<p>-(note: in the 1st command: replace <slac-username> with your slac linux-username)</p>
+<p>ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu</p>
+<p>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh</p>
+<p>3) Config local git settings</p>
+<p>-Enter the following terminal commands:</p>
+<p>git config --global user.name <github username></p>
+<p>git config --global user.email <email used to setup github account></p>
+<p>git config --global core.editor vim</p>
+<p>-Can use editor of your choice (ex: emacs) instead of “vim”, this will be editor used to edit commit messages and some other git options</p>
+<p>4) Setup SSH Keys for github on s3df</p>
+<p>-Make sure you are logged into github account in browser</p>
+<p>-Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent” : https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key (make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</p>
+<p>-Follow instructions under “Adding a new SSH key to your account”: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account (make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</p>
+<p>5) Download repo</p>
+<p>-cd to where you want the scripts to live (the scripts will be downloaded inside of a folder called ‘beamtime-calibration-suite’)</p>
+<p>-I suggest inside your home directory (‘~’), or inside a new folder you make like ‘~/repos/’</p>
+<p>-to download the scripts, run the following command: git clone git@github.com:slaclab/beamtime-calibration-suite.git</p>
+<p>-if an error occurs, SSH setup in step 3) may have an issue and needs to be debugged</p>
+<p>-if clone is successful, you should be able to cd into newly created ‘beamtime-calibration-suite’ folder and see subfolders containing python code</p>
+<p>-now get the 'development' branch by running command: git checkout development</p>
+<p>(For reference:</p>
+<p>-the main scripts repo lives here: https://github.com/slaclab/beamtime-calibration-suite</p>
+<p>-and to see most up-to-date code in development look at the 'development' branch: https://github.com/slaclab/beamtime-calibration-suite/tree/development)</p>
+<p>6) Learn Git</p>
+<p>-Suggest reading first 3 chapters of https://git-scm.com/book/en/v2 :</p>
+<p>-The following sections can be skipped if you want (more detail than needed atm),</p>
+<p>-1.5, 1.6, 2.6, 2.7, 3.5, 3.6</p>
+<p>-recommended resource by git community, gives good base-understanding of git</p>
+<p>-but many similar tutorials exist, so feel free to use other 'intro to git/github' videos/websites if you like them better</p>
+<p>-(Optional) Here is also short presentation that summaries book content: https://courses.cs.washington.edu/courses/cse403/13au/lectures/git.ppt.pdf</p>
+<p>-(Optional) Git commands cheat sheet: https://www.jrebel.com/system/files/git-cheat-sheet.pdf (**link will start download of pdf cheat sheet)</p>
+<p>-(If you plan on developing the library) The following explains GitHub 'Pull Requests' feature:</p>
+<p>-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests</p>
+<p>-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/slaclab/beamtime-calibration-suite" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
