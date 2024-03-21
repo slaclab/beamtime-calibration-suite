@@ -41,12 +41,18 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
-    <ul class="current">
-    </ul>
                 </li>
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="setup/">Setup</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="running/">Running</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="logging/">Logging</a>
                 </li>
               </ul>
       </div>
@@ -73,8 +79,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="test">Test</h1>
-<p>This is a test for the calibration-suite docs site!</p>
+                <p>File organization:</p>
+<pre><code>/calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:
+
+from calibrationSuite.basicSuiteScript import * 
+from calibrationSuite.fitFunctions import * 
+from calibrationSuite.Stats import * 
+from calibrationSuite.cluster import *
+</code></pre>
+<p>(documentation on the library functionality is still to come, but example usage is seen in the /suite_scripts folder)</p>
+<pre><code>/suite_scripts: scripts that use the calibrationSuite library code ('high-level scripts')
+
+/standalone_scripts: scripts that do not use the calibrationSuite library code ('high-level scripts')
+
+/tests: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)
+
+/data: example data-files used for running the scripts
+</code></pre>
+<p>Current Status:</p>
+<p>main branch tag v1.0.0 are the scripts used for the 2/17/24 beamtime</p>
+<pre><code>only changes made are to file organization, and to import statements so work with new organization
+large changes will be merged into ontop of this, but original scripts can be accessed by checking out this tag
+future beamtimes can be tagged as well
+</code></pre>
               
             </div>
           </div><footer>
@@ -127,5 +154,5 @@
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-03-21 18:37:08.713028+00:00
+Build Date UTC : 2024-03-21 19:45:47.878556+00:00
 -->

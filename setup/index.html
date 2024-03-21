@@ -45,6 +45,32 @@
               </ul>
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">Setup</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-make-a-githubcom-account">1: Make a github.com account</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-register-github-account-with-slac-lab-github-group">2: Register github account with ‘SLAC Lab’ github group</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-request-write-permissions-for-the-repository">3: Request write permissions for the repository</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#note">Note:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-config-local-git-settings">4: Config local git settings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-setup-ssh-keys-for-github-on-s3df">4: Setup SSH Keys for github on s3df</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-download-repo">5: Download repo</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../running/">Running</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
                 </li>
               </ul>
       </div>
@@ -71,60 +97,74 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>Beamtime calibration suite git/github setup</p>
-<p>1) Make a github.com account</p>
-<p>-if already have github account and want to use it, skip to 2)</p>
-<p>-else, follow the steps here: https://github.com/join</p>
-<p>-username can be anything, some people use ‘<slac_username>-slac’ convention (ex: nstelter-slac)</p>
+                <h1 id="github-and-git-setup">Github and Git Setup</h1>
+<p>These steps will get you setup for running and developing the calibration suite</p>
+<h2 id="1-make-a-githubcom-account">1: Make a github.com account</h2>
 <ul>
-<li>for email can use ‘@slac.stanford.edu’ address, or any other address if you want (just make sure to use the same email in step 3))</li>
+<li>if you already have github account and want to use it, skip to step <strong>2)</strong></li>
+<li>else to make a new account follow the steps here: https://github.com/join</li>
+<li>your username can be anything, some people at slac use <em>\&lt;slac_username&gt;-slac</em> convention (ex: <em>nstelter-slac</em>)</li>
+<li>for email you can use ‘@slac.stanford.edu’ address or any other address if you want (just make sure to use the same email in step <strong>4)</strong></li>
+<li>you will need a code from your email for verification when creating the account</li>
 </ul>
-<p>-will need a code from email to verify during creating account</p>
-<p>2) Register github account with ‘SLAC Lab’ github group</p>
-<p>-join ‘#comp-general’ channel on Slack</p>
-<p>-when viewing this Slack channel, should see ‘Pinned’ and next to it ‘Workflows’ at top of the page
--click ‘Workflows’ -&gt; ‘SLAC GitHub Access’, and fill out the form with your info</p>
-<p>-should receive an email later asking you to join the ‘SLAC Lab’ group, then follow the further instructions in this email</p>
-<p>For steps 3), 4), 5), make sure you terminal (linux or mac) is setup first with the following commands:</p>
-<p>-(note: in the 1st command: replace <slac-username> with your slac linux-username)</p>
-<p>ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu</p>
-<p>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh</p>
-<p>3) Config local git settings</p>
-<p>-Enter the following terminal commands:</p>
-<p>git config --global user.name <github username></p>
-<p>git config --global user.email <email used to setup github account></p>
-<p>git config --global core.editor vim</p>
-<p>-Can use editor of your choice (ex: emacs) instead of “vim”, this will be editor used to edit commit messages and some other git options</p>
-<p>4) Setup SSH Keys for github on s3df</p>
-<p>-Make sure you are logged into github account in browser</p>
-<p>-Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent” : https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key (make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</p>
-<p>-Follow instructions under “Adding a new SSH key to your account”: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account (make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</p>
-<p>5) Download repo</p>
-<p>-cd to where you want the scripts to live (the scripts will be downloaded inside of a folder called ‘beamtime-calibration-suite’)</p>
-<p>-I suggest inside your home directory (‘~’), or inside a new folder you make like ‘~/repos/’</p>
-<p>-to download the scripts, run the following command: git clone git@github.com:slaclab/beamtime-calibration-suite.git</p>
-<p>-if an error occurs, SSH setup in step 3) may have an issue and needs to be debugged</p>
-<p>-if clone is successful, you should be able to cd into newly created ‘beamtime-calibration-suite’ folder and see subfolders containing python code</p>
-<p>-now get the 'development' branch by running command: git checkout development</p>
-<p>(For reference:</p>
-<p>-the main scripts repo lives here: https://github.com/slaclab/beamtime-calibration-suite</p>
-<p>-and to see most up-to-date code in development look at the 'development' branch: https://github.com/slaclab/beamtime-calibration-suite/tree/development)</p>
-<p>6) Learn Git</p>
-<p>-Suggest reading first 3 chapters of https://git-scm.com/book/en/v2 :</p>
-<p>-The following sections can be skipped if you want (more detail than needed atm),</p>
-<p>-1.5, 1.6, 2.6, 2.7, 3.5, 3.6</p>
-<p>-recommended resource by git community, gives good base-understanding of git</p>
-<p>-but many similar tutorials exist, so feel free to use other 'intro to git/github' videos/websites if you like them better</p>
-<p>-(Optional) Here is also short presentation that summaries book content: https://courses.cs.washington.edu/courses/cse403/13au/lectures/git.ppt.pdf</p>
-<p>-(Optional) Git commands cheat sheet: https://www.jrebel.com/system/files/git-cheat-sheet.pdf (**link will start download of pdf cheat sheet)</p>
-<p>-(If you plan on developing the library) The following explains GitHub 'Pull Requests' feature:</p>
-<p>-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests</p>
-<p>-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request</p>
+<h2 id="2-register-github-account-with-slac-lab-github-group">2: Register github account with ‘SLAC Lab’ github group</h2>
+<ul>
+<li>first join ‘#comp-general’ channel on Slack</li>
+<li>when viewing this Slack channel, should see ‘Pinned’ and next to it ‘Workflows’ at top of the page</li>
+<li>click ‘Workflows’ -&gt; ‘SLAC GitHub Access’, and fill out the form with your info</li>
+<li>wait to receive an email asking you to join the ‘SLAC Lab’ group, and follow instructions in this email</li>
+</ul>
+<h2 id="3-request-write-permissions-for-the-repository">3: Request write permissions for the repository</h2>
+<ul>
+<li>after completing step <strong>2)</strong>, your github account should be a member of the 'SLAC Lab' github group</li>
+<li>now go to https://github.com/orgs/slaclab/teams/beamtime_calibration_suite_devs and click the 'Request to join' button towards the upper-right of the page</li>
+<li>this will grant you write access to the repository (used for development and sharing code-changes during beamtime)</li>
+</ul>
+<h3 id="note">Note:</h3>
+<ul>
+<li>For the following steps <strong>4)</strong>, <strong>5)</strong>, <strong>6)</strong>: make sure you terminal (linux or mac) is setup first with the following commands:</li>
+<li>(note: in the 1st command: replace \&lt;slac-username&gt; with your slac unix account-name)
+    <code>ssh -Yt &lt;slac-username&gt;@s3dflogin.slac.stanford.edu
+    source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh</code></li>
+</ul>
+<h2 id="4-config-local-git-settings">4: Config local git settings</h2>
+<ul>
+<li>Enter the following terminal commands:</li>
+</ul>
+<pre><code>git config --global user.name &lt;github username&gt;
+git config --global user.email &lt;email used to setup github account&gt;
+#run one of the following cmds, depending on your preferred editor 
+#(editor is used for editing files during some git operations)
+git config --global core.editor vim
+git config --global core.editor emacs
+</code></pre>
+<h2 id="4-setup-ssh-keys-for-github-on-s3df">4: Setup SSH Keys for github on s3df</h2>
+<ul>
+<li>First make sure you are logged into github account in browser</li>
+<li>Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent” : https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key <em>(make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</em></li>
+<li>Follow instructions under “Adding a new SSH key to your account”: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account <em>(make sure you have selected the 'Linux' tab near the top of the page, not 'Mac')</em></li>
+</ul>
+<h2 id="5-download-repo">5: Download repo</h2>
+<ul>
+<li>cd to where you want the scripts to live (the scripts will be downloaded inside of a folder called ‘beamtime-calibration-suite’)</li>
+<li>I suggest inside your home directory (<em>\~</em>), or inside a new folder you make like <em>~/repos/</em></li>
+<li>to download the repository, run the following command: </li>
+</ul>
+<pre><code>git clone git@github.com:slaclab/beamtime-calibration-suite.git
+</code></pre>
+<ul>
+<li>if an error occurs, SSH setup in step <strong>3)</strong> may have had an issue and needs to be debugged</li>
+<li>if command was successful, you should be able to cd into newly created ‘beamtime-calibration-suite’ folder and see subfolders containing python code</li>
+<li>now get the 'development' branch by running command (this will you get the most up-to-date code when it's not during a beamtime): </li>
+</ul>
+<pre><code>git checkout development
+</code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../running/" class="btn btn-neutral float-right" title="Running">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -153,6 +193,8 @@
     
       <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../running/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
