@@ -3,6 +3,7 @@ repo_url: https://github.com/slaclab/beamtime-calibration-suite
 
 nav:
   - Home: index.md
+  - Setup: setup.md
 
 theme:
   name: 'readthedocs'
