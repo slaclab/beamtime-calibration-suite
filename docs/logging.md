@@ -1,0 +1,29 @@
+# Logging
+
+Logging calls are added to the library code, and also to various files in /suite_scripts to act as examples of generating logs from both the library and high-level scripts.
+
+Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist. If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated.
+
+To have your high-level script generate logs from the calibrationSuite library code, add the following at the top of the script:
+```
+import os
+import calibrationSuite.loggingSetup as ls
+currFileName = os.path.basename(__file__)
+ls.setupScriptLogging(currFileName[:-3] + ".log", logging.INFO)
+```
+
+You can pass a chosen log-file name to the setupScriptLogging function, but using the above will create and write to file named <curr script name>.log
+
+To add additional logging from the high-level script itself(to the same file specified to setupScriptLogging), you can also add the following to the top of the script:
+```
+import logging
+logger = logging.getLogger(__name__)
+```
+
+Then can add log statements throughout the script with:
+```
+logger.error("Example error msg!") # for logging when the program goes wrong
+logger.exception("Example exception msg!) # for logging error and also including stack-trace in log 
+logger.info("Example info msg!") # for logging useful info on the state of the program
+```
+_(Note: these must take a statement evaluating to a single string, if a,b,c are strings can't do 'logger.info(a,b,c)' but can do 'logger.info(a+b+c)'. Also for example if a is an int, must do 'logger.info(str(a)))_
