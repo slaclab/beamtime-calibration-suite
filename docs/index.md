@@ -1,7 +1,14 @@
 # Beamtime calibration suite
-Scripts for running during (or in-between) beamtimes to gather and analyze detectors.
+This repository contains scripts ran during (or in-between) beamtimes to support calibrating LCLS detectors.
 
-# Repository file organization:
+Some more general info can be found on the team's confluence page: [https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home](https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home) 
+
+For setup instructions, please see: 
+
+
+### File organization:
+
+The following describes what and where things are:
 
 * /calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:
 ```
@@ -17,6 +24,8 @@ _(documentation on the library functionality is still to come, but example usage
 * /tests: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)
 * /data: example data-files used for running the scripts
 
-# Important branches:
+
+### Important branches:
+
 * development: Contains the newest 'good' code, usually has new changes and bug fixes.
-* main: Stable code used during beamtimes. The ode used during each beamtime is tagged.
+* main: Stable code used during beamtimes. The code from each beamtime (including the changes made during) is tagged.
