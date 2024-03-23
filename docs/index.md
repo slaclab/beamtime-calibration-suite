@@ -3,8 +3,6 @@ This repository contains scripts ran during (or in-between) beamtimes to support
 
 Some more general info can be found on the team's confluence page: [https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home](https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home) 
 
-For setup instructions, please see: 
-
 
 ### File organization:
 
