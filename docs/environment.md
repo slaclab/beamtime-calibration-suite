@@ -1,8 +1,11 @@
-# Notes on Running the Scripts
+# Setup Environment
 
-## Setup Environment
+When running on S3DF, you will first need to setup your environment so you can run _python_, _psana_, and other need programs:
+```
+source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
+```
 
-Then in order to run the library code, you execute the following cmd:
+Then you can execute the following to setup some project-specific things:
 ```
 source setup.sh
 ```
@@ -11,11 +14,11 @@ _(This must be ran in each new terminal session, or added to your ~/.bashrc file
 This script simplifies setting up the terminal environment and will be all that most script users will need to do. 
 
 This script does the following:
-* appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.
+* appends your cloned location of this library to your _PYTHONPATH_, so scripts in _/suite_scripts_ and other locations on your machine can find the library code.
 * sets the library's output-root to the shared /rix dir used for the current experiment. 
 * sets the config file to the currently used _rixSuiteConfig.py_ file.
 
-The rest of the page goes into more detail on configuring the scripts.
+The rest of the page has more detail on configuring the scripts.
 
 ### Specify Output Root
 
