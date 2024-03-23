@@ -1,7 +1,9 @@
 # beamtime-calibration-suite
 [![Build Status](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
 
-# Step-by-step to get running!
+# Docs: https://slaclab.github.io/beamtime-calibration-suite/
+
+# Step-by-step to get running quick!
 * First, follow steps **1** through **4**: [setup git and github](https://confluence.slac.stanford.edu/pages/viewpage.action?pageId=428802060)
 * Next, run the following commands in a terminal (linux or mac terminal should work):  
 &emsp;-_(note: lines starting with '#' are comments with explanation and don't need to be ran)_  
@@ -18,14 +20,13 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 mkdir repos && cd repos
 git clone git@github.com:slaclab/beamtime-calibration-suite.git
 cd beamtime-calibration-suite
-git checkout development
+git switch development
 
 # do more environment setup for suite-scripts
 source setup.sh
 
 # run an example script
 cd suite_scripts
-cp ../data/OffXavierV4_2.npy . && cp ../data/XavierV4_2.npy .
 python EventScanParallel.py -r 457
 ```
 If everything is working, the script should start spitting terminal-output like:
@@ -90,7 +91,6 @@ Then read the following for an overview of the development process: [https://con
 
 For commit messages, we can try to follow the PyDM guidelines: https://slaclab.github.io/pydm/development/development.html#commit-guidelines
 
-Docs: https://slaclab.github.io/beamtime-calibration-suite/
 
 ### Logging
 
