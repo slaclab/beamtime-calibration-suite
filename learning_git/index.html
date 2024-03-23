@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Running - Calibration Suite Docs</title>
+    <title>Learning Git - Calibration Suite Docs</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Running";
-        var mkdocs_page_input_path = "running.md";
+        var mkdocs_page_name = "Learning Git";
+        var mkdocs_page_input_path = "learning_git.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -47,18 +47,20 @@
                 <li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a>
                 </li>
               </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../environment/">Environment</a>
+                </li>
+              </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">Running</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#setup-environment">Setup Environment</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#specify-output-root">Specify Output Root</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#point-to-config-file">Point to Config File</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Learning Git</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../workflow/">Git Workflow</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../commands/">Useful Git Commands</a>
                 </li>
               </ul>
               <ul>
@@ -66,7 +68,11 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="" href="../script_descriptions.md">Script Descs</a>
+                <li class="toctree-l1"><a class="reference internal" href="../suite_scripts/">Suite Scripts</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../standalone_scripts/">Standalone Scripts</a>
                 </li>
               </ul>
       </div>
@@ -83,9 +89,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Running</li>
+      <li class="breadcrumb-item active">Learning Git</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/running.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/learning_git.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -93,38 +99,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="notes-on-running-the-scripts">Notes on Running the Scripts</h1>
-<h2 id="setup-environment">Setup Environment</h2>
-<p>Then in order to run the library code, you execute the following cmd:</p>
-<pre><code>source setup.sh
-</code></pre>
-<p><em>(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)</em></p>
-<p>This script simplifies setting up the terminal environment and will be all that most script users will need to do. </p>
-<p>This script does the following:
-* appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.
-* sets the library's output-root to the shared /rix dir used for the current experiment. 
-* sets the config file to the currently used <em>rixSuiteConfig.py</em> file.</p>
-<p>The rest of the page goes into more detail on configuring the scripts.</p>
-<h3 id="specify-output-root">Specify Output Root</h3>
-<p>The output-root determines where the library will look for an output folder. </p>
-<p>For example, if the root is set to the default value <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</em>, the library will look for an output dir <em>../scan</em> in the location <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</em>.</p>
-<p>The output-directory can be set using the <em>-p \<dir_name></em> cmdline arg.</p>
-<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em>) will have the library look for an output folder relative to the location of the current script being ran.  </p>
-<h3 id="point-to-config-file">Point to Config File</h3>
-<p>Specify which config file for the library to use by setting the 'SUITE_CONFIG' environment variable:</p>
-<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
-</code></pre>
-<p><em>(relative or full paths should work)</em></p>
-<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
-<em>(note: if set, the environment variable will always override this cmd-line option)</em></p>
-<p>If neither of the above are set, the suite will try to use a default file named <em>suiteConfig.py</em>. </p>
-<p>If no config file can be found and read, the library will fail-out early.</p>
+                
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../setup/" class="btn btn-neutral float-left" title="Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../logging/" class="btn btn-neutral float-right" title="Logging">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../environment/" class="btn btn-neutral float-left" title="Environment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../workflow/" class="btn btn-neutral float-right" title="Git Workflow">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -151,10 +132,10 @@
         </span>
     
     
-      <span><a href="../setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../environment/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../logging/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../workflow/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

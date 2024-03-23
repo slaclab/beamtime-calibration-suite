@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Standalone Scripts - Calibration Suite Docs</title>
+    <title>Environment - Calibration Suite Docs</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Standalone Scripts";
-        var mkdocs_page_input_path = "standalone_scripts.md";
+        var mkdocs_page_name = "Environment";
+        var mkdocs_page_input_path = "environment.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -47,8 +47,14 @@
                 <li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../environment/">Environment</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Environment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#specify-output-root">Specify Output Root</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#point-to-config-file">Point to Config File</a>
+    </li>
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -71,10 +77,8 @@
                 <li class="toctree-l1"><a class="reference internal" href="../suite_scripts/">Suite Scripts</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">Standalone Scripts</a>
-    <ul class="current">
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../standalone_scripts/">Standalone Scripts</a>
                 </li>
               </ul>
       </div>
@@ -91,9 +95,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Standalone Scripts</li>
+      <li class="breadcrumb-item active">Environment</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/standalone_scripts.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/environment.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -101,28 +105,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="standalone-scripts">Standalone scripts:</h1>
-<ul>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/cfg_utils.py">cfg_utils.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/dumpPVs.py">dumpPVs.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/plotWave8.py">plotWave8.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/compareConfigs.py">compareConfigs.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/MapCompEnOn.py">MapCompEnOn.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/roiCombinationExample.py">roiCombinationExample.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/DamageCounter.py">DamageCounter.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/MapCompEnOnThreshold.py">MapCompEnOnThreshold.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/seabornTest.py">seabornTest.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/Debugging.py">Debugging.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/nonBasicScript.py">nonBasicScript.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/simpler_epixhr.py">simpler_epixhr.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/dumbBandPlotter.py">dumbBandPlotter.py</a></li>
-<li><a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/OpenXav.py">OpenXav.py</a></li>
-</ul>
+                <h1 id="setup-environment">Setup Environment</h1>
+<p>When running on S3DF, you will first need to setup your environment so you can run <em>python</em>, <em>psana</em>, and other need programs:</p>
+<pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
+</code></pre>
+<p>Then you can execute the following to setup some project-specific things:</p>
+<pre><code>source setup.sh
+</code></pre>
+<p><em>(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)</em></p>
+<p>This script simplifies setting up the terminal environment and will be all that most script users will need to do. </p>
+<p>This script does the following:
+* appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code.
+* sets the library's output-root to the shared /rix dir used for the current experiment. 
+* sets the config file to the currently used <em>rixSuiteConfig.py</em> file.</p>
+<p>The rest of the page has more detail on configuring the scripts.</p>
+<h3 id="specify-output-root">Specify Output Root</h3>
+<p>The output-root determines where the library will look for an output folder. </p>
+<p>For example, if the root is set to the default value <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</em>, the library will look for an output dir <em>../scan</em> in the location <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</em>.</p>
+<p>The output-directory can be set using the <em>-p \<dir_name></em> cmdline arg.</p>
+<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em>) will have the library look for an output folder relative to the location of the current script being ran.  </p>
+<h3 id="point-to-config-file">Point to Config File</h3>
+<p>Specify which config file for the library to use by setting the 'SUITE_CONFIG' environment variable:</p>
+<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
+</code></pre>
+<p><em>(relative or full paths should work)</em></p>
+<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
+<em>(note: if set, the environment variable will always override this cmd-line option)</em></p>
+<p>If neither of the above are set, the suite will try to use a default file named <em>suiteConfig.py</em>. </p>
+<p>If no config file can be found and read, the library will fail-out early.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../suite_scripts/" class="btn btn-neutral float-left" title="Suite Scripts"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../setup/" class="btn btn-neutral float-left" title="Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../learning_git/" class="btn btn-neutral float-right" title="Learning Git">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -149,8 +165,10 @@
         </span>
     
     
-      <span><a href="../suite_scripts/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../learning_git/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
