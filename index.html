@@ -42,6 +42,10 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#file-organization">File organization:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#important-branches">Important branches:</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -58,7 +62,7 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="script_descriptions/">Script Descs</a>
+                <li class="toctree-l1"><a class="" href="script_descriptions.md">Script Descs</a>
                 </li>
               </ul>
       </div>
@@ -86,8 +90,11 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="beamtime-calibration-suite">Beamtime calibration suite</h1>
-<p>Scripts for running during (or in-between) beamtimes to gather and analyze detectors.</p>
-<h1 id="repository-file-organization">Repository file organization:</h1>
+<p>This repository contains scripts ran during (or in-between) beamtimes to support calibrating LCLS detectors.</p>
+<p>Some more general info can be found on the team's confluence page: <a href="https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home">https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home</a> </p>
+<p>For setup instructions, please see: </p>
+<h3 id="file-organization">File organization:</h3>
+<p>The following describes what and where things are:</p>
 <ul>
 <li>/calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:</li>
 </ul>
@@ -103,10 +110,10 @@ from calibrationSuite.cluster import *
 <li>/tests: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)</li>
 <li>/data: example data-files used for running the scripts</li>
 </ul>
-<h1 id="important-branches">Important branches:</h1>
+<h3 id="important-branches">Important branches:</h3>
 <ul>
 <li>development: Contains the newest 'good' code, usually has new changes and bug fixes.</li>
-<li>main: Stable code used during beamtimes. The ode used during each beamtime is tagged.</li>
+<li>main: Stable code used during beamtimes. The code from each beamtime (including the changes made during) is tagged.</li>
 </ul>
               
             </div>
@@ -160,5 +167,5 @@ from calibrationSuite.cluster import *
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-03-21 20:23:11.534814+00:00
+Build Date UTC : 2024-03-23 09:36:59.863706+00:00
 -->

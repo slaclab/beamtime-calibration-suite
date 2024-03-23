@@ -49,6 +49,16 @@
               </ul>
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">Running</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#setup-environment">Setup Environment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#specify-output-root">Specify Output Root</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#point-to-config-file">Point to Config File</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -56,7 +66,7 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../script_descriptions/">Script Descs</a>
+                <li class="toctree-l1"><a class="" href="../script_descriptions.md">Script Descs</a>
                 </li>
               </ul>
       </div>
@@ -83,17 +93,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>In order to run the library code, first execute the following cmd:</p>
+                <h1 id="notes-on-running-the-scripts">Notes on Running the Scripts</h1>
+<h2 id="setup-environment">Setup Environment</h2>
+<p>Then in order to run the library code, you execute the following cmd:</p>
 <pre><code>source setup.sh
 </code></pre>
 <p><em>(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)</em></p>
-<p>This script just appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.</p>
-<p>Additionally you can specify which config file to use by setting the 'SUITE_CONFIG' environment variable, for example:</p>
+<p>This script simplifies setting up the terminal environment and will be all that most script users will need to do. </p>
+<p>This script does the following:
+* appends your cloned location of this library to your PYTHONPATH, so scripts in /suite_scripts and other locations on your machine can find the library code.
+* sets the library's output-root to the shared /rix dir used for the current experiment. 
+* sets the config file to the currently used <em>rixSuiteConfig.py</em> file.</p>
+<p>The rest of the page goes into more detail on configuring the scripts.</p>
+<h3 id="specify-output-root">Specify Output Root</h3>
+<p>The output-root determines where the library will look for an output folder. </p>
+<p>For example, if the root is set to the default value <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</em>, the library will look for an output dir <em>../scan</em> in the location <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</em>.</p>
+<p>The output-directory can be set using the <em>-p \<dir_name></em> cmdline arg.</p>
+<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em>) will have the library look for an output folder relative to the location of the current script being ran.  </p>
+<h3 id="point-to-config-file">Point to Config File</h3>
+<p>Specify which config file for the library to use by setting the 'SUITE_CONFIG' environment variable:</p>
 <pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
 </code></pre>
-<p><em>(relative or full paths work)</em></p>
-<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments (note: if set, the environment variable overrides this cmd-line option)
-If neither of the above are set, the suite will try to use suiteConfig.py. If no config file can be found and read, the library will fail-out early.</p>
+<p><em>(relative or full paths should work)</em></p>
+<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
+<em>(note: if set, the environment variable will always override this cmd-line option)</em></p>
+<p>If neither of the above are set, the suite will try to use a default file named <em>suiteConfig.py</em>. </p>
+<p>If no config file can be found and read, the library will fail-out early.</p>
               
             </div>
           </div><footer>

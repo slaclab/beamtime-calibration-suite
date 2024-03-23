@@ -58,7 +58,7 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../script_descriptions/">Script Descs</a>
+                <li class="toctree-l1"><a class="" href="../script_descriptions.md">Script Descs</a>
                 </li>
               </ul>
       </div>
@@ -86,16 +86,18 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="logging">Logging</h1>
-<p>Logging calls are added to the library code, and also to various files in /suite_scripts to act as examples of generating logs from both the library and high-level scripts.</p>
-<p>Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist. If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated.</p>
+<p>Logging calls are added to the library code, and also to some commonly used files in <em>/suite_scripts</em> to act as (example)[https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/TimeScanParallelSlice.py].</p>
+<p>Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist. </p>
+<p>If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated.</p>
 <p>To have your high-level script generate logs from the calibrationSuite library code, add the following at the top of the script:</p>
 <pre><code>import os
 import calibrationSuite.loggingSetup as ls
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + &quot;.log&quot;, logging.INFO)
+ls.setupScriptLogging(&quot;../logs&quot; + currFileName[:-3] + &quot;.log&quot;, logging.ERROR)
 </code></pre>
-<p>You can pass a chosen log-file name to the setupScriptLogging function, but using the above will create and write to file named <curr script name>.log</p>
-<p>To add additional logging from the high-level script itself(to the same file specified to setupScriptLogging), you can also add the following to the top of the script:</p>
+<p>Pass in logging.INFO instead to get alot more output on the state of the program, while also still logging the logging.ERROR messages.</p>
+<p>You can pass any chosen log-file name to the setupScriptLogging function, but using the above will create and write to file named <em>beamtime-calibration-suite/logs/<curr script name>.log</em></p>
+<p>To add more logging from the high-level script itself (to the same file specified to setupScriptLogging), you can add the following to the top of the script:</p>
 <pre><code>import logging
 logger = logging.getLogger(__name__)
 </code></pre>
@@ -104,13 +106,12 @@ logger = logging.getLogger(__name__)
 logger.exception(&quot;Example exception msg!) # for logging error and also including stack-trace in log 
 logger.info(&quot;Example info msg!&quot;) # for logging useful info on the state of the program
 </code></pre>
-<p><em>(Note: these must take a statement evaluating to a single string, if a,b,c are strings can't do 'logger.info(a,b,c)' but can do 'logger.info(a+b+c)'. Also for example if a is an int, must do 'logger.info(str(a)))</em></p>
+<p><em>(Note: these must take a statement evaluating to a single string, if 'a', 'b', 'c' are strings you can't do 'logger.info(a,b,c)' but can do 'logger.info(a+b+c)'. And if 'a' is an int, must do 'logger.info(str(a)))</em></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../running/" class="btn btn-neutral float-left" title="Running"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../script_descriptions/" class="btn btn-neutral float-right" title="Script Descs">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -139,8 +140,6 @@ logger.info(&quot;Example info msg!&quot;) # for logging useful info on the stat
     
       <span><a href="../running/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../script_descriptions/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
