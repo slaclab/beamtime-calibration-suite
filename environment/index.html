@@ -109,10 +109,10 @@
 <p>When running on S3DF, you will first need to setup your environment so you can run <em>python</em>, <em>psana</em>, and other need programs:</p>
 <pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </code></pre>
-<p>Then you can execute the following to setup some project-specific things:</p>
+<p>Then you can execute the following to setup some project-specific things (must be ran from <em>beamtime-calibration-suite</em> folder):</p>
 <pre><code>source setup.sh
 </code></pre>
-<p><em>(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)</em></p>
+<p><em>(This must be ran in each new terminal session)</em></p>
 <p>This script simplifies setting up the terminal environment and will be all that most script users will need to do</p>
 <p>This script does the following:<br />
 <em> appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
