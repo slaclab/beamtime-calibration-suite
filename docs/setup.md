@@ -58,7 +58,7 @@ git config --global core.editor emacs
 * Follow instructions under “Adding a new SSH key to your account”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account)
 
 
-## 5: Download the repo
+## 7: Download the repo
 
 * run the following terminal commands:
 ```
@@ -78,7 +78,7 @@ ls
 * if an error occurs during these commands, SSH setup in step **6)** may have had an issue and might need to be debugged
 
 
-## 6: Run an example script
+## 8: Run an example script
 
 * run the following terminal commands:
 ```
