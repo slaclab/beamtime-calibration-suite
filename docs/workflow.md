@@ -1,12 +1,12 @@
 # Git/GitHub Workflow
 
-We should try to generally follow the branching and pull-request workflow described in this [presentation](https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7).
-* in our case the two important branches will be _main_ and _development_  
+We should try to generally follow the branching and pull-request workflow described in this [presentation](https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7)  
+* in our case the two important branches will be _main_ and _development_   
 * in-between beamtimes, _development_ is used for pushing work  
 * right before beamtimes, _development_ is merged into _main_  
-* then a branch named _beamtime\_<month>\_<day>\_<year>_ is branched off main  
+* then a branch named _beamtime\_\<month>\_\<day>\_<year>\_ is branched off main  
   * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime  
-* after beamtimes, we merge _beamtime\_<month>\_<day>\_<year>_ back into _main_ and tag it  
+* after beamtimes, we merge _beamtime_\<month>_\<day>_\<year>_ back into _main_ and tag it  
 
 (img: https://www.pablogonzalez.io/salesforce-git-branching-strategies/)
 

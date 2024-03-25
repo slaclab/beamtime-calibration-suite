@@ -5,11 +5,11 @@ When running on S3DF, you will first need to setup your environment so you can r
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 ```
 
-Then you can execute the following to setup some project-specific things:
+Then you can execute the following to setup some project-specific things (must be ran from _beamtime-calibration-suite_ folder):
 ```
 source setup.sh
 ```
-_(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)_
+_(This must be ran in each new terminal session)_
 
 This script simplifies setting up the terminal environment and will be all that most script users will need to do
 
