@@ -50,7 +50,7 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">Environment</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#specify-output-root">Specify Output Root</a>
+    <li class="toctree-l2"><a class="reference internal" href="#specifying-output-root">Specifying Output Root</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#point-to-config-file">Point to Config File</a>
     </li>
@@ -106,7 +106,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="setup-environment">Setup Environment</h1>
-<p>When running on S3DF, you will first need to setup your environment so you can run <em>python</em>, <em>psana</em>, and other need programs:</p>
+<p>When running on S3DF, you will first need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
 <pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </code></pre>
 <p>Then you can execute the following to setup some project-specific things (must be ran from <em>beamtime-calibration-suite</em> folder):</p>
@@ -115,15 +115,15 @@
 <p><em>(This must be ran in each new terminal session)</em></p>
 <p>This script simplifies setting up the terminal environment and will be all that most script users will need to do</p>
 <p>This script does the following:<br />
-<em> appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
-</em> sets the library's output-root to the shared /rix dir used for the current experiment <br />
-* sets the config file to the currently used <em>rixSuiteConfig.py</em> file  </p>
+  * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
+  * sets the library's output-root to the shared /rix dir used for the current experiment<br />
+  * sets the config file to the currently used <em>rixSuiteConfig.py</em> file  </p>
 <p>The rest of the page has more detail on configuring the scripts.</p>
-<h3 id="specify-output-root">Specify Output Root</h3>
+<h3 id="specifying-output-root">Specifying Output Root</h3>
 <p>The output-root determines where the library will look for an output folder. </p>
 <p>For example, if the root is set to the default value <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</em>, the library will look for an output dir <em>../scan</em> in the location <em>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</em>.</p>
 <p>The output-directory can be set using the <em>-p &lt;dir_name&gt;</em> cmdline arg.</p>
-<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em>) will have the library look for an output folder relative to the location of the current script being ran  </p>
+<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em> ) will have the library look for an output folder relative to the location of the current script being ran  </p>
 <h3 id="point-to-config-file">Point to Config File</h3>
 <p>Specify which config file for the library to use by setting the 'SUITE_CONFIG' environment variable:</p>
 <pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
