@@ -8,7 +8,7 @@ Some more general info can be found on the team's confluence page: [https://conf
 
 The following describes what and where things are:
 
-* /calibrationSuite: The library code lives here, and the functions can be imported into other scripts as such:
+* _/calibrationSuite_: The library code lives here, and the functions are able to be imported into other scripts as such:
 ```
 from calibrationSuite.basicSuiteScript import * 
 from calibrationSuite.fitFunctions import * 
@@ -26,5 +26,5 @@ _(documentation on the library functionality is still to come, but example usage
 
 ### Important branches:
 
-* _development_: contains the newest 'good' code, usually has new changes and bug fixes.
-* _main_: stable code that's used during beamtimes. The code from each beamtime (including the changes made during) is tagged.
+* `development`: contains the newest 'good' code, usually has new changes and bug fixes. This is also the default branch for the repo
+* `main`: stable code that's used during beamtimes. The code from each beamtime (including the changes made during) is tagged

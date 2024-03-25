@@ -2,16 +2,16 @@
 
 These steps will get you setup for running and developing the calibration suite!
 
-The steps describe the setup for using the scripts on the [SLAC Shared Scientific Data Facility (S3DF)](https://s3df.slac.stanford.edu/public/doc/#/) A S3DF account is needed before following these steps, and info on how to get one is [here](https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access)
+These steps describe the setup for running on the [SLAC Shared Scientific Data Facility (S3DF)](https://s3df.slac.stanford.edu/public/doc/#/) A S3DF account is needed before following these steps, and info on how to get one is [here](https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access)
 
-The only other prerequisites should be a terminal that can run Unix commands (mac and linux have this by default), and basic knowledge of using the terminal!
+The only other prerequisites should be a terminal that can run Unix commands (mac and linux have this by default), and basic knowledge of using this terminal
 
 ## 1: Make a github.com account
 
 * if you already have github account and want to use it, skip to step **2)**
 * else to make a new account following the steps here: [https://github.com/join](https://github.com/join)
-* your username can be anything, some people like to use the _\<username>-slac_ convention (ex: _nstelter-slac_)
-* for the email you can use your _@slac.stanford.edu_ address or any other address if you want (just make sure to use the same email in step **4)**
+* your username can be anything, some people like to use the `<username>-slac` convention (ex: _nstelter-slac_)
+* for the email you can use your _@slac.stanford.edu_ address or any other address if you want (just make sure to use the same email in step **5)**
 * you will need a code from your email when creating the account
 
 ## 2: Register your github account with ‘SLAC Lab’ github group
@@ -29,8 +29,8 @@ The only other prerequisites should be a terminal that can run Unix commands (ma
 
 ## 4: Setup your terminal for next steps
 
-* for the following steps **5)**, **6)**, **7)**: make sure you terminal (linux or mac) is setup first with the following commands:  
-(note: in the 1st command replace _\<slac-username\>_ with your slac unix account-name)  
+* for the following steps **5)**, **6)**, **7)**, **8)**, make sure you terminal is setup first with the following commands:  
+(note: in the 1st command replace `<slac-username>` with your slac unix account-name)  
 ``` 
 ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
 //now enter your info to login to s3df...
@@ -54,6 +54,7 @@ git config --global core.editor emacs
 
 * first make sure you are logged into your github account in your web browser
 * for the next two bullet-points, make sure you have selected the 'Linux' tab near the top of the page, not 'Mac'!
+  * note: the commands on the following pages have to be ran in the terminal setup in step **4)**, which is ssh'd into S3DF
 * Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key) 
 * Follow instructions under “Adding a new SSH key to your account”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account)
 
@@ -70,12 +71,12 @@ git clone git@github.com:slaclab/beamtime-calibration-suite.git
 cd beamtime-calibration-suite
 git switch development
 ls
-//should see a bunch of folders!
+//should see a bunch of folders
 cd suite_scripts
 ls
-//now should see a bunch of python scripts!
+//now should see a bunch of python scripts
 ```
-* if an error occurs during these commands, SSH setup in step **6)** may have had an issue and might need to be debugged
+* if an error occurs with these commands, SSH setup in step **6)** may have had an issue and might need to be debugged
 
 
 ## 8: Run an example script
@@ -88,7 +89,7 @@ source setup.sh
 mkdir setup_test_output
 cd suite_scripts
 //'OUTPUT_ROOT=' sets the OUTPUT_ROOT environment var to an empty value,
-//which causes the script to look relative to the current directory for the output folder
+//which makes the script to look relative to the current directory for the output-folder
 OUTPUT_ROOT= python EventScanParallelSlice.py -r 457 -p ../setup_test_output
 //let the script run to completion...
 ls -lt ../setup_test_output
