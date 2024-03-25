@@ -109,12 +109,12 @@
               
                 <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
 <p>We should try to generally follow the branching and pull-request workflow described in this <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a>.
-* in our case the two important branches will be <em>main</em> and <em>development</em>
-* in-between beamtimes, <em>development</em> is used for pushing work 
-* right before beamtimes, <em>development</em> is merged into <em>main</em> 
-* then a branch named <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> is branched off main
-  * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime
-* after beamtimes, we merge <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> back into <em>main</em> and tag it</p>
+* in our case the two important branches will be <em>main</em> and <em>development</em><br />
+<em> in-between beamtimes, <em>development</em> is used for pushing work<br />
+</em> right before beamtimes, <em>development</em> is merged into <em>main</em><br />
+<em> then a branch named <em>beamtime_<month>_<day>_<year></em> is branched off main<br />
+  * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime<br />
+</em> after beamtimes, we merge <em>beamtime_<month>_<day>_<year></em> back into <em>main</em> and tag it  </p>
 <p>(img: https://www.pablogonzalez.io/salesforce-git-branching-strategies/)</p>
 <h3 id="before-beamtime">Before Beamtime:</h3>
 <ul>
@@ -154,8 +154,8 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="after-beamtime">After Beamtime:</h3>
 <ul>
-<li>make sure all the changes that need to be saved are commited to <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> </li>
-<li>use a pull request to merge <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em>  into <em>main</em></li>
+<li>make sure all the changes that need to be saved are commited to <em>beamtime_<month>_<day>_<year></em></li>
+<li>use a pull request to merge <em>beamtime_<month>_<day>_<year></em> into <em>main</em></li>
 <li>add a tag for the beamtime</li>
 </ul>
 <pre><code>//tag number is arbitrary at this point, just look at last tag and increment one of the values

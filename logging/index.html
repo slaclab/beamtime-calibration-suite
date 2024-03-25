@@ -102,18 +102,18 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="logging">Logging</h1>
-<p>Logging calls are added to the library code, and also to some commonly used files in <em>/suite_scripts</em> to act as (example)[https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/TimeScanParallelSlice.py].</p>
-<p>Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist. </p>
-<p>If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated.</p>
+<p>Logging calls are added to the library code, and also to some commonly used files in <em>/suite_scripts</em> to act as <a href="https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/TimeScanParallelSlice.py">example</a></p>
+<p>Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist</p>
+<p>If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated</p>
 <p>To have your high-level script generate logs from the calibrationSuite library code, add the following at the top of the script:</p>
 <pre><code>import os
 import calibrationSuite.loggingSetup as ls
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(&quot;../logs&quot; + currFileName[:-3] + &quot;.log&quot;, logging.ERROR)
 </code></pre>
-<p>Pass in logging.INFO instead to get alot more output on the state of the program, while also still logging the logging.ERROR messages.</p>
-<p>You can pass any chosen log-file name to the setupScriptLogging function, but using the above will create and write to file named <em>beamtime-calibration-suite/logs/<curr script name>.log</em></p>
-<p>To add more logging from the high-level script itself (to the same file specified to setupScriptLogging), you can add the following to the top of the script:</p>
+<p>Pass in <em>logging.INFO</em> instead to get alot more output on the state of the program, while also still logging the <em>logging.ERROR</em> messages</p>
+<p>You can pass any chosen log-file name to the <em>setupScriptLogging</em> function, but using the above will create and write to file named <em>beamtime-calibration-suite/logs/\&lt;curr script name&gt;.log</em></p>
+<p>To add more logging from the high-level script itself (to the same file specified to <em>setupScriptLogging</em>), you can add the following to the top of the script:</p>
 <pre><code>import logging
 logger = logging.getLogger(__name__)
 </code></pre>
