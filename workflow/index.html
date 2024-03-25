@@ -57,6 +57,14 @@
               </ul>
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">Git Workflow</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#before-beamtime">Before Beamtime:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#during-beamtime">During Beamtime:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#after-beamtime">After Beamtime:</a>
+    </li>
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -99,7 +107,67 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
+<p>We should try to generally follow the branching and pull-request workflow described in this <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a>.
+* in our case the two important branches will be <em>main</em> and <em>development</em>
+* in-between beamtimes, <em>development</em> is used for pushing work 
+* right before beamtimes, <em>development</em> is merged into <em>main</em> 
+* then a branch named <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> is branched off main
+  * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime
+* after beamtimes, we merge <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> back into <em>main</em> and tag it</p>
+<p>(img: https://www.pablogonzalez.io/salesforce-git-branching-strategies/)</p>
+<h3 id="before-beamtime">Before Beamtime:</h3>
+<ul>
+<li>checkout <em>development</em> (or a earlier stable point of <em>development</em>) </li>
+<li>manually run and check the output of script planned for use on the beamtime, as a final sanity check</li>
+<li>use a pull request to merge <em>development</em>  into <em>main</em></li>
+<li>to do this follow the instructions in section <strong>F)</strong> of <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">https://slaclab.github.io/beamtime-calibration-suite/commands/</a></li>
+<li><em>main</em> is safeguarded and will require a +1 from another developer</li>
+<li>make a branch for work during this specific beamtime</li>
+</ul>
+<pre><code>git checkout -b main beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
+git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
+</code></pre>
+<h3 id="during-beamtime">During Beamtime:</h3>
+<ul>
+<li>At start of beamtime, everyone needs to download the branch for this beamtime:</li>
+</ul>
+<pre><code>git fetch
+git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
+</code></pre>
+<ul>
+<li>If you need to make changes to the code, first make sure your files are up to date:</li>
+</ul>
+<pre><code>git pull
+</code></pre>
+<ul>
+<li>Now make your changes and upload them:</li>
+</ul>
+<pre><code>git add -u
+git commit -m &quot;&lt;description of changes made&gt;&quot;
+git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
+</code></pre>
+<ul>
+<li>If someone else made and upload changes, you can download them by doing:</li>
+</ul>
+<pre><code>git pull
+</code></pre>
+<h3 id="after-beamtime">After Beamtime:</h3>
+<ul>
+<li>make sure all the changes that need to be saved are commited to <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em> </li>
+<li>use a pull request to merge <em>beamtime_\&lt;month&gt;_\&lt;day&gt;_\&lt;year&gt;</em>  into <em>main</em></li>
+<li>add a tag for the beamtime</li>
+</ul>
+<pre><code>//tag number is arbitrary at this point, just look at last tag and increment one of the values
+git tag v&lt;tag number&gt; -a //an example tag number would be 1.0.3
+//this will open your editor to write a description
+//the description should be 'Beamtime &lt;Month&gt; &lt;Day&gt; &lt;Year&gt;'
+//(if beamtime is multiple days, use the 1st day's date)
+</code></pre>
+<ul>
+<li>use a pull request to merge <em>main</em> into <em>development</em></li>
+<li>this is kinda sloppy, but seems like easiest way to 'reset' things after beamtime</li>
+</ul>
               
             </div>
           </div><footer>
