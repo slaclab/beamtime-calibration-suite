@@ -113,10 +113,10 @@
 <pre><code>source setup.sh
 </code></pre>
 <p><em>(This must be ran in each new terminal session)</em></p>
-<p>This script simplifies setting up the terminal environment and will be all that most script users will need to do</p>
+<p>This script simplifies setting up the terminal environment and should be all the environment setup most users will need to do</p>
 <p>This script does the following:<br />
   * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
-  * sets the library's output-root to the shared /rix dir used for the current experiment<br />
+  * sets the library's output-root to the shared /rix dir used for the current experiment  git 
   * sets the config file to the currently used <em>rixSuiteConfig.py</em> file  </p>
 <p>The rest of the page has more detail on configuring the scripts.</p>
 <h3 id="specifying-output-root">Specifying Output Root</h3>
@@ -125,7 +125,7 @@
 <p>The output-directory can be set using the <em>-p &lt;dir_name&gt;</em> cmdline arg.</p>
 <p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em> ) will have the library look for an output folder relative to the location of the current script being ran  </p>
 <h3 id="point-to-config-file">Point to Config File</h3>
-<p>Specify which config file for the library to use by setting the 'SUITE_CONFIG' environment variable:</p>
+<p>Specify which config file for the library to use by setting the <em>SUITE_CONFIG</em> environment variable:</p>
 <pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
 </code></pre>
 <p><em>(relative or full paths should work)</em></p>

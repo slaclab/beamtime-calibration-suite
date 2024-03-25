@@ -108,20 +108,20 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
-<p>We should try to generally follow the branching and pull-request workflow described in this <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
-<em> in our case the two important branches will be <em>main</em> and <em>development</em> <br />
-</em> in-between beamtimes, <em>development</em> is used for pushing work<br />
-<em> right before beamtimes, <em>development</em> is merged into <em>main</em><br />
-</em> then a branch named <em>beamtime_\<month>_\<day>_<year>_ is branched off main<br />
-  * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime<br />
-* after beamtimes, we merge _beamtime</em>\<month><em>\<day></em>\<year><em> back into _main</em> and tag it  </p>
-<p>(img: https://www.pablogonzalez.io/salesforce-git-branching-strategies/)</p>
+<p>we should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
+  * in our case the two important branches will be <em>main</em> and <em>development</em> <br />
+  * in-between beamtimes, <em>development</em> is used for pushing work<br />
+  * right before beamtimes, <em>development</em> is merged into <em>main</em><br />
+  * then a branch named <em>beamtime</em><month><em>\<day></em>\<year><em> is branched off main<br />
+    * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime<br />
+  * after beamtimes, we merge _beamtime</em><month><em>\<day></em>\<year><em> back into _main</em> and tag it  </p>
+<p><a href="https://www.pablogonzalez.io/salesforce-git-branching-strategies/">branching workflow</a></p>
 <h3 id="before-beamtime">Before Beamtime:</h3>
 <ul>
 <li>checkout <em>development</em> (or a earlier stable point of <em>development</em>) </li>
 <li>manually run and check the output of script planned for use on the beamtime, as a final sanity check</li>
 <li>use a pull request to merge <em>development</em>  into <em>main</em></li>
-<li>to do this follow the instructions in section <strong>F)</strong> of <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">https://slaclab.github.io/beamtime-calibration-suite/commands/</a></li>
+<li>to do this follow the instructions in section <strong>F)</strong> of the doc page <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">Git Commands for Common Tasks</a></li>
 <li><em>main</em> is safeguarded and will require a +1 from another developer</li>
 <li>make a branch for work during this specific beamtime</li>
 </ul>
@@ -130,7 +130,7 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="during-beamtime">During Beamtime:</h3>
 <ul>
-<li>At start of beamtime, everyone needs to download the branch for this beamtime:</li>
+<li>at start of beamtime, everyone needs to download the branch for this beamtime:</li>
 </ul>
 <pre><code>git fetch
 git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
@@ -154,8 +154,8 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="after-beamtime">After Beamtime:</h3>
 <ul>
-<li>make sure all the changes that need to be saved are commited to <em>beamtime_<month>_<day>_<year></em></li>
-<li>use a pull request to merge <em>beamtime_<month>_<day>_<year></em> into <em>main</em></li>
+<li>make sure all the changes that need to be saved are commited to <em>beamtime</em><month><em>\<day></em>\<year>_</li>
+<li>use a pull request to merge <em>beamtime_<month></em>\<day><em>\<year></em> into <em>main</em></li>
 <li>add a tag for the beamtime</li>
 </ul>
 <pre><code>//tag number is arbitrary at this point, just look at last tag and increment one of the values
