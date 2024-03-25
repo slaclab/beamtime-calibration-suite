@@ -1,4 +1,5 @@
 # Standalone scripts:
+wip: add descriptions, how to run, etc
 * [cfg_utils.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/cfg_utils.py)
 * [dumpPVs.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/dumpPVs.py)
 * [plotWave8.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/plotWave8.py)

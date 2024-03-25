@@ -1,4 +1,5 @@
-# Suite scripts:
+# Suite scripts: 
+wip: add descriptions, how to run, etc
 * [AnalyzeH5.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/suite_scripts/AnalyzeH5.py)
 * [runAnalyzeH5.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/suite_scripts/runAnalyzeH5.py)
 * [runInfo.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/suite_scripts/runInfo.py)
