@@ -118,7 +118,7 @@
                 <h1 id="git-commands-for-common-tasks">Git Commands for Common Tasks</h1>
 <h3 id="a-getting-the-latest-changes-for-use-at-a-beamtime">A) Getting the latest changes for use at a beamtime</h3>
 <pre><code>git fetch
-//if beamtime is across multiple days, use 1st day date
+//if beamtime is across multiple days, use 1st day's date
 git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="b-getting-the-latest-changes-from-the-development-branch">B) Getting the latest changes from the <code>development</code> branch</h3>
@@ -131,7 +131,7 @@ git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 <pre><code>git pull origin development
 </code></pre>
 <ul>
-<li>make a branch for your feature off of the <code>development</code> branch:</li>
+<li>make a branch for your feature from the <code>development</code> branch:</li>
 </ul>
 <pre><code>git checkout -b &lt;feature_branch_name&gt; development
 </code></pre>
@@ -147,10 +147,8 @@ git commit -m &lt;commit-message&gt;
 </ul>
 <pre><code>git push origin &lt;feature_branch_name&gt;
 </code></pre>
-<ul>
-<li>if want to merge your changes into the <code>development</code> branch (and keep them long-term)</li>
-<li>follow <strong>F)</strong> and make a pull-request from your feature-branch into <code>development</code></li>
-</ul>
+<p>if want to merge your changes into the <code>development</code> branch
+  * follow <strong>F)</strong> and make a pull-request from your feature-branch into <code>development</code></p>
 <h3 id="d-pulling-down-someone-elses-branch-non-maindevelopment-branch">D) pulling down someone else's branch (non main/development branch):</h3>
 <ul>
 <li>get updated branch info from remote</li>
@@ -158,23 +156,23 @@ git commit -m &lt;commit-message&gt;
 <pre><code>git fetch origin
 </code></pre>
 <ul>
-<li>see list of remote branches (optional)</li>
+<li>see list of remote branches to find the correct branch-name</li>
 </ul>
 <pre><code>git branch -r
 </code></pre>
 <ul>
 <li>checkout their branch (use the branch name without the 'origin/' prefix)</li>
 </ul>
-<pre><code>git checkout &lt;other_person_branch_name&gt;
+<pre><code>git checkout &lt;other_persons_branch_name&gt;
 </code></pre>
 <h3 id="e-switching-between-two-branches">E) Switching between two branches:</h3>
 <ul>
-<li>if the following command lists two branches:</li>
+<li>the following command lists the local branches you can switch to:</li>
 </ul>
 <pre><code>git branch
 </code></pre>
 <ul>
-<li>you can switch between them with:</li>
+<li>then switch between them with:</li>
 </ul>
 <pre><code>git checkout &lt;branch_want_to_switch_to&gt;
 </code></pre>
@@ -192,10 +190,10 @@ git commit -m &lt;commit-message&gt;
 </ul>
 <h3 id="g-check-out-tagged-commit-old-beamtime-code-will-be-tagged">G) Check out tagged commit (old beamtime code will be tagged):</h3>
 <ul>
-<li>same syntax as checking-out a branch, but use tag name instead:</li>
+<li>same syntax as checking-out a branch, but use the tag name instead:</li>
 </ul>
 <pre><code>git checkout &lt;tag_name&gt;
-//ex: 'git checkout v1.0.0'
+//ex: git checkout v1.0.0
 </code></pre>
               
             </div>

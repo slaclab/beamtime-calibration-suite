@@ -119,13 +119,13 @@
               
                 <h1 id="github-and-git-setup">Github and Git Setup</h1>
 <p>These steps will get you setup for running and developing the calibration suite!</p>
-<p>The steps describe the setup for using the scripts on the <a href="https://s3df.slac.stanford.edu/public/doc/#/">SLAC Shared Scientific Data Facility (S3DF)</a> A S3DF account is needed before following these steps, and info on how to get one is <a href="https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access">here</a></p>
-<p>The only other prerequisites should be a terminal that can run Unix commands (mac and linux have this by default), and basic knowledge of using the terminal!</p>
+<p>These steps describe the setup for running on the <a href="https://s3df.slac.stanford.edu/public/doc/#/">SLAC Shared Scientific Data Facility (S3DF)</a> A S3DF account is needed before following these steps, and info on how to get one is <a href="https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access">here</a></p>
+<p>The only other prerequisites should be a terminal that can run Unix commands (mac and linux have this by default), and basic knowledge of using this terminal</p>
 <h2 id="1-make-a-githubcom-account">1: Make a github.com account</h2>
 <ul>
 <li>if you already have github account and want to use it, skip to step <strong>2)</strong></li>
 <li>else to make a new account following the steps here: <a href="https://github.com/join">https://github.com/join</a></li>
-<li>your username can be anything, some people like to use the <em>&lt;username&gt;-slac</em> convention (ex: <em>nstelter-slac</em>)</li>
+<li>your username can be anything, some people like to use the <code>&lt;username&gt;-slac</code> convention (ex: <em>nstelter-slac</em>)</li>
 <li>for the email you can use your <em>@slac.stanford.edu</em> address or any other address if you want (just make sure to use the same email in step <strong>5)</strong></li>
 <li>you will need a code from your email when creating the account</li>
 </ul>
@@ -140,12 +140,12 @@
 <ul>
 <li>after completing step <strong>2)</strong>, your github account should now be a member of the 'SLAC Lab' github group</li>
 <li>now go to <a href="https://github.com/orgs/slaclab/teams/beamtime_calibration_suite_devs">https://github.com/orgs/slaclab/teams/beamtime_calibration_suite_devs</a> and click the 'Request to join' button towards the upper-right of the page</li>
-<li>this will grant you write access to the repository (used for development and sharing codappe-changes during beamtime)</li>
+<li>this will grant you write access to the repository (used for development and sharing code-changes during beamtime)</li>
 </ul>
 <h2 id="4-setup-your-terminal-for-next-steps">4: Setup your terminal for next steps</h2>
 <ul>
-<li>for the following steps <strong>5)</strong>, <strong>6)</strong>, <strong>7)</strong>, <strong>8)</strong>, make sure you terminal (linux or mac) is setup first with the following commands:<br />
-(note: in the 1st command replace <em>&lt;slac-username&gt;</em> with your slac unix account-name)  </li>
+<li>for the following steps <strong>5)</strong>, <strong>6)</strong>, <strong>7)</strong>, <strong>8)</strong>, make sure you terminal is setup first with the following commands:<br />
+(note: in the 1st command replace <code>&lt;slac-username&gt;</code> with your slac unix account-name)  </li>
 </ul>
 <pre><code>ssh -Yt &lt;slac-username&gt;@s3dflogin.slac.stanford.edu
 //now enter your info to login to s3df...
@@ -169,6 +169,7 @@ git config --global core.editor emacs
 <ul>
 <li>first make sure you are logged into your github account in your web browser</li>
 <li>for the next two bullet-points, make sure you have selected the 'Linux' tab near the top of the page, not 'Mac'!</li>
+<li>note: the commands on the following pages have to be ran in the terminal setup in step <strong>4)</strong>, which is ssh'd into S3DF</li>
 <li>Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent”: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key">https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key</a> </li>
 <li>Follow instructions under “Adding a new SSH key to your account”: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account">https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account</a></li>
 </ul>
@@ -184,13 +185,13 @@ git clone git@github.com:slaclab/beamtime-calibration-suite.git
 cd beamtime-calibration-suite
 git switch development
 ls
-//should see a bunch of folders!
+//should see a bunch of folders
 cd suite_scripts
 ls
-//now should see a bunch of python scripts!
+//now should see a bunch of python scripts
 </code></pre>
 <ul>
-<li>if an error occurs during these commands, SSH setup in step <strong>6)</strong> may have had an issue and might need to be debugged</li>
+<li>if an error occurs with these commands, SSH setup in step <strong>6)</strong> may have had an issue and might need to be debugged</li>
 </ul>
 <h2 id="8-run-an-example-script">8: Run an example script</h2>
 <ul>
@@ -202,7 +203,7 @@ source setup.sh
 mkdir setup_test_output
 cd suite_scripts
 //'OUTPUT_ROOT=' sets the OUTPUT_ROOT environment var to an empty value,
-//which causes the script to look relative to the current directory for the output folder
+//which makes the script to look relative to the current directory for the output-folder
 OUTPUT_ROOT= python EventScanParallelSlice.py -r 457 -p ../setup_test_output
 //let the script run to completion...
 ls -lt ../setup_test_output
