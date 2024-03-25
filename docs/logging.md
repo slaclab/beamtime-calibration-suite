@@ -1,10 +1,10 @@
 # Logging
 
-Logging calls are added to the library code, and also to some commonly used files in _/suite_scripts_ to act as (example)[https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/TimeScanParallelSlice.py].
+Logging calls are added to the library code, and also to some commonly used files in _/suite_scripts_ to act as [example](https://github.com/slaclab/beamtime-calibration-suite/blob/main/suite_scripts/TimeScanParallelSlice.py)
 
-Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist. 
+Using the following method will append log messages to the log-file if it already exists, or create a new log-file if the file doesn't exist
 
-If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated.
+If you want a new log-file for each run of a high-level script, atm you will need to rename the log-file after each run so a new one will be generated
 
 To have your high-level script generate logs from the calibrationSuite library code, add the following at the top of the script:
 ```
@@ -13,11 +13,11 @@ import calibrationSuite.loggingSetup as ls
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs" + currFileName[:-3] + ".log", logging.ERROR)
 ```
-Pass in logging.INFO instead to get alot more output on the state of the program, while also still logging the logging.ERROR messages.
+Pass in _logging.INFO_ instead to get alot more output on the state of the program, while also still logging the _logging.ERROR_ messages
 
-You can pass any chosen log-file name to the setupScriptLogging function, but using the above will create and write to file named _beamtime-calibration-suite/logs/<curr script name>.log_
+You can pass any chosen log-file name to the _setupScriptLogging_ function, but using the above will create and write to file named _beamtime-calibration-suite/logs/\<curr script name\>.log_
 
-To add more logging from the high-level script itself (to the same file specified to setupScriptLogging), you can add the following to the top of the script:
+To add more logging from the high-level script itself (to the same file specified to _setupScriptLogging_), you can add the following to the top of the script:
 ```
 import logging
 logger = logging.getLogger(__name__)

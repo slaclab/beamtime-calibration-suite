@@ -2,7 +2,7 @@
 
 These steps will get you setup for running and developing the calibration suite!
 
-The steps describe the setup for using the scripts on the [SLAC Shared Scientific Data Facility (S3DF)](https://s3df.slac.stanford.edu/public/doc/#/) A S3DF account is needed before following these steps, and info on how to get one is [here](https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access).
+The steps describe the setup for using the scripts on the [SLAC Shared Scientific Data Facility (S3DF)](https://s3df.slac.stanford.edu/public/doc/#/) A S3DF account is needed before following these steps, and info on how to get one is [here](https://s3df.slac.stanford.edu/public/doc/#/accounts-and-access)
 
 The only other prerequisites should be a terminal that can run Unix commands (mac and linux have this by default), and basic knowledge of using the terminal!
 
