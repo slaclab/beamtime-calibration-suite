@@ -109,20 +109,19 @@
               
                 <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
 <p>we should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
-  * in our case the two important branches will be <em>main</em> and <em>development</em> <br />
-  * in-between beamtimes, <em>development</em> is used for pushing work<br />
-  * right before beamtimes, <em>development</em> is merged into <em>main</em><br />
-  * then a branch named <em>beamtime</em><month><em>\<day></em>\<year><em> is branched off main<br />
+  * in our case the two important branches will be <code>main</code> and <code>development</code> <br />
+  * in-between beamtimes, <code>development</code> is used for pushing work<br />
+  * right before beamtimes, <code>development</code> is merged into <code>main</code><br />
+  * then a branch named <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;_</code> is branched off main<br />
     * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime<br />
-  * after beamtimes, we merge _beamtime_<month>_<day></em>\<year><em> back into _main</em> and tag it  </p>
-<p><img alt="branching workflow" src="https://www.pablogonzalez.io/salesforce-git-branching-strategies/" /></p>
+  * after beamtimes, we merge <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code> back into <code>main</code> and tag it  </p>
 <h3 id="before-beamtime">Before Beamtime:</h3>
 <ul>
-<li>checkout <em>development</em> (or a earlier stable point of <em>development</em>) </li>
+<li>checkout <code>development</code> (or a earlier stable point of <code>development</code>) </li>
 <li>manually run and check the output of script planned for use on the beamtime, as a final sanity check</li>
-<li>use a pull request to merge <em>development</em>  into <em>main</em></li>
+<li>use a pull request to merge <code>development</code>  into <code>main</code></li>
 <li>to do this follow the instructions in section <strong>F)</strong> of the doc page <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">Git Commands for Common Tasks</a></li>
-<li><em>main</em> is safeguarded and will require a +1 from another developer</li>
+<li><code>main</code> is safeguarded and will require a +1 from another developer</li>
 <li>make a branch for work during this specific beamtime</li>
 </ul>
 <pre><code>git checkout -b main beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
@@ -154,8 +153,8 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="after-beamtime">After Beamtime:</h3>
 <ul>
-<li>make sure all the changes that need to be saved are commited to <em>beamtime</em><month><em>\<day></em>\<year>_</li>
-<li>use a pull request to merge <em>beamtime_<month></em>\<day><em>\<year></em> into <em>main</em></li>
+<li>make sure all the changes that need to be saved are commited to <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;_</code></li>
+<li>use a pull request to merge <code>_beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;_</code> into <code>main</code></li>
 <li>add a tag for the beamtime</li>
 </ul>
 <pre><code>//tag number is arbitrary at this point, just look at last tag and increment one of the values
@@ -165,7 +164,7 @@ git tag v&lt;tag number&gt; -a //an example tag number would be 1.0.3
 //(if beamtime is multiple days, use the 1st day's date)
 </code></pre>
 <ul>
-<li>use a pull request to merge <em>main</em> into <em>development</em></li>
+<li>use a pull request to merge <em>main</em> into <code>development</code></li>
 <li>this is kinda sloppy, but seems like easiest way to 'reset' things after beamtime</li>
 </ul>
               
