@@ -39,7 +39,6 @@ If everything is working, the script should start spitting terminal-output like:
 3260 True
 Event number foo
 ```
-_Done with step-by-step setup. The following sections provide more detail on the setup process and the code._
  
 ## Developers:
 

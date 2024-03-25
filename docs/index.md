@@ -14,8 +14,9 @@ from calibrationSuite.basicSuiteScript import *
 from calibrationSuite.fitFunctions import * 
 from calibrationSuite.Stats import * 
 from calibrationSuite.cluster import *
+...
 ```
-_(documentation on the library functionality is still to come, but example usage is seen in the /suite_scripts folder)_
+_(documentation on the library functionality is still to come, but example usage is seen by scripts in the /suite_scripts folder)_
 
 * _/suite_scripts_: scripts that use the calibrationSuite library code ('high-level scripts')
 * _/standalone_scripts_: scripts that do not use the calibrationSuite library code ('high-level scripts')
@@ -25,5 +26,5 @@ _(documentation on the library functionality is still to come, but example usage
 
 ### Important branches:
 
-* _development_: Contains the newest 'good' code, usually has new changes and bug fixes.
-* _main_: Stable code used during beamtimes. The code from each beamtime (including the changes made during) is tagged.
+* _development_: contains the newest 'good' code, usually has new changes and bug fixes.
+* _main_: stable code that's used during beamtimes. The code from each beamtime (including the changes made during) is tagged.
