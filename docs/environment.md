@@ -11,12 +11,12 @@ source setup.sh
 ```
 _(This must be ran in each new terminal session, or added to your ~/.bashrc file using the full path to setup.sh)_
 
-This script simplifies setting up the terminal environment and will be all that most script users will need to do. 
+This script simplifies setting up the terminal environment and will be all that most script users will need to do
 
-This script does the following:
-* appends your cloned location of this library to your _PYTHONPATH_, so scripts in _/suite_scripts_ and other locations on your machine can find the library code.
-* sets the library's output-root to the shared /rix dir used for the current experiment. 
-* sets the config file to the currently used _rixSuiteConfig.py_ file.
+This script does the following:  
+* appends your cloned location of this library to your _PYTHONPATH_, so scripts in _/suite_scripts_ and other locations on your machine can find the library code  
+* sets the library's output-root to the shared /rix dir used for the current experiment   
+* sets the config file to the currently used _rixSuiteConfig.py_ file  
 
 The rest of the page has more detail on configuring the scripts.
 
@@ -28,7 +28,7 @@ For example, if the root is set to the default value _/sdf/data/lcls/ds/rix/rixx
 
 The output-directory can be set using the _-p \<dir_name>_ cmdline arg.
 
-Setting the var to nothing (_export OUTPUT_ROOT=_) will have the library look for an output folder relative to the location of the current script being ran.  
+Setting the var to nothing (_export OUTPUT_ROOT=_) will have the library look for an output folder relative to the location of the current script being ran  
 
 
 ### Point to Config File
@@ -42,6 +42,6 @@ _(relative or full paths should work)_
 You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
 _(note: if set, the environment variable will always override this cmd-line option)_
 
-If neither of the above are set, the suite will try to use a default file named _suiteConfig.py_. 
+If neither of the above are set, the suite will try to use a default file named _suiteConfig.py_
 
-If no config file can be found and read, the library will fail-out early.
+If no config file can be found and read, the library will fail-out early
