@@ -11,6 +11,7 @@ from psana import *
 from PSCalib.NDArrIO import load_txt
 import logging
 import sys
+from calibrationSuite.argumentParser import ArgumentParser
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +28,10 @@ class PsanaBase(object):
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
 
-    ##        self.setupPsana()
+        self.args = ArgumentParser().parse_args()
+        logger.info("parsed cmdline args: " + str(self.args))
+
+    ## self.setupPsana()
 
     def get_ds(self, run=None):
         if run is None:
