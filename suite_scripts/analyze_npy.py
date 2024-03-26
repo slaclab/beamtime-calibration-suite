@@ -13,6 +13,13 @@ import sys, re
 
 from runInfo import *
 
+import calibrationSuite.loggingSetup as ls
+# for logging from current file
+logger = logging.getLogger(__name__)
+# log to file named <curr script name>.log
+currFileName = os.path.basename(__file__)
+ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+
 
 class LinearityInfo(object):  ## describes the .npy array
     def __init__(self):
@@ -78,7 +85,9 @@ class AnalyzeOneScan(object):
         ax[0].set_title(stat0)
         ax[1].hist(d.clip(*tuple(g0Range)), 100)
         ax[1].set_title(stat0)
-        plt.savefig("%s_%s_map_and_histo.png" % (self.label, stat0, stat1))
+
+        figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0, stat1)
+        plt.savefig(figFileName)
         plt.close()
 
     def plotPair(self, stat0, stat1):
@@ -91,6 +100,8 @@ class AnalyzeOneScan(object):
         fig, ax = plt.subplots(2, 2)
         d = self.data[:, :, g0Index]
         print(stat0, "median:", np.median(d))
+        logger.info(str(stat0) + " median: " + str(np.median(d)))
+
         im = ax[0, 0].imshow(d.clip(*tuple(g0Range)))
         fig.colorbar(im)
         ax[0, 0].set_title(stat0)
@@ -98,13 +109,18 @@ class AnalyzeOneScan(object):
         ax[0, 1].set_title(stat0)
         d = self.data[:, :, g1Index]
         print(stat1, "median:", np.median(d))
+        logger.info(str(stat1) + " median: " + str(np.median(d)))
+
         im = ax[1, 0].imshow(d.clip(*tuple(g1Range)))
         fig.colorbar(im)
         ax[1, 0].set_title(stat1)
         ax[1, 1].hist(d.clip(*tuple(g1Range)), 100)
         ax[1, 1].set_title(stat1)
         ##plt.show()
-        plt.savefig("%s_%s_%s_maps_and_histos.png" % (self.label, stat0, stat1))
+
+        figFileName = "%s_%s_%s_maps_and_histos.png" % (self.label, stat0, stat1)
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.close()
 
     def plotRatio(self, statA, statB, clipRange=None):
@@ -114,7 +130,10 @@ class AnalyzeOneScan(object):
         indexB = self.dataIndices[statB]
         fig, ax = plt.subplots(2, 1)
         d = self.data[:, :, indexA] / self.data[:, :, indexB]
+        
         print(statA, statB, "ratio median:", np.median(d))
+        logger.info(str(statA) + " " + str(statB) + " ratio median: " + " " + str(np.median(d)))
+
         if clipRange is not None:
             d = d.clip(*tuple(clipRange)) #???
         ##im = ax[0,0].imshow(d.clip(*tuple(g0Range)))
@@ -123,7 +142,10 @@ class AnalyzeOneScan(object):
         ax[0].set_title("%s/%s" % (statA, statB))
         ax[1].hist(d, 100)
         ax[1].set_title("%s/%s" % (statA, statB))
-        plt.savefig("%s_%s_%s_ratio_map_and_histo.png" % (self.label, statA, statB))
+
+        figFileName = "%s_%s_%s_ratio_map_and_histo.png" % (self.label, statA, statB)
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.close()
 
 
@@ -134,9 +156,11 @@ class CompareMultipleScans(object):
         self.runList = runList
         self.label = label
         print("label: %s" % (label))
+        logger.info("label: %s" % (label))
         self.dataIndices = scanObj.dataIndices
         self.dataRanges = scanObj.dataRanges
         print(self.dataIndices)
+        logger.info(self.dataIndices)
 
     def overlayHistograms(self, statList, nBins=50):
         if len(statList) > 1:
@@ -167,11 +191,15 @@ class CompareMultipleScans(object):
         ##plt.show()
         stats = "_".join(statList)
         print(stats)
-        plt.savefig("%s_%s_overlay.png" % (self.label, stats))
+        logger.info(stats)
+        figFileName ="%s_%s_overlay.png" % (self.label, stats)
+        plt.savefig(figFileName)
+        logger.info("Wrote file: " + figFileName)
         plt.close()
 
     def analyze(self):
         print("analyze dataArray")
+        logger.info("analyze dataArray")
         for array in self.statsArray:
             self.overlayHistograms(array)
 

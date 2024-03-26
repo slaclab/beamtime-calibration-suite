@@ -1,0 +1,16 @@
+# Standalone scripts:
+wip: add descriptions, how to run, etc  
+* [cfg_utils.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/cfg_utils.py)  
+* [dumpPVs.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/dumpPVs.py) 
+* [plotWave8.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/plotWave8.py)  
+* [compareConfigs.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/compareConfigs.py)  
+* [MapCompEnOn.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/MapCompEnOn.py)  
+* [roiCombinationExample.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/roiCombinationExample.py)  
+* [DamageCounter.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/DamageCounter.py)  
+* [MapCompEnOnThreshold.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/MapCompEnOnThreshold.py)  
+* [seabornTest.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/seabornTest.py)  
+* [Debugging.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/Debugging.py)  
+* [nonBasicScript.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/nonBasicScript.py)  
+* [simpler_epixhr.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/simpler_epixhr.py)  
+* [dumbBandPlotter.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/dumbBandPlotter.py)  
+* [OpenXav.py](https://github.com/slaclab/beamtime-calibration-suite/blob/development/standalone_scripts/OpenXav.py)  

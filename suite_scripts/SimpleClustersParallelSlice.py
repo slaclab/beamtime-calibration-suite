@@ -156,7 +156,8 @@ if __name__ == "__main__":
             gain = 6.66  # 20/3
         print("using gain correction", gain)
 
-        if True:  ## turn on when db works
+        ##if True:  ## turn on when db works
+        try:
             if "FH" in sic.special:
                 gainMode = sic.gainModes["FH"]
             if "FM" in sic.special:
@@ -166,6 +167,10 @@ if __name__ == "__main__":
             if gain is None:
                 gain = sic.det.calibconst["pedestals"][0][gainMode]
                 ## something wrong with the overall logic here
+        except:
+            print("May not have a detector object in this data stream...")
+            print("sic.det:", sic.det)
+            pass
 
     hSum = None
     for nevt, evt in enumerate(evtGen):
@@ -187,6 +192,9 @@ if __name__ == "__main__":
             frames /= gain  ## this helps with the bit shift
         else:
             frame = sic.getCalibData(evt)[0]
+        if frames is None:
+            print("something weird and bad happened, ignore event")
+            continue
         frame = frames[0]
         ## in keV now, hopefully with a sensible pedestal
 

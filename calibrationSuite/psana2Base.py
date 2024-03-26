@@ -74,6 +74,9 @@ class PsanaBase(object):
         ## make this less dumb to accomodate epixM etc.
         ## use a dict etc.
         self.det = self.myrun.Detector("epixhr")
+        if self.det is None:
+            print("no det object for epixhr, what?  Pretend it's ok.")
+            ##raise Exception
         ## could set to None and reset with first frame I guess, or does the det object know?
         self.detRows = 288
         self.detCols = 384
