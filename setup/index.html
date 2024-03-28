@@ -172,7 +172,12 @@ git config --global core.editor emacs
 <li>note: the commands on the following pages have to be ran in the terminal setup in step <strong>4)</strong>, which is ssh'd into S3DF</li>
 <li>Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent”: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key">https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key</a> </li>
 <li>Follow instructions under “Adding a new SSH key to your account”: <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account">https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account</a></li>
+<li>To check if this worked, run:</li>
 </ul>
+<pre><code>ssh -T git@github.com
+//if SSH is working, you should get the following output:
+//Hi &lt;github_username&gt;! You've successfully authenticated, but GitHub does not provide shell access.
+</code></pre>
 <h2 id="7-download-the-repo">7: Download the repo</h2>
 <ul>
 <li>run the following terminal commands:</li>
