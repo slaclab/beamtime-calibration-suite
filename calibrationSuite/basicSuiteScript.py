@@ -9,7 +9,6 @@
 ##############################################################################
 import argparse
 import numpy as np
-import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import sys
@@ -191,15 +190,6 @@ class BasicSuiteScript(PsanaBase):
 
         ##self.setupPsana()
         ##do this later or skip for -file
-
-    def importConfigFile(self, file_path):
-        if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
-            return None
-        spec = importlib.util.spec_from_file_location("config", file_path)
-        config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
-        return config_module
 
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,

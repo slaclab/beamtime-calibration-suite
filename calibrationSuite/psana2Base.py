@@ -9,6 +9,7 @@
 ##############################################################################
 from psana import *
 from calibrationSuite.argumentParser import ArgumentParser
+import importlib.util
 
 ##from PSCalib.NDArrIO import load_txt
 
@@ -70,6 +71,15 @@ class PsanaBase(object):
             print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
             return -1
         ##self.setupPsana()
+
+    def importConfigFile(self, file_path):
+        if not os.path.exists(file_path):
+            print(f"The file '{file_path}' does not exist")
+            return None
+        spec = importlib.util.spec_from_file_location("config", file_path)
+        config_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(config_module)
+        return config_module
 
     def get_ds(self, run=None):
         if run is None:
