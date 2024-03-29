@@ -8,58 +8,19 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from psana import *
+from calibrationSuite.commonPsanaBase import *
 from PSCalib.NDArrIO import load_txt
 import logging
-import sys
-import os
-from calibrationSuite.argumentParser import ArgumentParser
 logger = logging.getLogger(__name__)
 
 
-class PsanaBase(object):
+class PsanaBase(CommonPsanaBase):
     def __init__(self, analysisType="scan"):
-        commandUsed = sys.executable + " " + " ".join(sys.argv)
-        logger.info("Ran with cmd: " + commandUsed)
-
+        super().__init__(analysisType)
         self.psanaType = 1
         print("in psana1Base")
         logger.info("in psana1Base")
-        self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
-        self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-        self.g0cut = 1 << 14
-        self.gainBitsMask = self.g0cut - 1
 
-        self.args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(self.args))
-
-        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
-        # if neither are set, use the default 'suiteConfig.py' file
-        defaultConfigFileName = "suiteConfig.py"
-        secondaryConfigFileName = defaultConfigFileName if self.args.configFile is None else self.args.configFile
-        # secondaryConfigFileName is returned if env var not set
-        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
-        config = self.importConfigFile(configFileName)
-        if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
-            sys.exit(1)
-        self.experimentHash = config.experimentHash
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
-        if self.experimentHash['detectorType'] not in knownTypes:
-            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
-            return -1
-
-    ## self.setupPsana()
-
-    def importConfigFile(self, file_path):
-        if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
-            return None
-        spec = importlib.util.spec_from_file_location("config", file_path)
-        config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
-        return config_module
 
     def get_ds(self, run=None):
         if run is None:
@@ -87,16 +48,6 @@ class PsanaBase(object):
         except:
             self.controlData = None
 
-    def getFivePedestalRunInfo(self):
-        ## could do load_txt but would require full path so
-        if self.det is None:
-            self.setupPsana()
-
-        evt = self.getEvt(self.fivePedestalRun)
-        self.fpGains = self.det.gain(evt)
-        self.fpPedestals = self.det.pedestals(evt)
-        self.fpStatus = self.det.status(evt)  ## does this work?
-        self.fpRMS = self.det.rms(evt)  ## does this work?
 
     def getEvt(self, run=None):
         oldDs = self.ds
@@ -186,14 +137,11 @@ class PsanaBase(object):
             pass
         return kicked
 
-    def get_config(self):
-        self.config = self.ds.env().configStore()
+    def getScanValue(self, foo):
+        return self.controlData().pvControls()[0].value()
 
     def getStepGen(self):
         return self.ds.steps()
-
-    def getScanValue(self, foo):
-        return self.controlData().pvControls()[0].value()
 
     def getRawData(self, evt, gainBitsMasked=True):
         frames = self.det.raw(evt)
@@ -205,9 +153,6 @@ class PsanaBase(object):
 
     def getCalibData(self, evt):
         return self.det.calib(evt)
-
-    def getImage(evt, data=None):
-        return self.raw.image(evt, data)
 
 
 if __name__ == "__main__":
