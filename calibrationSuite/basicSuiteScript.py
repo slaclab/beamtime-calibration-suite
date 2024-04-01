@@ -9,7 +9,6 @@
 ##############################################################################
 import argparse
 import numpy as np
-import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import sys
@@ -18,7 +17,7 @@ from scipy.optimize import curve_fit  ## here?
 from calibrationSuite.fitFunctions import *
 from calibrationSuite.ancillaryMethods import *
 from calibrationSuite.argumentParser import ArgumentParser
-
+from calibrationSuite.detectorInfo import DetectorInfo
 import os
 
 if os.getenv("foo") == "1":
@@ -39,23 +38,7 @@ class BasicSuiteScript(PsanaBase):
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
 
-        args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(args))
         ##mymodule = importlib.import_module(full_module_name)
-
-        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that.
-        # if neither are set, use the default 'suiteConfig.py' file.
-        defaultConfigFileName = "suiteConfig.py"
-        secondaryConfigFileName = defaultConfigFileName if args.configFile is None else args.configFile
-        # secondaryConfigFileName is returned if env var not set
-        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
-        config = self.importConfigFile(configFileName)
-        if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
-            sys.exit(1)
-        experimentHash = config.experimentHash
 
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
@@ -65,19 +48,21 @@ class BasicSuiteScript(PsanaBase):
         logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 
+        self.detectorInfo = DetectorInfo(self.experimentHash['detectorType'])
+        
         self.className = self.__class__.__name__
 
         try:
-            self.location = experimentHash["location"]
+            self.location = self.experimentHash["location"]
         except:
             pass
         try:
-            self.exp = experimentHash["exp"]
+            self.exp = self.experimentHash["exp"]
         except:
             pass
         try:
             ##if True:
-            self.ROIfileNames = experimentHash["ROIs"]
+            self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
                 self.ROIs.append(np.load(f + ".npy"))
@@ -93,11 +78,11 @@ class BasicSuiteScript(PsanaBase):
             self.ROI = None
             self.ROIs = None
         try:
-            self.singlePixels = experimentHash["singlePixels"]
+            self.singlePixels = self.experimentHash["singlePixels"]
         except:
             self.singlePixels = None
         try:
-            self.regionSlice = experimentHash["regionSlice"]
+            self.regionSlice = self.experimentHash["regionSlice"]
         except:
             self.regionSlice = None
         if self.regionSlice is not None:
@@ -109,13 +94,13 @@ class BasicSuiteScript(PsanaBase):
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
 
         try:
-            self.fluxSource = experimentHash["fluxSource"]
+            self.fluxSource = self.experimentHash["fluxSource"]
             try:
-                self.fluxChannels = experimentHash["fluxChannels"]
+                self.fluxChannels = self.experimentHash["fluxChannels"]
             except:
                 self.fluxChannels = range(8, 16)  ## wave8
             try:
-                self.fluxSign = experimentHash["fluxSign"]
+                self.fluxSign = self.experimentHash["fluxSign"]
             except:
                 self.fluxSign = 1
         except:
@@ -135,27 +120,27 @@ class BasicSuiteScript(PsanaBase):
 
         ## for standalone analysis
         self.file = None
-        if args.files is not None:
-            self.file = args.files
+        if self.args.files is not None:
+            self.file = self.args.files
         self.label = ""
-        if args.label is not None:
-            self.label = args.label
+        if self.args.label is not None:
+            self.label = self.args.label
 
-        ## analyzing xtc
-        if args.run is not None:
-            self.run = args.run
-        if args.camera is not None:
-            self.camera = args.camera
-        if args.exp is not None:
-            self.exp = args.exp
-        if args.location is not None:
-            self.location = args.location
-        if args.maxNevents is not None:
-            self.maxNevents = args.maxNevents
-        if args.skipNevents is not None:
-            self.skipNevents = args.skipNevents
-        if args.path is not None:
-            self.outputDir = args.path
+        ## analyzing xtcs
+        if self.args.run is not None:
+            self.run = self.args.run
+        if self.args.camera is not None:
+            self.camera = self.args.camera
+        if self.args.exp is not None:
+            self.exp = self.args.exp
+        if self.args.location is not None:
+            self.location = self.args.location
+        if self.args.maxNevents is not None:
+            self.maxNevents = self.args.maxNevents
+        if self.args.skipNevents is not None:
+            self.skipNevents = self.args.skipNevents
+        if self.args.path is not None:
+            self.outputDir = self.args.path
         # if set, output folders will be relative to OUTPUT_ROOT
         # if not, they will be relative to the current script file
         self.outputDir = os.getenv("OUTPUT_ROOT", "") + self.outputDir
@@ -172,31 +157,32 @@ class BasicSuiteScript(PsanaBase):
             #os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
             #os.chmod(self.outputDir, 0o777)
-        self.detObj = args.detObj
-        if args.threshold is not None:
-            self.threshold = eval(args.threshold)
+        self.detObj = self.args.detObj
+        if self.args.threshold is not None:
+            self.threshold = eval(self.args.threshold)
         else:
             self.threshold = None
-        if args.fluxCut is not None:
-            self.fluxCut = args.fluxCut
+        if self.args.fluxCut is not None:
+            self.fluxCut = self.args.fluxCut
         try:
-            self.runRange = eval(args.runRange)  ## in case needed
+            self.runRange = eval(self.args.runRange)  ## in case needed
         except:
             self.runRange = None
 
-        self.fivePedestalRun = args.fivePedestalRun  ## in case needed
-        self.fakePedestal = args.fakePedestal  ## in case needed
+        self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
+        self.fakePedestal = self.args.fakePedestal  ## in case needed
         if self.fakePedestal is not None:
             self.fakePedestalFrame = np.load(self.fakePedestal)  ##cast to uint32???
 
-        if args.detType == "":
+        if self.args.detType == "":
             ## assume epix10k for now
-            if args.nModules is not None:
-                self.detType = self.ePix10k_cameraTypes[args.nModules]
+            if self.args.nModules is not None:
+                self.detectorInfo.setNModules(self.args.nModules)
+                self.detType = self.detectorInfo.getCameraType()
         else:
-            self.detType = args.detType
+            self.detType = self.args.detType
 
-        self.special = args.special
+        self.special = self.args.special
         ## done with configuration
 
         self.ds = None
@@ -204,15 +190,6 @@ class BasicSuiteScript(PsanaBase):
 
         ##self.setupPsana()
         ##do this later or skip for -file
-
-    def importConfigFile(self, file_path):
-        if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
-            return None
-        spec = importlib.util.spec_from_file_location("config", file_path)
-        config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
-        return config_module
 
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,
@@ -242,7 +219,7 @@ class BasicSuiteScript(PsanaBase):
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
         ##rand = np.random.random()
-        for r in range(self.detRows):
+        for r in range(self.detectorInfo.nRows):
             colOffset = 0
             ##for b in range(0, self.detNbanks):
             for b in range(0, 2):
@@ -277,22 +254,22 @@ class BasicSuiteScript(PsanaBase):
                 ##for b in range(0, 2):
                 try:
                     colCM = np.median(
-                        frame[rowOffset : rowOffset + self.detRowsPerBank, c][
-                            frame[rowOffset : rowOffset + self.detRowsPerBank, c] < arbitraryCut
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
+                            frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
                     ##if r == 280 and rand > 0.999:
                     ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
                     ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
-                    frame[rowOffset : rowOffset + self.detRowsPerBank, c] -= colCM
+                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
                     ##if r == 280 and rand > 0.999:
                     ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
-                    print(frame[rowOffset : rowOffset + self.detRowsPerBank], c)
-                rowOffset += self.detRowsPerBank
+                    print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
+                rowOffset += self.detectorInfo.nRowsPerBank
         return frame
 
     def isBeamEvent(self, evt):
