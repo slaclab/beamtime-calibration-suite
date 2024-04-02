@@ -12,6 +12,7 @@ import numpy as np
 ##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 ##experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 experimentHash = {
+    "detectorType": "epixhr",
     "exp": "rixx1003721",
     "location": "RixEndstation",
     "fluxSource": "MfxDg1BmMon",
