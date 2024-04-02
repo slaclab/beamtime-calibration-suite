@@ -174,6 +174,29 @@ class BasicSuiteScript(PsanaBase):
         if self.fakePedestal is not None:
             self.fakePedestalFrame = np.load(self.fakePedestal)  ##cast to uint32???
 
+        self.g0PedFile = self.args.g0PedFile
+        if self.g0PedFile is not None:
+            ##self.g0Ped = np.load(self.g0PedFile)
+            self.g0Ped = np.array([np.load(self.g0PedFile)])##temp hack
+            print(self.g0Ped.shape)
+            
+        self.g1PedFile = self.args.g0PedFile
+        if self.g1PedFile is not None:
+            ##self.g1Ped = np.load(self.g1PedFile)
+            self.g1Ped = np.array([np.load(self.g1PedFile)])##temp hack
+
+        self.g0GainFile = self.args.g0GainFile
+        if self.g0GainFile is not None:
+            self.g0Gain = np.load(self.g0GainFile)
+
+        self.g1GainFile = self.args.g1GainFile
+        if self.g1GainFile is not None:
+            self.g1Gain = np.load(self.g1GainFile)
+
+        self.offsetFile = self.args.offsetFile
+        if self.offsetFile is not None:
+            self.offset = np.load(self.offsetFile)
+
         if self.args.detType == "":
             ## assume epix10k for now
             if self.args.nModules is not None:
@@ -204,6 +227,9 @@ class BasicSuiteScript(PsanaBase):
                 np.save(roiFile, roi)
         self.ROI = roi
 
+    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+    
     def noCommonModeCorrection(self, frame):
         return frame
 
