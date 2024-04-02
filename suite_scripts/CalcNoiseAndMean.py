@@ -25,8 +25,8 @@ class CalcNoise(BasicSuiteScript):
 
 if __name__ == "__main__":
     cn = CalcNoise()
-    print("have built a " + cn.className + "class")
-    logger.info("have built a " + cn.className + "class")
+    print("have built a " + cn.className + " class")
+    logger.info("have built a " + cn.className + " class")
 
     cn.setupPsana()
     if cn.special is not None and "skip283" in cn.special:
