@@ -20,7 +20,7 @@ class DetectorInfo:
         self.nRowsPerBank = -1
         self.dimension = -1
 
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
+        knownTypes = ['epixhr', 'epixM', 'archon']
         if detType not in knownTypes:
             raise Exception("type %s not in known types" % (detType, knownTypes))
 
@@ -31,7 +31,7 @@ class DetectorInfo:
             self.setup_epixhr()
         elif detType == 'epixM':
             self.setup_epixM()
-        elif detType == 'rixsCCD':
+        elif detType == 'archon':
             self.setup_rixsCCD()
 
     def setNModules(self, n):
@@ -57,6 +57,15 @@ class DetectorInfo:
         #todo: setup detector here
         temp = 0 #make python happy
 
-    def setup_rixsCCD(self, version=0):
-        #todo: setup detector here
-        temp = 0 #make python happy
+    def setup_rixsCCD(self, mode='1d', version=0):
+        self.nTestPixelsPerBank = 36
+        self.nBanks = 16
+        self.nCols = 4800 - self.nBanks*self.nTestPixelsPerBank
+        self.preferredCommonMode = 'rixsCCDTestPixelSubtraction'
+        if mode == '1d':
+            self.nRows = 300
+            self.clusterShape = [1,5] ## might be [1,3]
+        else:
+            self.nRows = 1200
+            self.clusterShape = [3,5] ## maybe
+            

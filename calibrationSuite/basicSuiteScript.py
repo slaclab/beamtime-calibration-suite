@@ -45,6 +45,8 @@ class BasicSuiteScript(PsanaBase):
         self.camera = 0
         ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
         self.outputDir = "../%s/" % (analysisType)
+        print("this messes things up")
+        self.outputDir = "/%s/" % (analysisType)
         logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 

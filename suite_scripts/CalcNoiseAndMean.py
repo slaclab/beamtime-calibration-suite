@@ -29,10 +29,10 @@ if __name__ == "__main__":
     logger.info("have built a " + cn.className + "class")
 
     cn.setupPsana()
-    if cn.special is not None and "skip281" in cn.special:
-        skip281 = True
+    if cn.special is not None and "skip283" in cn.special:
+        skip283 = True
     else:
-        skip281 = False
+        skip283 = False
 
     stepGen = cn.getStepGen()
     ##for nstep, step in enumerate (cn.ds.steps()):
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             ec = cn.getEventCodes(evt)
             beamEvent = cn.isBeamEvent(evt)
             ##if ec[281] or skip281:
-            if beamEvent or skip281:
+            if beamEvent or skip283:
                 if cn.special is not None and "CommonMode" in cn.special:
                     commonModeCut = 2.0## keV, calib
                     if cn.detObj and cn.detObj == 'raw':
@@ -90,10 +90,10 @@ if __name__ == "__main__":
                 continue
             for i, p in enumerate(cn.singlePixels):
                 try:
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
                 except:
                     statsArray[i] = Stats(frames.shape)
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
         stats = statsArray[2]  ## only matters for cross-correlation
         noise = stats.rms()
         means = stats.mean()
