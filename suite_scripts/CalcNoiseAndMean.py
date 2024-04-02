@@ -90,10 +90,10 @@ if __name__ == "__main__":
                 continue
             for i, p in enumerate(cn.singlePixels):
                 try:
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
                 except:
                     statsArray[i] = Stats(frames.shape)
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
         stats = statsArray[2]  ## only matters for cross-correlation
         noise = stats.rms()
         means = stats.mean()
