@@ -42,8 +42,10 @@ class PsanaBase(CommonPsanaBase):
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
         if self.runRange is None:
+            print('a')
             self.ds = self.get_ds(self.run)
         else:
+            print('b')
             self.run = self.runRange[0]
             self.ds = self.get_ds()
 

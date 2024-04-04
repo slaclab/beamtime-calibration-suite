@@ -12,6 +12,7 @@ from calibrationSuite.psana2Base import PsanaBase
 
 import logging
 import os
+import sys
 import numpy as np
 
 ##from fitFineScan import *
@@ -27,6 +28,7 @@ ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # 
 class TimeScanParallel(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
+        self.className = self.__class__.__name__
         try:
             print("positive events:", "positive" in self.special)
             logger.info("positive events:" + (["positive" in self.special]))
