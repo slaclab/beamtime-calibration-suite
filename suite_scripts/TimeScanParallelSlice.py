@@ -7,7 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psana2Base import PsanaBase
+#from calibrationSuite.psana1Base import PsanaBase
+
+import logging
+import os
+import numpy as np
 
 ##from fitFineScan import *
 
@@ -19,7 +24,7 @@ currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
 
-class TimeScanParallel(BasicSuiteScript):
+class TimeScanParallel(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         try:
@@ -162,7 +167,7 @@ if __name__ == "__main__":
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
     
-    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, size)
+    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, tsp.size)
     smd = tsp.ds.smalldata(filename=h5FileName)
 
     tsp.nGoodEvents = 0
