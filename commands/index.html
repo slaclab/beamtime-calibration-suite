@@ -122,13 +122,15 @@
 git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="b-getting-the-latest-changes-from-the-development-branch">B) Getting the latest changes from the <code>development</code> branch</h3>
-<pre><code>git pull origin development
+<pre><code>git checkout development
+git pull origin development
 </code></pre>
 <h3 id="c-saving-a-new-featurescriptbugfixetc">C) Saving a new feature/script/bugfix/etc:</h3>
 <ul>
 <li>make sure you have the latest changes from the remote:</li>
 </ul>
-<pre><code>git pull origin development
+<pre><code>git checkout development
+git pull origin development
 </code></pre>
 <ul>
 <li>make a branch for your feature from the <code>development</code> branch:</li>
