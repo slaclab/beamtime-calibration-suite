@@ -9,12 +9,14 @@ git switch beamtime_<month>_<day>_<year>
 
 ### B) Getting the latest changes from the `development` branch
 ```
+git checkout development
 git pull origin development
 ```
     
 ### C) Saving a new feature/script/bugfix/etc:
 * make sure you have the latest changes from the remote:
 ```
+git checkout development
 git pull origin development
 ```
 * make a branch for your feature from the `development` branch:
