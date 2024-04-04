@@ -1,27 +1,31 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
+from psana import *
+
 import os
 import sys
 import logging
-import importlib.util
-from psana import *
-from calibrationSuite.argumentParser import ArgumentParser
-## standard
-from mpi4py import MPI
-import argparse
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 import sys
-import h5py
-from scipy.optimize import curve_fit  ## here?
+import os
+import importlib.util
+import numpy as np
+from mpi4py import MPI
+
 from calibrationSuite.fitFunctions import *
 from calibrationSuite.ancillaryMethods import *
 from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
-import os
 
 logger = logging.getLogger(__name__)
 
-class CommonPsanaBase(object):
+class SuiteBase(object):
     def __init__(self, analysisType="scan"):
         
         self.comm = MPI.COMM_WORLD
@@ -34,6 +38,7 @@ class CommonPsanaBase(object):
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
 
+        self.allowed_timestamp_mismatch = 1000
         self.camera = 0
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
@@ -108,9 +113,9 @@ class CommonPsanaBase(object):
         self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16) )
         self.fluxSign = self.experimentHash.get("fluxSign", 1)
  
-        self.setValuesFromArgs()
+        self.setupValuesFromArgs()
 
-    def setValuesFromArgs(self):
+    def setupValuesFromArgs(self):
 
         ## for standalone analysis
         self.file = self.args.files
@@ -190,6 +195,9 @@ class CommonPsanaBase(object):
         spec.loader.exec_module(config_module)
         return config_module
     
+
+    ######## Start of getters
+
     def get_config(self):
         self.config = self.ds.env().configStore() 
 
@@ -207,9 +215,133 @@ class CommonPsanaBase(object):
         self.fpStatus = self.det.status(evt)  ## does this work?
         self.fpRMS = self.det.rms(evt)  ## does this work?
     
-    def sortArrayByList(a, data):
-        return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
+    def getEvtFromRunsTooSmartForMyOwnGood(self):
+        for r in self.runRange:
+            self.run = r
+            self.ds = self.get_ds()
+            try:
+                evt = next(self.ds.events())
+                yield evt
+            except:
+                continue
+     
+    def getEvtFromRuns(self):
+        try:  ## can't get yield to work
+            evt = next(self.ds.events())
+            return evt
+        except StopIteration:
+            i = self.runRange.index(self.run)
+            try:
+                self.run = self.runRange[i + 1]
+                print("switching to run %d" % (self.run))
+                logger.info("switching to run %d" % (self.run))
+                self.ds = self.get_ds(self.run)
+            except:
+                print("have run out of new runs")
+                logger.exception("have run out of new runs")
+                return None
+            ##print("get event from new run")
+            evt = next(self.ds.events())
+            return evt     
     
+    def get_evrs(self):
+        if self.config is None:
+            self.get_config()
+
+        self.evrs = []
+        for key in list(self.config.keys()):
+            if key.type() == EvrData.ConfigV7:
+                self.evrs.append(key.src())
+    
+    def getPingPongParity(self, frameRegion):
+        evensEvenRowsOddsOddRows = frameRegion[::2, ::2] + frameRegion[1::2, 1::2]
+        oddsEvenRowsEvensOddRows = frameRegion[1::2, ::2] + frameRegion[::2, 1::2]
+        delta = evensEvenRowsOddsOddRows.mean() - oddsEvenRowsEvensOddRows.mean()
+        ##print("delta:", delta)
+        return delta > 0
+
+    def getAllFluxes(self, evt):
+        if evt is None:
+            return None
+        try:
+            return self.mfxDg1.raw.peakAmplitude(evt)
+        except:
+            return None
+
+    def _getFlux(self, evt):
+        if self.mfxDg1 is None:
+            return None
+
+        ##f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
+        try:
+            f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
+            ##print(f)
+        except Exception as e:
+            # print(e)
+            return None
+        try:
+            if f < self.fluxCut:
+                return None
+        except:
+            pass
+        return f
+
+    def getEventCodes(self, evt):
+        return self.timing.raw.eventcodes(evt)
+
+    def getPulseId(self, evt):
+        return self.timing.raw.pulseId(evt)
+
+    def getRunGen(self):
+        return self.ds.runs()
+    
+    def getTimestamp(self, evt):
+        return evt.timestamp
+    
+    def getEvtOld(self, run=None):
+        oldDs = self.ds
+        if run is not None:
+            self.ds = self.get_ds(run)
+        try:  ## or just yield evt I think
+            evt = next(self.ds.events())
+        except StopIteration:
+            self.ds = oldDs
+            return None
+        self.ds = oldDs
+        return evt
+
+    def getNextEvtFromGen(self, gen):
+        ## this is needed to get flux information out of phase with detector
+        ## information in mixed lcls1/2 mode
+        for nevt, evt in enumerate(gen):
+            try:
+                self.flux = self._getFlux(evt)
+            except:
+                pass
+            if self.det.raw.raw(evt) is None:
+                continue
+            self.detEvts += 1
+            ## should check for beam code here to be smarter
+            return self.detEvts, evt
+        
+    ######## End of getters
+
+
+    ######## Start of setters
+    def isBeamEvent(self, evt):
+        ec = self.getEventCodes(evt)
+        ##print(ec[280], ec[281], ec[282], ec[283], ec[284], ec[285] )
+        if ec[self.runCode]:
+            self.nRunCodeEvents += 1
+        if ec[self.daqCode]:
+            self.nDaqCodeEvents += 1
+            if self.fakeBeamCode:
+                return True
+        if ec[self.beamCode]:
+            self.nBeamCodeEvents += 1
+            return True
+        return False
+
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,
         just name to load,
@@ -222,10 +354,12 @@ class CommonPsanaBase(object):
             else:
                 np.save(roiFile, roi)
         self.ROI = roi
-
-    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
-        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
     
+    ######## End of setters
+
+
+    ######## Start of correction functions
+
     def noCommonModeCorrection(self, frame):
         return frame
 
@@ -294,20 +428,11 @@ class CommonPsanaBase(object):
                 rowOffset += self.detectorInfo.nRowsPerBank
         return frame
 
-    def isBeamEvent(self, evt):
-        ec = self.getEventCodes(evt)
-        ##print(ec[280], ec[281], ec[282], ec[283], ec[284], ec[285] )
-        if ec[self.runCode]:
-            self.nRunCodeEvents += 1
-        if ec[self.daqCode]:
-            self.nDaqCodeEvents += 1
-            if self.fakeBeamCode:
-                return True
-        if ec[self.beamCode]:
-            self.nBeamCodeEvents += 1
-            return True
-        return False
+    ######## End of correction functions
 
+
+    ######## Start of misc-utility functions
+  
     def dumpEventCodeStatistics(self):
         print(
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
@@ -317,3 +442,28 @@ class CommonPsanaBase(object):
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
+
+    def sortArrayByList(a, data):
+        return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
+    
+
+    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+
+    def matchedDetEvt(self):
+        self.fluxTS = 0
+        for nevt, evt in enumerate(self.myrun.events()):
+            ec = self.getEventCodes(evt)
+            if ec[137]:
+                self.flux = self._getFlux(evt)  ## fix this
+                self.fluxTS = self.getTimestamp(evt)
+                continue
+            elif ec[281]:
+                self.framesTS = self.getTimestamp(evt)
+                if self.framesTS - self.fluxTS > self.allowed_timestamp_mismatch:
+                    continue
+                yield evt
+            else:
+                continue
+        
+    ######## End of misc-utility functions
