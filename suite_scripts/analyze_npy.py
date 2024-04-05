@@ -7,10 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+from calibrationSuite.psanaBase import PsanaBase
 import matplotlib.pyplot as plt
 import numpy as np
 import sys, re
-
+import logging
+import os
 from runInfo import *
 
 import calibrationSuite.loggingSetup as ls
@@ -21,7 +23,7 @@ currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
 
-class LinearityInfo(object):  ## describes the .npy array
+class LinearityInfo(PsanaBase):  ## describes the .npy array
     def __init__(self):
         self.dataIndices = {
             "g0slope": 0,

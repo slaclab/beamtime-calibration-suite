@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 import calibrationSuite.loggingSetup as ls
 import logging
 import h5py
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
 
-class EventScanParallel(BasicSuiteScript):
+class EventScanParallel(PsanaBase):
     def __init__(self):
         super().__init__("misc")  ##self)
         logging.info("Output dir: " + self.outputDir)
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     except:
         skip_283_check = False ## for running at MFX
 
-    h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size)
+    h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size)
     smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0

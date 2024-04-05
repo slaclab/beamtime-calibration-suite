@@ -7,10 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 
 
-class EventScanParallel(BasicSuiteScript):
+class EventScanParallel(PsanaBase):
     def __init__(self):
         super().__init__("misc")  ##self)
         self.only281 = [True, False][0]
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size))
+    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size))
 
     esp.fluxTS = 0
     esp.nGoodEvents = 0

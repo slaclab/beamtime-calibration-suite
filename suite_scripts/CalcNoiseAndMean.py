@@ -7,9 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 from calibrationSuite.Stats import *
 import calibrationSuite.loggingSetup as ls
+import os
+import numpy as np
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -18,10 +20,10 @@ currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
 
-class CalcNoise(BasicSuiteScript):
+class CalcNoise(PsanaBase):
     def __init__(self):
         super().__init__("dark")
-
+        self.className = self.__class__.__name__
 
 if __name__ == "__main__":
     cn = CalcNoise()
@@ -83,6 +85,7 @@ if __name__ == "__main__":
                 print("no frame")
                 logger.info("no frame")
                 continue
+            print(statsArray)
             for i, p in enumerate(cn.singlePixels):
                 try:
                     statsArray[i].accumulate(np.double(frames), frames[tuple(p)])

@@ -7,13 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class PersistenceCheck(BasicSuiteScript):
+class PersistenceCheck(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         print("in", sys.argv[0])

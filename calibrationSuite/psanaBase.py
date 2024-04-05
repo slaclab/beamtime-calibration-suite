@@ -41,6 +41,26 @@ class PsanaBase(SuiteBase):
         print("in PsanaBase")
         logger.info("in PsanaBase")
 
+        # psana 1 + 2
+        self.ds = None
+        self.det = None
+        self.wave8 = None
+        self.evrs = None
+        self.config = None
+        self.controlData = None
+
+        # psana 2
+        self.myrun = None
+        self.step_value = None
+        self.step_docstring = None
+        self.timing = None
+        self.desiredCodes = None
+        self.mfxDg1 = None
+        self.mfxDg2 = None
+        self.detEvts = None
+        self.flux = None
+        
+
     def setupPsana(self): 
         if psanaBaseNum == 2:
             setupPsana2(self)

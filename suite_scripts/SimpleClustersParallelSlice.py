@@ -7,11 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 from calibrationSuite.cluster import Cluster, BuildClusters
 
 
-class SimpleClusters(BasicSuiteScript):
+class SimpleClusters(PsanaBase):
     def __init__(self):
         super().__init__("lowFlux")  ##self)
 
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
-    smd = sic.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.camera, sic.run, size))
+    smd = sic.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.camera, sic.run, sic.size))
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 1000##int(50 * 50 / 3 / 3 * 0.1 * 2)
