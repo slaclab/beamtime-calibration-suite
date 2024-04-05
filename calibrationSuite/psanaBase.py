@@ -73,11 +73,11 @@ class PsanaBase(SuiteBase):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        if psanaBaseNum == 1:
-            return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
-        else:
+        if psanaBaseNum == 2:
             return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)
-        
+        else:
+            return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+
     def isKicked(self, evt):
         if psanaBaseNum == 2:
             allcodes = self.getEventCodes(evt)
@@ -93,9 +93,9 @@ class PsanaBase(SuiteBase):
     
     def getEvt(self):
         if psanaBaseNum == 2:
-            return self.getEvtPsana2
+            return self.getEvtPsana2()
         else:
-            return self.getEvtPsana1
+            return self.getEvtPsana1()
 
     def getStepGen(self):
         if psanaBaseNum == 2:
@@ -120,6 +120,7 @@ class PsanaBase(SuiteBase):
         # for psana1, where we don't specify a step arg
         if step == -1: #psana1
             return self.controlData().pvControls()[0].value()
+
         ##print(self.step_value(step),self.step_docstring(step),useStringInfo)
         if useStringInfo:
             payload = self.step_docstring(step)
