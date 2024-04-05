@@ -132,7 +132,8 @@ class SuiteBase(object):
             self.location = self.args.location
         self.maxNevents = self.args.maxNevents
         self.skipNevents = self.args.skipNevents
-        self.path = self.args.path 
+        if self.outputDir == None:
+            self.outputDir = self.args.path 
 
         # if set, output folders will be relative to OUTPUT_ROOT
         # if not, they will be relative to the current script file
