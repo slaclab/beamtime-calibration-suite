@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import *
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 
@@ -24,9 +24,11 @@ ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # 
 ## ditto with 1
 
 
-class LinearityPlotsParallel(BasicSuiteScript):
+class LinearityPlotsParallel(PsanaBase):
     def __init__(self):
         super().__init__("scan")  ##self)
+        self.className = self.__class__.__name__
+
         self.saturated = [True, False][0]
         print("using saturation fit =", self.saturated)
         logger.info("using saturation fit =" + str(self.saturated))
@@ -288,7 +290,7 @@ if __name__ == "__main__":
         logger.info("not doing Kaz events")
 
     lpp.setupPsana()
-    smd = lpp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size))
+    smd = lpp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, lpp.size))
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs

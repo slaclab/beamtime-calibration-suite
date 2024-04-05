@@ -9,7 +9,7 @@
 ##############################################################################
 import os
 import h5py
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 import calibrationSuite.loggingSetup as ls
 from matplotlib.ticker import AutoMinorLocator
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
-class EventScanParallel(BasicSuiteScript):
+class EventScanParallel(PsanaBase):
     def __init__(self):
         super().__init__()
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, size)
+    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, esp.size)
     smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0

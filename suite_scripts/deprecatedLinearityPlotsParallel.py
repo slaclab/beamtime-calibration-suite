@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means
@@ -15,7 +15,7 @@ from calibrationSuite.basicSuiteScript import *
 ## ditto with 1
 
 
-class LinearityPlotsParallel(BasicSuiteScript):
+class LinearityPlotsParallel(PsanaBase):
     def __init__(self):
         super().__init__("scan")  ##self)
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         print("not doing Kaz events")
 
     lpp.setupPsana()
-    smd = lpp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.camera, lpp.run, size))
+    smd = lpp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.camera, lpp.run, lpp.size))
 
     ##    efs.setROI('roiFromSwitched_e398_rmfxx1005021.npy')
     if lpp.run >= 550 and lpp.run < 590:  ## pinhole study range

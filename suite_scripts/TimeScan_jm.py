@@ -7,12 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 
 ##from fitFineScan import *
 
 
-class TimeScan(BasicSuiteScript):
+class TimeScan(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         self.doEveryPixel = True

@@ -7,12 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 
 ##from fitFineScan import *
 
 
-class TimeScanParallel(BasicSuiteScript):
+class TimeScanParallel(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         self.doEveryPixel = False  ##True
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         sys.exit()
 
     tsp.setupPsana()
-    smd = tsp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.camera, tsp.run, size))
+    smd = tsp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.camera, tsp.run, tsp.size))
 
     tsp.nGoodEvents = 0
     stepMeans = {}

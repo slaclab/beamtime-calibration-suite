@@ -443,7 +443,7 @@ class SuiteBase(object):
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
 
-    def sortArrayByList(a, data):
+    def sortArrayByList(self, a, data):
         return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
     
 

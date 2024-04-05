@@ -7,13 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class PersistenceCheckParallel(BasicSuiteScript):
+class PersistenceCheckParallel(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         print("in", sys.argv[0])
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     pc.setupPsana()
-    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, size))
+    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pc.size))
 
     nEvent = -1
     nGoodEvents = 0

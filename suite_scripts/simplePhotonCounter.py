@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.psanaBase import PsanaBase
 
 import calibrationSuite.loggingSetup as ls
 # for logging from current file
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
-class SimplePhotonCounter(BasicSuiteScript):
+class SimplePhotonCounter(PsanaBase):
     def __init__(self):
         super().__init__(analysisType="lowFlux")
 
