@@ -21,7 +21,10 @@ class SimpleClusters(PsanaBase):
         foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
-        plt.savefig("%s/%s_r%d_c%d_%s_E.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label))
+        plt.savefig(
+            "%s/%s_r%d_c%d_%s_E.png"
+            % (self.outputDir, self.__class__.__name__, self.run, self.camera, label)
+        )
         plt.close()
 
         rows = self.sliceEdges[0]
@@ -29,10 +32,16 @@ class SimpleClusters(PsanaBase):
         fitInfo = np.zeros((rows, cols, 4))  ## mean, std, mu, sigma
         for i in range(rows):
             for j in range(cols):
-                pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
-                small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
+                pixel = np.bitwise_and(
+                    (clusters[:, :, 1] == i), (clusters[:, :, 2] == j)
+                )
+                small = np.bitwise_and(
+                    (clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1)
+                )
                 smallPixel = np.bitwise_and(small, pixel)
-                pixelEcut0 = np.bitwise_and(smallPixel, energy > 4)  ## adjusted due to gains not making sense
+                pixelEcut0 = np.bitwise_and(
+                    smallPixel, energy > 4
+                )  ## adjusted due to gains not making sense
                 pixelEcut = np.bitwise_and(
                     pixelEcut0, energy < 20
                 )  ## would be good to get rid of these entirely when things make sense
@@ -47,7 +56,9 @@ class SimpleClusters(PsanaBase):
                     ##print(y, bins)
                     mean, std = fitFunctions.estimateGaussianParameters(pixelE)
                     try:
-                        popt, pcov = curve_fit(fitFunctions.gaussian, bins, y, [3, mean, std])
+                        popt, pcov = curve_fit(
+                            fitFunctions.gaussian, bins, y, [3, mean, std]
+                        )
                         mu = popt[1]
                         sigma = popt[2]
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
@@ -62,13 +73,29 @@ class SimpleClusters(PsanaBase):
                     plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
                     plt.savefig(
                         "%s/%s_r%d_c%d_r%d_c%d_%s_E.png"
-                        % (self.outputDir, self.__class__.__name__, self.run, self.camera, i, j, label)
+                        % (
+                            self.outputDir,
+                            self.__class__.__name__,
+                            self.run,
+                            self.camera,
+                            i,
+                            j,
+                            label,
+                        )
                     )
                     plt.close()
 
         np.save(
             "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy"
-            % (self.outputDir, self.__class__.__name__, self.run, self.camera, i, j, label),
+            % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                i,
+                j,
+                label,
+            ),
             fitInfo,
         )
         gains = fitInfo[:, :, 2]
@@ -99,7 +126,10 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
-    smd = sic.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.camera, sic.run, sic.size))
+    smd = sic.ds.smalldata(
+        filename="%s/%s_c%d_r%d_n%d.h5"
+        % (sic.outputDir, sic.className, sic.camera, sic.run, sic.size)
+    )
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = int(50 * 50 / 3 / 3 * 0.1 * 2)
@@ -171,7 +201,13 @@ if __name__ == "__main__":
         for c in fc:
             ##print(nClusters)
             if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
-                clusterArray[nClusters] = [c.eTotal, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
+                clusterArray[nClusters] = [
+                    c.eTotal,
+                    c.seedRow,
+                    c.seedCol,
+                    c.nPixels,
+                    c.isSquare(),
+                ]
                 nClusters += 1
             if nClusters == maxClusters:
                 break
@@ -182,7 +218,12 @@ if __name__ == "__main__":
         if sic.nGoodEvents % 100 == 0:
             print("n good events analyzed: %d" % (sic.nGoodEvents))
             f = frame[sic.regionSlice]
-            print("slice median, max, guess at photon:", np.median(f), f.max(), np.median(f[f > 4]))
+            print(
+                "slice median, max, guess at photon:",
+                np.median(f),
+                f.max(),
+                np.median(f[f > 4]),
+            )
 
     ##    np.save("%s/means_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(roiMeans))
     ##    np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))

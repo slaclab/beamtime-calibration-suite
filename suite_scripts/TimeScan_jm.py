@@ -35,7 +35,14 @@ class TimeScan(PsanaBase):
             plt.grid(which="minor", linewidth=0.5)
             plt.savefig(
                 "%s/%s_r%d_c%d_%s_ROI%d.png"
-                % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+                % (
+                    self.outputDir,
+                    self.__class__.__name__,
+                    self.run,
+                    self.camera,
+                    label,
+                    i,
+                )
             )
             plt.clf()
 
@@ -52,7 +59,8 @@ class TimeScan(PsanaBase):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
         plt.savefig(
-            "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            "%s/%s_r%d_c%d_%s_All%d.png"
+            % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
         )
         plt.clf()
 
@@ -188,7 +196,11 @@ if __name__ == "__main__":
         if stepEvents != 0:
             stepMeanFrames.append(stepSum / stepEvents)
         stepMeanFrames = np.array(sortArrayByList(delays, stepMeanFrames))
-        np.save("%s/%s_allMeanFrames_c%d_r%d.npy" % (tsr.outputDir, tsr.className, tsr.camera, tsr.run), stepMeanFrames)
+        np.save(
+            "%s/%s_allMeanFrames_c%d_r%d.npy"
+            % (tsr.outputDir, tsr.className, tsr.camera, tsr.run),
+            stepMeanFrames,
+        )
         ##tsr.analyzeData(np.array(sorted(delays)), stepMeanFrames, 'test')
 
     roiMeans = sortArrayByList(delays, roiMeans)
@@ -196,10 +208,18 @@ if __name__ == "__main__":
     ratios = sortArrayByList(delays, ratios)
     delays = sorted(delays)
 
-    np.save("%s/means_c%d_r%d_%s.npy" % (tsr.outputDir, tsr.camera, tsr.run, tsr.exp), np.array(roiMeans))
-    np.save("%s/fluxes_r%d_%s.npy" % (tsr.outputDir, tsr.run, tsr.exp), np.array(fluxes))
+    np.save(
+        "%s/means_c%d_r%d_%s.npy" % (tsr.outputDir, tsr.camera, tsr.run, tsr.exp),
+        np.array(roiMeans),
+    )
+    np.save(
+        "%s/fluxes_r%d_%s.npy" % (tsr.outputDir, tsr.run, tsr.exp), np.array(fluxes)
+    )
     ##    np.save("%s/ratios_c%d_r%d_%s.npy" %(tsr.outputDir, tsr.camera, tsr.run, tsr.exp), np.array(ratios))
-    np.save("%s/delays_c%d_r%d_%s.npy" % (tsr.outputDir, tsr.camera, tsr.run, tsr.exp), np.array(delays))
+    np.save(
+        "%s/delays_c%d_r%d_%s.npy" % (tsr.outputDir, tsr.camera, tsr.run, tsr.exp),
+        np.array(delays),
+    )
 
     tsr.plotData(ratios, delays, "normalized_signal")
     tsr.plotData(roiMeans, delays, "signal")

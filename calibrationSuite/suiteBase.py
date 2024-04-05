@@ -25,13 +25,13 @@ from calibrationSuite.detectorInfo import DetectorInfo
 
 logger = logging.getLogger(__name__)
 
+
 class SuiteBase(object):
     def __init__(self, analysisType="scan"):
-        
         self.comm = MPI.COMM_WORLD
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
-        
+
         print("in commonPsanaBase")
         logger.info("in commonPsanaBase")
 
@@ -40,7 +40,15 @@ class SuiteBase(object):
 
         self.allowed_timestamp_mismatch = 1000
         self.camera = 0
-        self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
+        self.gainModes = {
+            "FH": 0,
+            "FM": 1,
+            "FL": 2,
+            "AHL-H": 3,
+            "AML-M": 4,
+            "AHL-L": 5,
+            "AML-L": 6,
+        }
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.g0cut = 1 << 14  ## 2023
         self.gainBitsMask = self.g0cut - 1
@@ -54,7 +62,7 @@ class SuiteBase(object):
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
         self.fakeBeamCode = False
-        
+
         self.ds = None
         self.det = None  ## do we need multiple dets in an array? or self.secondDet?
 
@@ -68,22 +76,28 @@ class SuiteBase(object):
         # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
         # if neither are set, use the default 'suiteConfig.py' file
         defaultConfigFileName = "suiteConfig.py"
-        secondaryConfigFileName = defaultConfigFileName if self.args.configFile is None else self.args.configFile
+        secondaryConfigFileName = (
+            defaultConfigFileName
+            if self.args.configFile is None
+            else self.args.configFile
+        )
         # secondaryConfigFileName is returned if env var not set
         configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
         config = self.importConfigFile(configFileName)
         if config is None:
             print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            print(
+                "please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file"
+            )
             print("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
 
-        self.detectorInfo = DetectorInfo(self.experimentHash['detectorType'])
+        self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
 
         self.location = self.experimentHash.get("location", None)
         self.exp = self.experimentHash.get("exp", None)
-        print (self.exp) 
+        print(self.exp)
 
         self.ROIfileNames = self.experimentHash.get("ROIs", None)
         if not self.ROIfileNames:
@@ -95,7 +109,7 @@ class SuiteBase(object):
         self.ROI = None
         if len(self.ROIs[0]):
             self.ROI = self.ROIs[0]
-     
+
         self.singlePixels = self.experimentHash.get("singlePixels", None)
 
         self.sliceEdges = None
@@ -110,13 +124,12 @@ class SuiteBase(object):
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
 
         self.fluxSource = self.experimentHash.get("fluxSource", None)
-        self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16) )
+        self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16))
         self.fluxSign = self.experimentHash.get("fluxSign", 1)
- 
+
         self.setupValuesFromArgs()
 
     def setupValuesFromArgs(self):
-
         ## for standalone analysis
         self.file = self.args.files
         self.label = self.args.label
@@ -133,7 +146,7 @@ class SuiteBase(object):
         self.maxNevents = self.args.maxNevents
         self.skipNevents = self.args.skipNevents
         if self.outputDir == None:
-            self.outputDir = self.args.path 
+            self.outputDir = self.args.path
 
         # if set, output folders will be relative to OUTPUT_ROOT
         # if not, they will be relative to the current script file
@@ -146,35 +159,55 @@ class SuiteBase(object):
             logger.info("please create this dir, exiting...")
             exit(1)
             # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
-            #print("so creating dir: " + self.outputDir)
-            #logger.info("creating dir: " + self.outputDir)
-            #os.makedirs(self.outputDir)
+            # print("so creating dir: " + self.outputDir)
+            # logger.info("creating dir: " + self.outputDir)
+            # os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
-            #os.chmod(self.outputDir, 0o777)
- 
+            # os.chmod(self.outputDir, 0o777)
+
         self.detObj = self.args.detObj
-        self.threshold = eval(self.args.threshold) if self.args.threshold is not None else None
-        self.runRange = eval(self.args.runRange) if self.args.runRange is not None else None
+        self.threshold = (
+            eval(self.args.threshold) if self.args.threshold is not None else None
+        )
+        self.runRange = (
+            eval(self.args.runRange) if self.args.runRange is not None else None
+        )
         self.fluxCut = self.args.fluxCut
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
         self.fakePedestal = self.args.fakePedestal  ## in case needed]
-        self.fakePedestalFrame = np.load(self.fakePedestal) if self.fakePedestal is not None else None  ##cast to uint32???
+        self.fakePedestalFrame = (
+            np.load(self.fakePedestal) if self.fakePedestal is not None else None
+        )  ##cast to uint32???
 
         self.g0PedFile = self.args.g0PedFile
-        self.g0Ped = np.array([np.load(self.args.g0PedFile)]) if self.args.g0PedFile is not None else None
-      
+        self.g0Ped = (
+            np.array([np.load(self.args.g0PedFile)])
+            if self.args.g0PedFile is not None
+            else None
+        )
+
         self.g1PedFile = self.args.g1PedFile
-        self.g1Ped = np.array([np.load(self.args.g1PedFile)]) if self.args.g1PedFile is not None else None
+        self.g1Ped = (
+            np.array([np.load(self.args.g1PedFile)])
+            if self.args.g1PedFile is not None
+            else None
+        )
 
         self.g0GainFile = self.args.g0GainFile
-        self.g0Gain = np.load(self.g0GainFile) if self.args.g0GainFile is not None else None
+        self.g0Gain = (
+            np.load(self.g0GainFile) if self.args.g0GainFile is not None else None
+        )
 
         self.g1GainFile = self.args.g1GainFile
-        self.g1Gain = np.load(self.g1GainFile) if self.args.g1GainFile is not None else None
+        self.g1Gain = (
+            np.load(self.g1GainFile) if self.args.g1GainFile is not None else None
+        )
 
         self.offsetFile = self.args.offsetFile
-        self.offset = np.load(self.offsetFile) if self.args.offsetFile is not None else None
+        self.offset = (
+            np.load(self.offsetFile) if self.args.offsetFile is not None else None
+        )
 
         self.detType = None
         if self.args.detType == "":
@@ -195,16 +228,15 @@ class SuiteBase(object):
         config_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(config_module)
         return config_module
-    
 
     ######## Start of getters
 
     def get_config(self):
-        self.config = self.ds.env().configStore() 
+        self.config = self.ds.env().configStore()
 
     def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
-    
+
     def getFivePedestalRunInfo(self):
         ## could do load_txt but would require full path so
         if self.det is None:
@@ -215,7 +247,7 @@ class SuiteBase(object):
         self.fpPedestals = self.det.pedestals(evt)
         self.fpStatus = self.det.status(evt)  ## does this work?
         self.fpRMS = self.det.rms(evt)  ## does this work?
-    
+
     def getEvtFromRunsTooSmartForMyOwnGood(self):
         for r in self.runRange:
             self.run = r
@@ -225,7 +257,7 @@ class SuiteBase(object):
                 yield evt
             except:
                 continue
-     
+
     def getEvtFromRuns(self):
         try:  ## can't get yield to work
             evt = next(self.ds.events())
@@ -243,8 +275,8 @@ class SuiteBase(object):
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
-            return evt     
-    
+            return evt
+
     def get_evrs(self):
         if self.config is None:
             self.get_config()
@@ -253,7 +285,7 @@ class SuiteBase(object):
         for key in list(self.config.keys()):
             if key.type() == EvrData.ConfigV7:
                 self.evrs.append(key.src())
-    
+
     def getPingPongParity(self, frameRegion):
         evensEvenRowsOddsOddRows = frameRegion[::2, ::2] + frameRegion[1::2, 1::2]
         oddsEvenRowsEvensOddRows = frameRegion[1::2, ::2] + frameRegion[::2, 1::2]
@@ -275,7 +307,10 @@ class SuiteBase(object):
 
         ##f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
         try:
-            f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
+            f = (
+                self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()
+                * self.fluxSign
+            )
             ##print(f)
         except Exception as e:
             # print(e)
@@ -295,10 +330,10 @@ class SuiteBase(object):
 
     def getRunGen(self):
         return self.ds.runs()
-    
+
     def getTimestamp(self, evt):
         return evt.timestamp
-    
+
     def getEvtOld(self, run=None):
         oldDs = self.ds
         if run is not None:
@@ -324,9 +359,8 @@ class SuiteBase(object):
             self.detEvts += 1
             ## should check for beam code here to be smarter
             return self.detEvts, evt
-        
-    ######## End of getters
 
+    ######## End of getters
 
     ######## Start of setters
     def isBeamEvent(self, evt):
@@ -355,9 +389,8 @@ class SuiteBase(object):
             else:
                 np.save(roiFile, roi)
         self.ROI = roi
-    
-    ######## End of setters
 
+    ######## End of setters
 
     ######## Start of correction functions
 
@@ -383,7 +416,8 @@ class SuiteBase(object):
                 try:
                     rowCM = np.median(
                         frame[r, colOffset : colOffset + self.detColsPerBank][
-                            frame[r, colOffset : colOffset + self.detColsPerBank] < arbitraryCut
+                            frame[r, colOffset : colOffset + self.detColsPerBank]
+                            < arbitraryCut
                         ]
                     )
                     ##if r == 280 and rand > 0.999:
@@ -411,29 +445,38 @@ class SuiteBase(object):
                 ##for b in range(0, 2):
                 try:
                     colCM = np.median(
-                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
-                            frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
+                        frame[
+                            rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c
+                        ][
+                            frame[
+                                rowOffset : rowOffset + self.detectorInfo.nRowsPerBank,
+                                c,
+                            ]
+                            < arbitraryCut
                         ]
                     )
                     ##if r == 280 and rand > 0.999:
                     ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
                     ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
-                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
+                    frame[
+                        rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c
+                    ] -= colCM
                     ##if r == 280 and rand > 0.999:
                     ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
-                    print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
+                    print(
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c
+                    )
                 rowOffset += self.detectorInfo.nRowsPerBank
         return frame
 
     ######## End of correction functions
 
-
     ######## Start of misc-utility functions
-  
+
     def dumpEventCodeStatistics(self):
         print(
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
@@ -446,10 +489,11 @@ class SuiteBase(object):
 
     def sortArrayByList(self, a, data):
         return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
-    
 
-    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
-        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+    def sliceToDetector(self, sliceRow, sliceCol):  ## cp from AnalyzeH5: import?
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[
+            1
+        ][0]
 
     def matchedDetEvt(self):
         self.fluxTS = 0
@@ -466,5 +510,5 @@ class SuiteBase(object):
                 yield evt
             else:
                 continue
-        
+
     ######## End of misc-utility functions

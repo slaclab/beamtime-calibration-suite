@@ -94,7 +94,9 @@ for ir in range(minir, maxir):
         smoothed_data = savgol_filter(thediff, window_size, polynomial_order)
         differencialfiltered = np.array(smoothed_data)
 
-        smoothed_data_2ndpart = savgol_filter(thediff_2ndpart, window_size, polynomial_order)
+        smoothed_data_2ndpart = savgol_filter(
+            thediff_2ndpart, window_size, polynomial_order
+        )
         differencialfiltered_2ndpart = np.array(smoothed_data_2ndpart)
         X = Xinterp[0:-1]
         Y = smoothed_data
@@ -103,13 +105,19 @@ for ir in range(minir, maxir):
         X2[ir, ic] = Xinterp[np.argmin(smoothed_data)]
         Y2[ir, ic] = y_new[np.argmin(smoothed_data)]
         X3[ir, ic] = min(X[Y == min(Y[len(Y) // 2 : -1])])
-        Y3[ir, ic] = y_new_2ndpart[np.argmin(smoothed_data[(len(smoothed_data) // 2) : -1])]
+        Y3[ir, ic] = y_new_2ndpart[
+            np.argmin(smoothed_data[(len(smoothed_data) // 2) : -1])
+        ]
 
         if False:
             plt.subplot(3, 1, 1)
             plt.plot(Xinterp, y_new, "k")
-            plt.plot(Xinterp[np.argmin(smoothed_data)], y_new[np.argmin(smoothed_data)], "r*")
-            plt.plot(Xinterp[np.argmax(smoothed_data)], y_new[np.argmax(smoothed_data)], "b*")
+            plt.plot(
+                Xinterp[np.argmin(smoothed_data)], y_new[np.argmin(smoothed_data)], "r*"
+            )
+            plt.plot(
+                Xinterp[np.argmax(smoothed_data)], y_new[np.argmax(smoothed_data)], "b*"
+            )
             plt.plot(
                 min(X[Y == min(Y[len(Y) // 2 : -1])]),
                 y_new_2ndpart[np.argmin(smoothed_data[(len(smoothed_data) // 2) : -1])],
@@ -138,14 +146,18 @@ plt.suptitle("Click on figure to see the timeline of a pixel", fontsize=12)
 plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
 plt.subplot(3, 1, 1)
 # plt.imshow(X3,vmin=X3.min(),vmax=X3.max())
-plt.imshow(X3, vmin=(np.mean(X3) - 1 * (np.std(X3))), vmax=(np.mean(X3) + 1 * (np.std(X3))))
+plt.imshow(
+    X3, vmin=(np.mean(X3) - 1 * (np.std(X3))), vmax=(np.mean(X3) + 1 * (np.std(X3)))
+)
 plt.title("Onset transfer function")
 plt.colorbar()
 # plt.tight_layout()
 
 plt.subplot(3, 1, 2)
 plt.imshow(X2, vmin=X2.min(), vmax=X2.max())
-plt.imshow(X2, vmin=(np.mean(X2) - 1 * (np.std(X2))), vmax=(np.mean(X2) + 1 * (np.std(X2))))
+plt.imshow(
+    X2, vmin=(np.mean(X2) - 1 * (np.std(X2))), vmax=(np.mean(X2) + 1 * (np.std(X2)))
+)
 plt.title("Onset CompEnOn")
 plt.colorbar()
 # plt.tight_layout()
@@ -154,7 +166,9 @@ plt.subplot(3, 1, 3)
 # plt.imshow(X3[minir:maxir,minic:maxic]-X1[minir:maxir,minic:maxic])
 X4 = X3 - X1
 # plt.imshow(X3-X1,vmin=(X3-X1).min(),vmax=(X3-X1).max())
-plt.imshow(X4, vmin=(np.mean(X4) - 1 * (np.std(X4))), vmax=(np.mean(X4) + 1 * (np.std(X4))))
+plt.imshow(
+    X4, vmin=(np.mean(X4) - 1 * (np.std(X4))), vmax=(np.mean(X4) + 1 * (np.std(X4)))
+)
 plt.title("Length transfer function")
 plt.colorbar()
 # plt.tight_layout()
@@ -168,7 +182,9 @@ plt.colorbar()
 
 
 # Save the plotted image to a PNG file with the filename
-save_path = "/sdf/data/lcls/ds/rix/rixx1003721/results/scan/{}_plot.png".format(base_filename)
+save_path = "/sdf/data/lcls/ds/rix/rixx1003721/results/scan/{}_plot.png".format(
+    base_filename
+)
 plt.savefig(save_path)
 
 
@@ -191,7 +207,9 @@ def onclick(event):
     smoothed_data = savgol_filter(thediff, window_size, polynomial_order)
     differencialfiltered = np.array(smoothed_data)
 
-    smoothed_data_2ndpart = savgol_filter(thediff_2ndpart, window_size, polynomial_order)
+    smoothed_data_2ndpart = savgol_filter(
+        thediff_2ndpart, window_size, polynomial_order
+    )
     differencialfiltered_2ndpart = np.array(smoothed_data_2ndpart)
     X = Xinterp[0:-1]
     Y = smoothed_data

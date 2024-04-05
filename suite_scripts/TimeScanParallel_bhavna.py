@@ -109,7 +109,10 @@ if __name__ == "__main__":
         sys.exit()
 
     tsp.setupPsana()
-    smd = tsp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.camera, tsp.run, tsp.size))
+    smd = tsp.ds.smalldata(
+        filename="%s/%s_c%d_r%d_n%d.h5"
+        % (tsp.outputDir, tsp.className, tsp.camera, tsp.run, tsp.size)
+    )
 
     tsp.nGoodEvents = 0
     stepMeans = {}
@@ -124,7 +127,9 @@ if __name__ == "__main__":
         ##scanValue = tsp.getScanValue(step, useStringInfo=True)
         scanValue = tsp.getScanValue(step, True)
         print(scanValue, "in tsp")
-        roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.uint32)
+        roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(
+            np.uint32
+        )
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.uint32)
 
         nGoodInStep = 0
@@ -212,10 +217,18 @@ if __name__ == "__main__":
     smd.done()
 
     if False:
-        np.save("%s/means_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(roiMeans))
-        np.save("%s/fluxes_r%d_%s.npy" % (tsp.outputDir, tsp.run, tsp.exp), np.array(fluxes))
+        np.save(
+            "%s/means_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.camera, tsp.run, tsp.exp),
+            np.array(roiMeans),
+        )
+        np.save(
+            "%s/fluxes_r%d_%s.npy" % (tsp.outputDir, tsp.run, tsp.exp), np.array(fluxes)
+        )
         ##    np.save("%s/ratios_c%d_r%d_%s.npy" %(tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(ratios))
-        np.save("%s/delays_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(delays))
+        np.save(
+            "%s/delays_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.camera, tsp.run, tsp.exp),
+            np.array(delays),
+        )
 
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")

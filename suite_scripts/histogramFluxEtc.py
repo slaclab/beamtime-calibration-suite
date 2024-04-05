@@ -19,21 +19,29 @@ class HistogramFluxEtc(PsanaBase):
         plt.hist(flux, 100)
         plt.xlabel("flux")
         plt.title("Run %d flux %s" % (self.run, label))
-        plt.savefig("%s/%s_r%d_%s.png" % (self.outputDir, self.className, self.run, label))
+        plt.savefig(
+            "%s/%s_r%d_%s.png" % (self.outputDir, self.className, self.run, label)
+        )
         plt.clf()
         for i in range(meanFrames.shape[0]):
             print(i)
             plt.imshow(meanFrames[i])
             plt.colorbar()
             plt.title("Run %d module %d %s" % (self.run, i, label))
-            plt.savefig("%s/%s_r%d_m%d_%s.png" % (self.outputDir, self.className, self.run, i, label))
+            plt.savefig(
+                "%s/%s_r%d_m%d_%s.png"
+                % (self.outputDir, self.className, self.run, i, label)
+            )
             plt.clf()
 
         if eventCodes is not None:
             plt.plot(eventCodes)  ##, len(eventCodes))
             plt.xlabel("event codes")
             plt.title("Run %d event codes %s" % (self.run, label))
-            plt.savefig("%s/%s_r%d_eventCodes_%s.png" % (self.outputDir, self.className, self.run, label))
+            plt.savefig(
+                "%s/%s_r%d_eventCodes_%s.png"
+                % (self.outputDir, self.className, self.run, label)
+            )
 
 
 if __name__ == "__main__":
@@ -87,8 +95,19 @@ if __name__ == "__main__":
     fluxes = np.array(fluxes)
     np.save("%s/fluxes_r%d_%s.npy" % (hfe.outputDir, hfe.run, hfe.exp), fluxes)
     allFluxes = np.array(allFluxesRun)
-    np.save("%s/%s_allFluxes_r%d_%s.npy" % (hfe.outputDir, hfe.className, hfe.run, hfe.exp), allFluxes)
-    np.save("%s/%s_eventCodes_r%d_%s.npy" % (hfe.outputDir, hfe.className, hfe.run, hfe.exp), eventCodes)
-    np.save("%s/%s_meanFrames_r%d_%s.npy" % (hfe.outputDir, hfe.className, hfe.run, hfe.exp), meanFrames / nGoodEvents)
+    np.save(
+        "%s/%s_allFluxes_r%d_%s.npy" % (hfe.outputDir, hfe.className, hfe.run, hfe.exp),
+        allFluxes,
+    )
+    np.save(
+        "%s/%s_eventCodes_r%d_%s.npy"
+        % (hfe.outputDir, hfe.className, hfe.run, hfe.exp),
+        eventCodes,
+    )
+    np.save(
+        "%s/%s_meanFrames_r%d_%s.npy"
+        % (hfe.outputDir, hfe.className, hfe.run, hfe.exp),
+        meanFrames / nGoodEvents,
+    )
 
     hfe.plotData(fluxes, meanFrames / nGoodEvents, eventCodes, "")

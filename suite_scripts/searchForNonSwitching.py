@@ -32,14 +32,20 @@ class LinearityPlotsAutoranging(BasicSuiteScript):
                 plt.ylim(0, 4000)
             if "xClip" in label:
                 if len(g1Fluxes[i]) > 0:
-                    plt.xlim(g1Fluxes[i].min() * 0.95, max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05)
+                    plt.xlim(
+                        g1Fluxes[i].min() * 0.95,
+                        max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05,
+                    )
                 else:
                     plt.clf()
                     return
                 ##lot of hackiness here
 
             plt.title(label)
-            plt.savefig("%s/%s_p%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, self.run, self.camera, label))
+            plt.savefig(
+                "%s/%s_p%d_r%d_c%d_%s.png"
+                % (self.outputDir, self.className, i, self.run, self.camera, label)
+            )
             plt.clf()
 
     def plotDataROIs(self, means, flux, label, raw=True):
@@ -54,7 +60,8 @@ class LinearityPlotsAutoranging(BasicSuiteScript):
             plt.xlabel("wave8 flux (ADU)")
             plt.ylabel("detector ROI mean (%s)" % (ylabel))
             plt.savefig(
-                "%s/%s_roi%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, self.run, self.camera, label)
+                "%s/%s_roi%d_r%d_c%d_%s.png"
+                % (self.outputDir, self.className, i, self.run, self.camera, label)
             )
             plt.clf()
 
@@ -71,7 +78,14 @@ if __name__ == "__main__":
     lpa.setupPsana()
     ##    efs.setROI('roiFromSwitched_e398_rmfxx1005021.npy')
     if lpa.run >= 550 and lpa.run < 590:  ## pinhole study range
-        lpa.singlePixels = [[0, 115, 183], [0, 103, 172], [0, 116, 160], [0, 117, 160], [0, 293, 232], [0, 300, 240]]
+        lpa.singlePixels = [
+            [0, 115, 183],
+            [0, 103, 172],
+            [0, 116, 160],
+            [0, 117, 160],
+            [0, 293, 232],
+            [0, 300, 240],
+        ]
         if doKazFlux:
             for i in range(-5, 5):
                 for j in range(-5, 5):
@@ -81,7 +95,14 @@ if __name__ == "__main__":
 
     if lpa.run > 650:
         if lpa.camera == 1:
-            lpa.singlePixels = [[0, 20, 130], [0, 45, 133], [0, 95, 136], [0, 110, 139], [0, 125, 140], [0, 144, 145]]
+            lpa.singlePixels = [
+                [0, 20, 130],
+                [0, 45, 133],
+                [0, 95, 136],
+                [0, 110, 139],
+                [0, 125, 140],
+                [0, 144, 145],
+            ]
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs
@@ -152,9 +173,13 @@ if __name__ == "__main__":
         for x in range(288):
             for y in range(284):
                 if "{}x{}".format(x, y) not in gains:
-                    gains["{}x{}".format(x, y)] = [1 if rawFrames[0][x][y] > lpa.g0cut else 0]
+                    gains["{}x{}".format(x, y)] = [
+                        1 if rawFrames[0][x][y] > lpa.g0cut else 0
+                    ]
                 else:
-                    gains["{}x{}".format(x, y)].append(1 if rawFrames[0][x][y] > lpa.g0cut else 0)
+                    gains["{}x{}".format(x, y)].append(
+                        1 if rawFrames[0][x][y] > lpa.g0cut else 0
+                    )
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:

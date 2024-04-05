@@ -138,14 +138,23 @@ def testSilvermanModeTest():
     b = np.random.normal(0, 100, 10000)
     c = np.where(b != 50)
     print("rms for a gap in gaussian, notched gaussian:", a.std(), b[c][:1000].std())
-    print("Silverman for a gap in gaussian, notched gaussian:", bw_silverman(a), bw_silverman(b[c][:1000]))
+    print(
+        "Silverman for a gap in gaussian, notched gaussian:",
+        bw_silverman(a),
+        bw_silverman(b[c][:1000]),
+    )
     print("rms for a gap in gaussian/notched gaussian:", a.std() / b[c][:1000].std())
-    print("Silverman for a gap in gaussian/notched gaussian:", bw_silverman(a) / bw_silverman(b[c][:1000]))
+    print(
+        "Silverman for a gap in gaussian/notched gaussian:",
+        bw_silverman(a) / bw_silverman(b[c][:1000]),
+    )
 
 
 def missingBinTest(binCenters, counts):
     mu, sigma = getHistogramMeanStd(binCenters, counts)
-    binCenters, counts = getRestrictedHistogram(binCenters, counts, mu - sigma, mu + sigma)
+    binCenters, counts = getRestrictedHistogram(
+        binCenters, counts, mu - sigma, mu + sigma
+    )
     ##print(len(b), len(c))
     n = len(counts)
     if n >= 10:

@@ -12,11 +12,14 @@ import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 
 import calibrationSuite.loggingSetup as ls
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
 
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means
@@ -60,18 +63,30 @@ class LinearityPlotsParallel(PsanaBase):
                 plt.ylim(0, 4000)
             if "xClip" in label:
                 if len(g1Fluxes[i]) > 0:
-                    plt.xlim(g1Fluxes[i].min() * 0.95, max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05)
+                    plt.xlim(
+                        g1Fluxes[i].min() * 0.95,
+                        max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05,
+                    )
                 else:
                     plt.close()
                     return
                 ##lot of hackiness here
 
             plt.title(label)
-            figFileName = "%s/%s_p%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, self.run, self.camera, label)  
+            figFileName = "%s/%s_p%d_r%d_c%d_%s.png" % (
+                self.outputDir,
+                self.className,
+                i,
+                self.run,
+                self.camera,
+                label,
+            )
             plt.savefig(figFileName)
             plt.close()
 
-    def plotAutorangingData_profile(self, g0s, g1s, g0Fluxes, g1Fluxes, label, partialMode=None, order=1):
+    def plotAutorangingData_profile(
+        self, g0s, g1s, g0Fluxes, g1Fluxes, label, partialMode=None, order=1
+    ):
         ## this is just for single pixels
         ## index in case that's ever supported
 
@@ -82,11 +97,15 @@ class LinearityPlotsParallel(PsanaBase):
             if partialMode != 1 and len(g0s[i]) > 0:
                 x = g0Fluxes[i]
                 y = g0s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order)  ##add fit_reg=None for no plot
+                sns.regplot(
+                    x=x, y=y, x_bins=40, marker=".", ax=ax, order=order
+                )  ##add fit_reg=None for no plot
             if partialMode != 0 and len(g1s[i]) > 0:
                 x = g1Fluxes[i]
                 y = g1s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order)  ##add fit_reg=None for no plot
+                sns.regplot(
+                    x=x, y=y, x_bins=40, marker=".", ax=ax, order=order
+                )  ##add fit_reg=None for no plot
             plt.xlabel("wave8 flux (ADU)")
             if "raw" in label:
                 plt.ylabel("Red medium, blue low (ADU)")
@@ -96,14 +115,24 @@ class LinearityPlotsParallel(PsanaBase):
                 plt.ylim(0, 4000)
             if "xClip" in label:
                 if len(g1Fluxes[i]) > 0:
-                    plt.xlim(g1Fluxes[i].min() * 0.95, max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05)
+                    plt.xlim(
+                        g1Fluxes[i].min() * 0.95,
+                        max(g1Fluxes[i].max(), g1Fluxes[i].max()) * 1.05,
+                    )
                 else:
                     plt.close()
                     return
                 ##lot of hackiness here
 
             plt.title(label + "_profile")
-            figFileName = "%s/%s_p%d_r%d_c%d_%s_profile.png" % (self.outputDir, self.className, i, self.run, self.camera, label)
+            figFileName = "%s/%s_p%d_r%d_c%d_%s_profile.png" % (
+                self.outputDir,
+                self.className,
+                i,
+                self.run,
+                self.camera,
+                label,
+            )
             plt.savefig(figFileName)
             plt.close()
 
@@ -118,7 +147,14 @@ class LinearityPlotsParallel(PsanaBase):
             plt.scatter(flux, means[i], marker=".")
             plt.xlabel("wave8 flux (ADU)")
             plt.ylabel("detector ROI mean (%s)" % (ylabel))
-            figFileName = "%s/%s_roi%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, self.run, self.camera, label)
+            figFileName = "%s/%s_roi%d_r%d_c%d_%s.png" % (
+                self.outputDir,
+                self.className,
+                i,
+                self.run,
+                self.camera,
+                label,
+            )
             plt.savefig(figFileName)
             plt.close()
 
@@ -164,10 +200,22 @@ class LinearityPlotsParallel(PsanaBase):
             for order in [1, 2]:
                 ##for order in [1]:
                 lpp.plotAutorangingData_profile(
-                    g0s, g1s, g0Fluxes, g1Fluxes, label + "highOrMed_poly%d" % (order), partialMode=0, order=order
+                    g0s,
+                    g1s,
+                    g0Fluxes,
+                    g1Fluxes,
+                    label + "highOrMed_poly%d" % (order),
+                    partialMode=0,
+                    order=order,
                 )
                 lpp.plotAutorangingData_profile(
-                    g0s, g1s, g0Fluxes, g1Fluxes, label + "low_poly%d" % (order), partialMode=1, order=order
+                    g0s,
+                    g1s,
+                    g0Fluxes,
+                    g1Fluxes,
+                    label + "low_poly%d" % (order),
+                    partialMode=1,
+                    order=order,
                 )
                 lpp.plotAutorangingData(g0s, g1s, g0Fluxes, g1Fluxes, label)
                 ##lpp.plotAutorangingData(g0s,g1s, g0Fluxes, g1Fluxes, label+"_yClip_xClip")
@@ -182,7 +230,9 @@ class LinearityPlotsParallel(PsanaBase):
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
         if self.fitInfo is None:
-            self.fitInfo = np.zeros((nModules, rows, cols, 13))  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
+            self.fitInfo = np.zeros(
+                (nModules, rows, cols, 13)
+            )  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
 
         for i in range(rows):
             for j in range(cols):
@@ -205,12 +255,16 @@ class LinearityPlotsParallel(PsanaBase):
                             logger.info("empty profile for %d, %d" % (i, j))
                             continue
                     if x is not None:
-                        fitPar, covar, fitFunc, r2 = self.fitData(x, y, saturated=self.saturated)
+                        fitPar, covar, fitFunc, r2 = self.fitData(
+                            x, y, saturated=self.saturated
+                        )
                         print(i, j, fitPar, r2, 0)
                         ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                         ##np.save("temp_r%dc%d_y.py" %(i,j), y)
                         ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
-                        self.fitInfo[module, i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
+                        self.fitInfo[module, i, j, 0:2] = fitPar[
+                            0:2
+                        ]  ## indices for saturated case
                         self.fitInfo[module, i, j, 2] = r2
                         self.fitInfo[module, i, j, 6] = y_g0_max
                         if i % 2 == 0 and i == j:
@@ -253,21 +307,43 @@ class LinearityPlotsParallel(PsanaBase):
                                 plt.figure(1)
 
                 if i % 2 == 0 and i == j:
-                    figFileName = "%s/%s_slice_%d_%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, j, self.run, self.camera, label)
+                    figFileName = "%s/%s_slice_%d_%d_r%d_c%d_%s.png" % (
+                        self.outputDir,
+                        self.className,
+                        i,
+                        j,
+                        self.run,
+                        self.camera,
+                        label,
+                    )
                     plt.savefig(figFileName)
                     logger.info("Wrote file: " + figFileName)
                     plt.close()
                     if self.residuals:
                         plt.figure(2)
-                        figFileName = "%s/%s_slice_%d_%d_r%d_c%d_residuals_%s.png" % (self.outputDir, self.className, i, j, self.run, self.camera, label)
+                        figFileName = "%s/%s_slice_%d_%d_r%d_c%d_residuals_%s.png" % (
+                            self.outputDir,
+                            self.className,
+                            i,
+                            j,
+                            self.run,
+                            self.camera,
+                            label,
+                        )
                         plt.savefig(figFileName)
                         logger.info("Wrote file: " + figFileName)
                         plt.close()
 
-        npyFileName = "%s/%s_r%d_sliceFits_%s.npy" % (self.outputDir, self.className, self.run, label)
-        np.save(npyFileName, self.fitInfo) ## fix this to be called once
+        npyFileName = "%s/%s_r%d_sliceFits_%s.npy" % (
+            self.outputDir,
+            self.className,
+            self.run,
+            label,
+        )
+        np.save(npyFileName, self.fitInfo)  ## fix this to be called once
         ## not once per module
         logger.info("Wrote file: " + npyFileName)
+
 
 if __name__ == "__main__":
     lpp = LinearityPlotsParallel()
@@ -290,7 +366,10 @@ if __name__ == "__main__":
         logger.info("not doing Kaz events")
 
     lpp.setupPsana()
-    smd = lpp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, lpp.size))
+    smd = lpp.ds.smalldata(
+        filename="%s/%s_%s_c%d_r%d_n%d.h5"
+        % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, lpp.size)
+    )
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs
@@ -334,7 +413,9 @@ if __name__ == "__main__":
             continue
         ## could? should? check for calib here I guess
         if lpp.special is not None and "parity" in lpp.special:
-            if lpp.getPingPongParity(rawFrames[0][144:224, 0:80]) == ("negative" in lpp.special):
+            if lpp.getPingPongParity(rawFrames[0][144:224, 0:80]) == (
+                "negative" in lpp.special
+            ):
                 continue
             ##print(nevt)
 
@@ -367,7 +448,12 @@ if __name__ == "__main__":
 
         singlePixelData = []
         for j, p in enumerate(lpp.singlePixels):
-            singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
+            singlePixelData.append(
+                [
+                    int(rawFrames[tuple(p)] >= lpp.g0cut),
+                    rawFrames[tuple(p)] & lpp.gainBitsMask,
+                ]
+            )
 
         smd.event(
             evt,
@@ -387,27 +473,64 @@ if __name__ == "__main__":
             break
 
     if False:
-        fileName = "%s/%s_%s_means_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp)
+        fileName = "%s/%s_%s_means_r%d_c%d_%s.npy" % (
+            lpp.outputDir,
+            lpp.className,
+            lpp.label,
+            lpp.run,
+            lpp.camera,
+            lpp.exp,
+        )
         np.save(filename, roiMeans)
         logger.info("Wrote file: " + fileName)
 
-        fileName = "%s/%s_%s_fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp)
+        fileName = "%s/%s_%s_fluxes_r%d_c%d_%s.npy" % (
+            lpp.outputDir,
+            lpp.className,
+            lpp.label,
+            lpp.run,
+            lpp.camera,
+            lpp.exp,
+        )
         np.save(fileName, fluxes)
         logger.info("Wrote file: " + fileName)
 
-        fileName = "%s/%s_%s_singlePixel_g0s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp)
+        fileName = "%s/%s_%s_singlePixel_g0s_r%d_c%d_%s.npy" % (
+            lpp.outputDir,
+            lpp.className,
+            lpp.label,
+            lpp.run,
+            lpp.camera,
+            lpp.exp,
+        )
         np.save(fileName, g0s)
         logger.info("Wrote file: " + fileName)
 
-        fileName ="%s/%s_%s_singlePixel_g1s_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp)
+        fileName = "%s/%s_%s_singlePixel_g1s_r%d_c%d_%s.npy" % (
+            lpp.outputDir,
+            lpp.className,
+            lpp.label,
+            lpp.run,
+            lpp.camera,
+            lpp.exp,
+        )
         np.save(fileName, g1s)
         logger.info("Wrote file: " + fileName)
         np.save(
-            "%s/%s_%s_g0Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp), g0Fluxes
+            "%s/%s_%s_g0Fluxes_r%d_c%d_%s.npy"
+            % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp),
+            g0Fluxes,
         )
         logger.info("Wrote file: " + fileName)
 
-        fileName = "%s/%s_%s_g1Fluxes_r%d_c%d_%s.npy" % (lpp.outputDir, lpp.className, lpp.label, lpp.run, lpp.camera, lpp.exp)
+        fileName = "%s/%s_%s_g1Fluxes_r%d_c%d_%s.npy" % (
+            lpp.outputDir,
+            lpp.className,
+            lpp.label,
+            lpp.run,
+            lpp.camera,
+            lpp.exp,
+        )
         np.save(fileName, g1Fluxes)
         logger.info("Wrote file: " + fileName)
 

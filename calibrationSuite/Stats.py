@@ -24,13 +24,15 @@ class Stats(object):
         return self._x / self._n
 
     def rms(self):
-        return ((self._xx / self._n - (self._x / self._n) ** 2)).clip(0) ** 0.5
+        return (self._xx / self._n - (self._x / self._n) ** 2).clip(0) ** 0.5
 
     def corr(self, yMean, ySigma):
         ##        return (self._xy -self._x*yMean)/self._n
         if ySigma > 0:
             rmsPosDef = self.rms().clip(0.000001, self.rms().max())
-            return numpy.double((self._xy - self._x * yMean) / (self._n * ySigma * rmsPosDef))
+            return numpy.double(
+                (self._xy - self._x * yMean) / (self._n * ySigma * rmsPosDef)
+            )
         else:
             return None
 
@@ -53,4 +55,6 @@ if __name__ == "__main__":
     print("s.corr(s.mean()[7], s.rms()[7]): " + str(s.corr(s.mean()[7], s.rms()[7])))
     logger.info("mean: " + str(s.mean()))
     logger.info("rms: " + str(s.rms()))
-    logger.info("s.corr(s.mean()[7], s.rms()[7]): " + str(s.corr(s.mean()[7], s.rms()[7])))
+    logger.info(
+        "s.corr(s.mean()[7], s.rms()[7]): " + str(s.corr(s.mean()[7], s.rms()[7]))
+    )

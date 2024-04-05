@@ -27,7 +27,10 @@ class PersistenceCheckParallel(PsanaBase):
         plt.title("Run %d post-kick vs kick signal" % (self.run))
         plt.xlabel("pre-kick ROI mean (keV)")
         plt.ylabel("kicked ROI mean (keV)")
-        plt.savefig("%s/%s_r%d_c%d%s.png" % (self.outputDir, self.className, self.run, self.camera, label))
+        plt.savefig(
+            "%s/%s_r%d_c%d%s.png"
+            % (self.outputDir, self.className, self.run, self.camera, label)
+        )
 
     def analyze_h5(self, dataFile, label):
         import h5py
@@ -57,7 +60,10 @@ if __name__ == "__main__":
         sys.exit(0)
 
     pc.setupPsana()
-    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pc.size))
+    smd = pcp.ds.smalldata(
+        filename="%s/%s_c%d_r%d_n%d.h5"
+        % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pc.size)
+    )
 
     nEvent = -1
     nGoodEvents = 0

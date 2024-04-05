@@ -9,13 +9,17 @@
 ##############################################################################
 import h5py
 
-file_path = "../scan/TimeScanParallel_c0_r496_n1.h5"  # Replace with the actual file path
+file_path = (
+    "../scan/TimeScanParallel_c0_r496_n1.h5"  # Replace with the actual file path
+)
 
 with h5py.File(file_path, "r") as file:
     # Print the first few lines of the HDF5 file
     print("File Information:")
     print(f"File Path: {file_path}")
-    print(f"File Keys: {list(file.keys())}")  # Print the keys/groups in the root of the file
+    print(
+        f"File Keys: {list(file.keys())}"
+    )  # Print the keys/groups in the root of the file
 
     # Print information from specific groups and datasets
     group_name = "your_group"  # Replace with the actual group name

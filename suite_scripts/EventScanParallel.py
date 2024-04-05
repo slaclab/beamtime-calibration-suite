@@ -17,7 +17,10 @@ from matplotlib.ticker import AutoMinorLocator
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
+
 
 class EventScanParallel(PsanaBase):
     def __init__(self):
@@ -47,7 +50,14 @@ class EventScanParallel(PsanaBase):
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
 
-            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info("Wrote file: " + figFileName)
             plt.clf()
@@ -65,7 +75,14 @@ class EventScanParallel(PsanaBase):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
 
-        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i) 
+        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (
+            self.outputDir,
+            self.__class__.__name__,
+            self.run,
+            self.camera,
+            label,
+            i,
+        )
         plt.savefig(figFileName)
         logger.info("Wrote file: " + figFileName)
         plt.clf()
@@ -80,7 +97,14 @@ class EventScanParallel(PsanaBase):
             plt.xlabel(xlabel)
             plt.ylabel("Pixel ADU")
 
-            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info("Wrote file: " + figFileName)
             plt.clf()
@@ -102,12 +126,12 @@ class EventScanParallel(PsanaBase):
 
         ts = data["timestamps"][()]
         print(ts)
-        
+
         pixels = data["pixels"][()]
         rois = data["rois"][()]
         pixels = sortArrayByList(ts, pixels)
         rois = sortArrayByList(ts, rois)
-        
+
         # get time differences
         ts.sort()
         ts = ts - ts[0]
@@ -137,7 +161,14 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.label, esp.camera, esp.run, esp.size)
+    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (
+        esp.outputDir,
+        esp.className,
+        esp.label,
+        esp.camera,
+        esp.run,
+        esp.size,
+    )
     smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0
@@ -179,9 +210,21 @@ if __name__ == "__main__":
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-    npMeansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp)
+    npMeansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (
+        esp.outputDir,
+        esp.label,
+        esp.camera,
+        esp.run,
+        esp.exp,
+    )
     np.save(npMeansFileName, np.array(roiMeans))
-    npEventFileName = "%s/eventNumbers_%s_c%d_r%d_%s.npy" % (esp.outputDir, esp.label, esp.camera, esp.run, esp.exp)
+    npEventFileName = "%s/eventNumbers_%s_c%d_r%d_%s.npy" % (
+        esp.outputDir,
+        esp.label,
+        esp.camera,
+        esp.run,
+        esp.exp,
+    )
     np.save(npEventFileName, np.array(eventNumbers))
     logger.info("Wrote file: " + npMeansFileName)
     logger.info("Wrote file: " + npEventFileName)

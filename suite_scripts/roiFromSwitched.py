@@ -46,4 +46,7 @@ if __name__ == "__main__":
             break
 
     np.save("roiFromSwitched_r%d_c%d.npy" % (rfs.run, rfs.camera), switchedPixels)
-    print("%d pixels were in low at least once in %d events" % ((switchedPixels > 0).sum()))
+    print(
+        "%d pixels were in low at least once in %d events"
+        % ((switchedPixels > 0).sum())
+    )

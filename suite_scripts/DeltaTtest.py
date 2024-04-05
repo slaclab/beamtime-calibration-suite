@@ -41,7 +41,14 @@ class EventScanParallel(PsanaBase):
             plt.grid(which="minor", linewidth=0.5)
             plt.savefig(
                 "%s/%s_r%d_c%d_%s_ROI%d.png"
-                % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+                % (
+                    self.outputDir,
+                    self.__class__.__name__,
+                    self.run,
+                    self.camera,
+                    label,
+                    i,
+                )
             )
             plt.clf()
 
@@ -58,7 +65,8 @@ class EventScanParallel(PsanaBase):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
         plt.savefig(
-            "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            "%s/%s_r%d_c%d_%s_All%d.png"
+            % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
         )
         plt.clf()
         # plt.show()
@@ -68,24 +76,51 @@ class EventScanParallel(PsanaBase):
             ##ax.plot(eventNumbers, pixels[i], label=str(p))
             ##ax.scatter(eventNumbers, pixels[i], marker='.', label=str(p))
             ax.plot(eventNumbers, pixels[i], ".", ms=1, label=str(p))
-            ax.plot(eventNumbers[:-1][dPulseId < 7740], pixels[i][:-1][dPulseId < 7740], "r.", ms=1, label=str(p))
+            ax.plot(
+                eventNumbers[:-1][dPulseId < 7740],
+                pixels[i][:-1][dPulseId < 7740],
+                "r.",
+                ms=1,
+                label=str(p),
+            )
             ##ax.scatter(eventNumbers, pixels[i], marker='.', s=1, label=str(p))
             plt.xlabel(xlabel)
             plt.ylabel("Pixel ADU")
             plt.savefig(
                 "%s/%s_r%d_c%d_%s_pixel%d.png"
-                % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+                % (
+                    self.outputDir,
+                    self.__class__.__name__,
+                    self.run,
+                    self.camera,
+                    label,
+                    i,
+                )
             )
             plt.close()
 
             if True:
                 ax = plt.subplot()
-                ax.hist(pixels[i], 100, range=[pixels[i].min().astype("int"), pixels[i].max().astype("int")])
+                ax.hist(
+                    pixels[i],
+                    100,
+                    range=[
+                        pixels[i].min().astype("int"),
+                        pixels[i].max().astype("int"),
+                    ],
+                )
                 plt.xlabel("Pixel ADU")
                 plt.title("Event scan projection of pixel %d" % (i))
                 plt.savefig(
                     "%s/%s_r%d_c%d_%s_pixel%d_hist.png"
-                    % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+                    % (
+                        self.outputDir,
+                        self.__class__.__name__,
+                        self.run,
+                        self.camera,
+                        label,
+                        i,
+                    )
                 )
                 plt.close()
 
@@ -115,13 +150,19 @@ class EventScanParallel(PsanaBase):
         try:
             bitSlice = data["summedBitSlice"][()]
             np.save(
-                "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp), np.array(bitSlice)
+                "%s/bitSlice_c%d_r%d_%s.npy"
+                % (self.outputDir, self.camera, self.run, self.exp),
+                np.array(bitSlice),
             )
         except:
             pass
 
         pulseIds.sort()
-        np.save("%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp), np.array(pulseIds))
+        np.save(
+            "%s/pulseIds_c%d_r%d_%s.npy"
+            % (self.outputDir, self.camera, self.run, self.exp),
+            np.array(pulseIds),
+        )
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
         pixels = sortArrayByList(ts, pixels)
@@ -131,7 +172,9 @@ class EventScanParallel(PsanaBase):
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
         print(ts)
 
-        self.plotData(np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label)
+        self.plotData(
+            np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label
+        )
 
 
 if __name__ == "__main__":
@@ -144,7 +187,10 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size))
+    smd = esp.ds.smalldata(
+        filename="%s/%s_c%d_r%d_n%d.h5"
+        % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size)
+    )
 
     esp.fluxTS = 0
     esp.nGoodEvents = 0
@@ -194,7 +240,9 @@ if __name__ == "__main__":
                 frames = np.array([esp.colCommonModeCorrection(frame)])
             if esp.special is not None and "regionCommonMode" in esp.special:
                 ##oldFrames = frames
-                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)])
+                frames = np.array(
+                    [esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)]
+                )
                 ##print(frames-oldFrames)
 
         eventNumbers.append(nevt)
@@ -234,8 +282,15 @@ if __name__ == "__main__":
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-    np.save("%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp), np.array(roiMeans))
-    np.save("%s/eventNumbers_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp), np.array(eventNumbers))
+    np.save(
+        "%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp),
+        np.array(roiMeans),
+    )
+    np.save(
+        "%s/eventNumbers_c%d_r%d_%s.npy"
+        % (esp.outputDir, esp.camera, esp.run, esp.exp),
+        np.array(eventNumbers),
+    )
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
     if smd.summary and esp.fakePedestal is None:

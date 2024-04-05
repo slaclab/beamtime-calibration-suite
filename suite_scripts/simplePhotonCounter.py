@@ -10,11 +10,15 @@
 from calibrationSuite.psanaBase import PsanaBase
 
 import calibrationSuite.loggingSetup as ls
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
+
 
 class SimplePhotonCounter(PsanaBase):
     def __init__(self):
@@ -69,7 +73,11 @@ if __name__ == "__main__":
     if spc.special is not None and "slice" in spc.special:
         thresholded = thresholded[0][spc.regionSlice]
 
-    npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp), thresholded / nGoodEvents
+    npyFileName = (
+        "%s/%s_%s_r%d_c%d_%s.npy"
+        % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp),
+        thresholded / nGoodEvents,
+    )
     np.save(npyFileName)
     logger.info("Wrote file: " + npyFileName)
     print(
@@ -80,7 +88,13 @@ if __name__ == "__main__":
         "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"
         % (spc.photonCut, (thresholded / nGoodEvents).mean())
     )
-    print("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
-    logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
+    print(
+        "total photons in detector using cut %0.2f is %0.3f"
+        % (spc.photonCut, (thresholded).sum())
+    )
+    logger.info(
+        "total photons in detector using cut %0.2f is %0.3f"
+        % (spc.photonCut, (thresholded).sum())
+    )
 
     spc.dumpEventCodeStatistics()

@@ -9,7 +9,6 @@
 ##############################################################################
 class DetectorInfo:
     def __init__(self, detType):
-
         # declare these here in case any setup_X functions don't
         # and -1 so caller knows things are not setup (non-0 to avoid error on divide)
         self.nRows = -1
@@ -20,18 +19,18 @@ class DetectorInfo:
         self.nRowsPerBank = -1
         self.dimension = -1
 
-        knownTypes = ['epixhr', 'epixM', 'archon']
+        knownTypes = ["epixhr", "epixM", "archon"]
         if detType not in knownTypes:
             raise Exception("type %s not in known types" % (detType, knownTypes))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.chosenCameraType = None
 
-        if detType == 'epixhr':
+        if detType == "epixhr":
             self.setup_epixhr()
-        elif detType == 'epixM':
+        elif detType == "epixM":
             self.setup_epixM()
-        elif detType == 'archon':
+        elif detType == "archon":
             self.setup_rixsCCD()
 
     def setNModules(self, n):
@@ -48,24 +47,23 @@ class DetectorInfo:
         self.nBanksCol = 2
         self.nRowsPerBank = int(self.nRows / self.nBanksCol)
 
-        #need to still implement getGainMode()
-        #self.gainMode = self.getGainMode()
-        self.preferredCommonMode = 'regionCommonMode'
-        self.clusterShape = [3,3]
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "regionCommonMode"
+        self.clusterShape = [3, 3]
 
     def setup_epixM(self, version=0):
-        #todo: setup detector here
-        temp = 0 #make python happy
+        # todo: setup detector here
+        temp = 0  # make python happy
 
-    def setup_rixsCCD(self, mode='1d', version=0):
+    def setup_rixsCCD(self, mode="1d", version=0):
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
-        self.nCols = 4800 - self.nBanks*self.nTestPixelsPerBank
-        self.preferredCommonMode = 'rixsCCDTestPixelSubtraction'
-        if mode == '1d':
+        self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank
+        self.preferredCommonMode = "rixsCCDTestPixelSubtraction"
+        if mode == "1d":
             self.nRows = 300
-            self.clusterShape = [1,5] ## might be [1,3]
+            self.clusterShape = [1, 5]  ## might be [1,3]
         else:
             self.nRows = 1200
-            self.clusterShape = [3,5] ## maybe
-            
+            self.clusterShape = [3, 5]  ## maybe

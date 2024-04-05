@@ -13,7 +13,12 @@ import numpy
 def dumpvars(prefix, c):
     for key, val in vars(c).items():
         name = prefix + "." + key
-        if isinstance(val, int) or isinstance(val, float) or isinstance(val, str) or isinstance(val, list):
+        if (
+            isinstance(val, int)
+            or isinstance(val, float)
+            or isinstance(val, str)
+            or isinstance(val, list)
+        ):
             print("{:} {:}".format(name, val))
         elif isinstance(val, numpy.ndarray):
             print("{:}[{:}] {:}".format(name, val.shape, val))

@@ -27,7 +27,10 @@ class PersistenceCheck(PsanaBase):
         plt.title("Run %d post-kick vs kick signal" % (self.run))
         plt.xlabel("pre-kick ROI mean (keV)")
         plt.ylabel("kicked ROI mean (keV)")
-        plt.savefig("%s/%s_r%d_c%d%s.png" % (self.outputDir, self.className, self.run, self.camera, label))
+        plt.savefig(
+            "%s/%s_r%d_c%d%s.png"
+            % (self.outputDir, self.className, self.run, self.camera, label)
+        )
 
 
 if __name__ == "__main__":
@@ -117,5 +120,9 @@ if __name__ == "__main__":
         np.save("kickedMeans_r%d.npy" % (pc.run), missingMeans)
 
     data = np.array(data)
-    np.save("%s/persistenceData_%s_r%d_c%d%s.npy" % (pc.outputDir, pc.exp, pc.run, pc.camera, label), data)
+    np.save(
+        "%s/persistenceData_%s_r%d_c%d%s.npy"
+        % (pc.outputDir, pc.exp, pc.run, pc.camera, label),
+        data,
+    )
     pc.plotData(data, label)

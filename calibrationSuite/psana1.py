@@ -9,17 +9,21 @@
 ##############################################################################
 from calibrationSuite.psanaBase import *
 import logging
+
 logger = logging.getLogger(__name__)
 
-def setupPsana1(baseObj):
 
+def setupPsana1(baseObj):
     if baseObj.runRange is None:
         baseObj.ds = baseObj.get_ds(baseObj.run)
     else:
         baseObj.run = baseObj.runRange[0]
         baseObj.ds = baseObj.get_ds()
 
-    baseObj.det = Detector("%s.0:%s.%d" % (baseObj.location, baseObj.detType, baseObj.camera), baseObj.ds.env())
+    baseObj.det = Detector(
+        "%s.0:%s.%d" % (baseObj.location, baseObj.detType, baseObj.camera),
+        baseObj.ds.env(),
+    )
     baseObj.evrs = None
     try:
         baseObj.wave8 = Detector(baseObj.fluxSource, baseObj.ds.env())
@@ -30,6 +34,7 @@ def setupPsana1(baseObj):
         baseObj.controlData = Detector("ControlData")
     except:
         baseObj.controlData = None
+
 
 def getFluxPsana1(baseObj, evt):
     try:
@@ -47,6 +52,7 @@ def getFluxPsana1(baseObj, evt):
     except:
         return None
     return f
+
 
 def isKickedPsana1(baseObj, evt):
     try:
@@ -69,6 +75,7 @@ def isKickedPsana1(baseObj, evt):
         pass
     return kicked
 
+
 def getEvtPsana1(baseObj, run=None):
     oldDs = baseObj.ds
     if run is not None:
@@ -80,6 +87,7 @@ def getEvtPsana1(baseObj, run=None):
         return None
     baseObj.ds = oldDs
     return evt
+
 
 def getRawDataPsana1(baseObj, evt, gainBitsMasked=True):
     frames = baseObj.det.raw(evt)

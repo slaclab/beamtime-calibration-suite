@@ -16,11 +16,14 @@ import os
 from runInfo import *
 
 import calibrationSuite.loggingSetup as ls
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
 
 
 class LinearityInfo(PsanaBase):  ## describes the .npy array
@@ -132,12 +135,14 @@ class AnalyzeOneScan(object):
         indexB = self.dataIndices[statB]
         fig, ax = plt.subplots(2, 1)
         d = self.data[:, :, indexA] / self.data[:, :, indexB]
-        
+
         print(statA, statB, "ratio median:", np.median(d))
-        logger.info(str(statA) + " " + str(statB) + " ratio median: " + " " + str(np.median(d)))
+        logger.info(
+            str(statA) + " " + str(statB) + " ratio median: " + " " + str(np.median(d))
+        )
 
         if clipRange is not None:
-            d = d.clip(*tuple(clipRange)) #???
+            d = d.clip(*tuple(clipRange))  # ???
         ##im = ax[0,0].imshow(d.clip(*tuple(g0Range)))
         im = ax[0].imshow(d)
         fig.colorbar(im)
@@ -182,7 +187,9 @@ class CompareMultipleScans(object):
                 if run in runInfoDict.keys():
                     runInfo = runInfoDict[run]
                 ax[i].hist(
-                    self.dataArray[j][:, :, index].clip(*tuple(self.dataRanges[stat])).flatten(),
+                    self.dataArray[j][:, :, index]
+                    .clip(*tuple(self.dataRanges[stat]))
+                    .flatten(),
                     nBins,
                     label="r%s %s %s" % (run, stat, runInfo),
                     alpha=0.5,
@@ -194,7 +201,7 @@ class CompareMultipleScans(object):
         stats = "_".join(statList)
         print(stats)
         logger.info(stats)
-        figFileName ="%s_%s_overlay.png" % (self.label, stats)
+        figFileName = "%s_%s_overlay.png" % (self.label, stats)
         plt.savefig(figFileName)
         logger.info("Wrote file: " + figFileName)
         plt.close()
@@ -244,7 +251,11 @@ if __name__ == "__main__":
             print(f)
             scanObj = LinearityInfo()
             if statsArray is None:
-                plainStatsArray = [["g0slope", "g1slope"], ["g0r2", "g1r2"], ["g0max", "g1min"]]
+                plainStatsArray = [
+                    ["g0slope", "g1slope"],
+                    ["g0r2", "g1r2"],
+                    ["g0max", "g1min"],
+                ]
                 ratioStatsArray = [["g1slope", "g0slope"]]
             else:
                 plainStatsArray = statsArray

@@ -49,7 +49,9 @@ def plotProfile(x, y, yErr):
     plt.errorbar(x=x, y=y, yerr=yErr, linestyle="none", marker=".")
 
 
-def selectedClusters(clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=4, isSquare=1):
+def selectedClusters(
+    clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=4, isSquare=1
+):
     pass
 
 
@@ -59,7 +61,9 @@ def goodClusters(clusters, row, col, nPixelCut=4, isSquare=None):
     if isSquare is None:
         small = clusters[:, :, 3] < nPixelCut
     else:
-        small = np.bitwise_and((clusters[:, :, 3] < nPixelCut), (clusters[:, :, 4] == isSquare))
+        small = np.bitwise_and(
+            (clusters[:, :, 3] < nPixelCut), (clusters[:, :, 4] == isSquare)
+        )
     return clusters[np.bitwise_and(small, pixelRowCol)]
 
 

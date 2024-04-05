@@ -17,7 +17,10 @@ import os
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.ERROR
+)  # change to logging.INFO for full logging output
+
 
 class EventScanParallel(PsanaBase):
     def __init__(self):
@@ -93,7 +96,13 @@ class EventScanParallel(PsanaBase):
             ##ax.plot(eventNumbers, pixels[i], label=str(p))
             ##ax.scatter(eventNumbers, pixels[i], marker='.', label=str(p))
             ax.plot(eventNumbers, pixels[i], ".", ms=1, label=str(p))
-            ax.plot(eventNumbers[:-1][dPulseId < 7740], pixels[i][:-1][dPulseId < 7740], "r.", ms=1, label=str(p))
+            ax.plot(
+                eventNumbers[:-1][dPulseId < 7740],
+                pixels[i][:-1][dPulseId < 7740],
+                "r.",
+                ms=1,
+                label=str(p),
+            )
             ##ax.scatter(eventNumbers, pixels[i], marker='.', s=1, label=str(p))
             plt.xlabel(xlabel)
             plt.ylabel("Pixel ADU")
@@ -111,7 +120,14 @@ class EventScanParallel(PsanaBase):
 
             if True:
                 ax = plt.subplot()
-                ax.hist(pixels[i], 100, range=[pixels[i].min().astype("int"), pixels[i].max().astype("int")])
+                ax.hist(
+                    pixels[i],
+                    100,
+                    range=[
+                        pixels[i].min().astype("int"),
+                        pixels[i].max().astype("int"),
+                    ],
+                )
                 plt.xlabel("Pixel ADU")
                 plt.title("Event scan projection of pixel %d" % (i))
                 pltFileName = "%s/%s_r%d_c%d_%s_pixel%d_hist.png" % (
@@ -152,7 +168,12 @@ class EventScanParallel(PsanaBase):
         # get summedBitSlice and save it to a numpy file
         try:
             bitSlice = data["summedBitSlice"][()]
-            npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
+            npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" % (
+                self.outputDir,
+                self.camera,
+                self.run,
+                self.exp,
+            )
             logger.info("Wrote file: " + npyFileName)
             np.save(npyFileName, np.array(bitSlice))
         except:
@@ -160,7 +181,12 @@ class EventScanParallel(PsanaBase):
 
         # sort and save pulseIds to a numpy file
         pulseIds.sort()
-        npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
+        npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" % (
+            self.outputDir,
+            self.camera,
+            self.run,
+            self.exp,
+        )
         logger.info("Wrote file: " + npyFileName)
         np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
@@ -169,12 +195,13 @@ class EventScanParallel(PsanaBase):
         pixels = sortArrayByList(ts, pixels)
         rois = sortArrayByList(ts, rois)
 
-        
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
         print("ts: ", ts)
-        self.plotData(np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label)
+        self.plotData(
+            np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label
+        )
 
 
 if __name__ == "__main__":
@@ -190,7 +217,13 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size)
+    h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (
+        esp.outputDir,
+        esp.className,
+        esp.camera,
+        esp.run,
+        esp.size,
+    )
     smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0
@@ -223,13 +256,17 @@ if __name__ == "__main__":
                 frames = np.array([esp.colCommonModeCorrection(frame)])
             if esp.special is not None and "regionCommonMode" in esp.special:
                 ##oldFrames = frames
-                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)])
+                frames = np.array(
+                    [esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)]
+                )
                 ##print(frames-oldFrames)
         else:
-            frame = frames.astype('float')[0]
+            frame = frames.astype("float")[0]
             frames = np.array([frame])
-            if esp.special is not None and 'regionCommonMode' in esp.special:
-                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666666)])
+            if esp.special is not None and "regionCommonMode" in esp.special:
+                frames = np.array(
+                    [esp.regionCommonModeCorrection(frame, esp.regionSlice, 666666)]
+                )
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):
@@ -269,11 +306,21 @@ if __name__ == "__main__":
         if esp.nGoodEvents > esp.maxNevents:
             break
 
-    npyFileName = "%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp)
+    npyFileName = "%s/means_c%d_r%d_%s.npy" % (
+        esp.outputDir,
+        esp.camera,
+        esp.run,
+        esp.exp,
+    )
     np.save(npyFileName, np.array(roiMeans))
     logger.info("Wrote file: " + npyFileName)
 
-    npyFileName = "%s/eventNumbers_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp)
+    npyFileName = "%s/eventNumbers_c%d_r%d_%s.npy" % (
+        esp.outputDir,
+        esp.camera,
+        esp.run,
+        esp.exp,
+    )
     np.save(npyFileName, np.array(eventNumbers))
     logger.info("Wrote file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")

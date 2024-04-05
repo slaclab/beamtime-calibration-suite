@@ -16,11 +16,14 @@ import numpy as np
 ##from fitFineScan import *
 
 import calibrationSuite.loggingSetup as ls
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
 
 
 class TimeScanParallel(PsanaBase):
@@ -49,7 +52,14 @@ class TimeScanParallel(PsanaBase):
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
 
-            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info("Wrote file: " + figFileName)
             plt.clf()
@@ -67,7 +77,14 @@ class TimeScanParallel(PsanaBase):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
 
-        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (
+            self.outputDir,
+            self.__class__.__name__,
+            self.run,
+            self.camera,
+            label,
+            i,
+        )
         plt.savefig(figFileName)
         logger.info("Wrote file: " + figFileName)
         plt.close()
@@ -83,7 +100,14 @@ class TimeScanParallel(PsanaBase):
             plt.xlabel("Delay (Ticks)")
             plt.ylabel("Pixel ADU")
 
-            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info(figFileName)
             plt.close()
@@ -101,7 +125,14 @@ class TimeScanParallel(PsanaBase):
             plt.xlabel("Delay (Ticks)")
             plt.ylabel("Pixel ADU")
 
-            figFileName = "%s/%s_r%d_c%d_%s_slicePixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_slicePixel%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             plt.close()
 
@@ -153,12 +184,19 @@ if __name__ == "__main__":
     tsp.setupPsana()
     tsp.use_281_for_old_data = False
     ## this is a hack
-    if tsp.run < 500: ## guess
+    if tsp.run < 500:  ## guess
         tsp.use_281_for_old_data = True
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
-    
-    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, tsp.size)
+
+    h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (
+        tsp.outputDir,
+        tsp.className,
+        tsp.label,
+        tsp.camera,
+        tsp.run,
+        tsp.size,
+    )
     smd = tsp.ds.smalldata(filename=h5FileName)
 
     tsp.nGoodEvents = 0
@@ -176,7 +214,9 @@ if __name__ == "__main__":
         scanValue = tsp.getScanValue(step, True)
         print(scanValue, "in tsp")
         logger.info(str(scanValue) + "in tsp")
-        roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.uint32)
+        roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(
+            np.uint32
+        )
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
 
         nGoodInStep = 0
@@ -185,11 +225,11 @@ if __name__ == "__main__":
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-        ##if not tsp.isBeamEvent(evt):
+            ##if not tsp.isBeamEvent(evt):
             ##continue
 
             doFast = [True, False][0]
-            fakeFlux = [True, False][1] ## 0 for ASC lab or until bug found
+            fakeFlux = [True, False][1]  ## 0 for ASC lab or until bug found
             if doFast:
                 ec = tsp.getEventCodes(evt)
 
@@ -201,7 +241,7 @@ if __name__ == "__main__":
                     frames = tsp.getRawData(evt, gainBitsMasked=True)
                     ##print("281 only...")
                 elif ec[137]:
-                    tsp.flux = tsp._getFlux(evt) ## fix this
+                    tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
                 else:
                     print("not beam event, not frame event, not bld...")
@@ -216,7 +256,9 @@ if __name__ == "__main__":
                 continue
 
             if tsp.special is not None and "parity" in tsp.special:
-                if tsp.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in tsp.special):
+                if tsp.getPingPongParity(frames[0][144:224, 0:80]) == (
+                    "negative" in tsp.special
+                ):
                     continue
 
             flux = tsp.getFlux(evt)
@@ -288,17 +330,34 @@ if __name__ == "__main__":
     smd.done()
 
     if False:
-        meansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
+        meansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (
+            tsp.outputDir,
+            tsp.label,
+            tsp.camera,
+            tsp.run,
+            tsp.exp,
+        )
         np.save(meansFileName, np.array(roiMeans))
         logger.info("Wrote file: " + meansFileName)
-        fluxesFileName = "%s/fluxes_%s_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.run, tsp.exp)
+        fluxesFileName = "%s/fluxes_%s_r%d_%s.npy" % (
+            tsp.outputDir,
+            tsp.label,
+            tsp.run,
+            tsp.exp,
+        )
         np.save(fluxesFileNAme, np.array(fluxes))
         logger.info("Wrote file: " + fluxesFileName)
         ##    np.save("%s/ratios_c%d_r%d_%s.npy" %(tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(ratios))
-        delaysFileName = "%s/delays_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
+        delaysFileName = "%s/delays_%s_c%d_r%d_%s.npy" % (
+            tsp.outputDir,
+            tsp.label,
+            tsp.camera,
+            tsp.run,
+            tsp.exp,
+        )
         np.save(delaysFileName, np.array(delays))
         logger.info("Wrote file: " + delaysFileName)
-        
+
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")
 

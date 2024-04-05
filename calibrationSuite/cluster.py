@@ -35,7 +35,9 @@ class Cluster(object):
         if energy > self.seedEnergy:
             self.goodCluster = False
         self.eTotal += energy
-        self.pixelE[offsetR + 1, offsetC + 1] = energy  ## pixel seed in 1, 1; corner in -1, -1; etc.
+        self.pixelE[
+            offsetR + 1, offsetC + 1
+        ] = energy  ## pixel seed in 1, 1; corner in -1, -1; etc.
 
     def blindlyNoteEnergy(self, energy):
         self.eTotalNoCuts += energy
@@ -59,14 +61,35 @@ class Cluster(object):
         if self.nPixels == 1:
             return True
         if self.nPixels == 2:
-            if self.pixelE[0, 0] != 0 or self.pixelE[0, 2] != 0 or self.pixelE[2, 0] != 0 or self.pixelE[2, 2] != 0:
+            if (
+                self.pixelE[0, 0] != 0
+                or self.pixelE[0, 2] != 0
+                or self.pixelE[2, 0] != 0
+                or self.pixelE[2, 2] != 0
+            ):
                 return False
             return True
         if self.nPixels < 5:
-            rowSum0 = (self.pixelE[0, 0] == 0) and (self.pixelE[0, 1] == 0) and (self.pixelE[0, 2] == 0)
-            rowSum2 = (self.pixelE[2, 0] == 0) and (self.pixelE[2, 1] == 0) and (self.pixelE[2, 2] == 0)
-            colSum0 = (self.pixelE[0, 0] == 0) and (self.pixelE[1, 0] == 0) and (self.pixelE[2, 0] == 0)
-            colSum2 = (self.pixelE[0, 2] == 0) and (self.pixelE[1, 2] == 0) and (self.pixelE[2, 2] == 0)
+            rowSum0 = (
+                (self.pixelE[0, 0] == 0)
+                and (self.pixelE[0, 1] == 0)
+                and (self.pixelE[0, 2] == 0)
+            )
+            rowSum2 = (
+                (self.pixelE[2, 0] == 0)
+                and (self.pixelE[2, 1] == 0)
+                and (self.pixelE[2, 2] == 0)
+            )
+            colSum0 = (
+                (self.pixelE[0, 0] == 0)
+                and (self.pixelE[1, 0] == 0)
+                and (self.pixelE[2, 0] == 0)
+            )
+            colSum2 = (
+                (self.pixelE[0, 2] == 0)
+                and (self.pixelE[1, 2] == 0)
+                and (self.pixelE[2, 2] == 0)
+            )
             ## could demand no corner energy for 3-pixel clusters
             if (rowSum0 or rowSum2) and (colSum0 or colSum2):
                 return True

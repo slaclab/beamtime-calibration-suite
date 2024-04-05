@@ -8,10 +8,11 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import *
+
 logger = logging.getLogger(__name__)
 
-def setupPsana2(baseObj):
 
+def setupPsana2(baseObj):
     if baseObj.runRange is None:
         baseObj.ds = baseObj.get_ds(baseObj.run)
     else:
@@ -28,7 +29,7 @@ def setupPsana2(baseObj):
     ## baseObj.det = Detector('%s.0:%s.%d' %(baseObj.location, baseObj.detType, baseObj.camera), baseObj.ds.env())
     ## make this less dumb to accomodate epixM etc.
     ## use a dict etc.
-    baseObj.det = baseObj.myrun.Detector(baseObj.experimentHash['detectorType'])
+    baseObj.det = baseObj.myrun.Detector(baseObj.experimentHash["detectorType"])
     if baseObj.det is None:
         print("no det object for epixhr, what?  Pretend it's ok.")
         ##raise Exception
@@ -62,6 +63,7 @@ def setupPsana2(baseObj):
     except:
         baseObj.controlData = None
 
+
 def getEvtPsana2(baseObj):
     try:
         evt = next(baseObj.myrun.events())
@@ -75,24 +77,24 @@ def getEvtPsana2(baseObj):
         return None
     return evt
 
+
 def getRawDataPsana2(baseObj, evt, gainBitsMasked=True):
     frames = baseObj.det.raw.raw(evt)
     if frames is None:
         return None
     if baseObj.special:
-        if 'thirteenBits' in baseObj.special:
-            frames = (frames & 0xfffe)
+        if "thirteenBits" in baseObj.special:
+            frames = frames & 0xFFFE
             ##print("13bits")
-        elif 'twelveBits' in baseObj.special:
-            frames = (frames & 0xfffc)
+        elif "twelveBits" in baseObj.special:
+            frames = frames & 0xFFFC
             ##print("12bits")
-        elif 'elevenBits' in baseObj.special:
-            frames = (frames & 0xfff8)
+        elif "elevenBits" in baseObj.special:
+            frames = frames & 0xFFF8
             ##print("11bits")
-        elif 'tenBits' in baseObj.special:
-            frames = (frames & 0xfff0)
+        elif "tenBits" in baseObj.special:
+            frames = frames & 0xFFF0
             ##print("10bits")
     if gainBitsMasked:
         return frames & baseObj.gainBitsMask
     return frames
-

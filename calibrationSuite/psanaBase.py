@@ -59,14 +59,12 @@ class PsanaBase(SuiteBase):
         self.mfxDg2 = None
         self.detEvts = None
         self.flux = None
-        
 
-    def setupPsana(self): 
+    def setupPsana(self):
         if psanaBaseNum == 2:
             setupPsana2(self)
         else:
             setupPsana1(self)
-    
 
     ######## Start of getters
 
@@ -74,7 +72,12 @@ class PsanaBase(SuiteBase):
         if run is None:
             run = self.run
         if psanaBaseNum == 2:
-            return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)
+            return DataSource(
+                exp=self.exp,
+                run=run,
+                intg_det=self.experimentHash["detectorType"],
+                max_events=self.maxNevents,
+            )
         else:
             return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
@@ -90,7 +93,7 @@ class PsanaBase(SuiteBase):
             return self.flux
         else:
             return getFluxPsana1(self, evt)
-    
+
     def getEvt(self):
         if psanaBaseNum == 2:
             return self.getEvtPsana2()
@@ -118,7 +121,7 @@ class PsanaBase(SuiteBase):
 
     def getScanValue(self, step=-1, useStringInfo=False):
         # for psana1, where we don't specify a step arg
-        if step == -1: #psana1
+        if step == -1:  # psana1
             return self.controlData().pvControls()[0].value()
 
         ##print(self.step_value(step),self.step_docstring(step),useStringInfo)
@@ -130,7 +133,7 @@ class PsanaBase(SuiteBase):
             logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return sv
         return self.step_value(step)
-    
+
     ######## End of getters
 
 

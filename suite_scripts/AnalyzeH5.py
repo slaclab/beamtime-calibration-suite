@@ -23,9 +23,12 @@ from calibrationSuite.argumentParser import ArgumentParser
 import logging
 import calibrationSuite.loggingSetup as ls
 import os
+
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    currFileName[:-3] + ".log", logging.ERROR
+)  # change to logging.INFO for full logging output
 # for logging from current file
 logger = logging.getLogger(__name__)
 
@@ -64,7 +67,9 @@ class AnalyzeH5(object):
             self.sliceEdges = [288 - 270, 107 - 59]
 
     def sliceToDetector(self, sliceRow, sliceCol):
-        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[
+            1
+        ][0]
 
     def analyze(self):
         if self.analysisType == "cluster":
@@ -151,13 +156,23 @@ class AnalyzeH5(object):
             for j in range(cols):
                 detRow, detCol = self.sliceToDetector(i, j)
                 ax = plt.subplot()
-                currGoodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=3, isSquare=1)
+                currGoodClusters = ancillaryMethods.goodClusters(
+                    clusters, i, j, nPixelCut=3, isSquare=1
+                )
                 if len(currGoodClusters) < 5:
-                    print("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
-                    logger.info("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
+                    print(
+                        "too few clusters in slice pixel %d, %d: %d"
+                        % (i, j, len(currGoodClusters))
+                    )
+                    logger.info(
+                        "too few clusters in slice pixel %d, %d: %d"
+                        % (i, j, len(currGoodClusters))
+                    )
                     continue
                 energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
-                photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
+                photonEcut = np.bitwise_and(
+                    energies > self.lowEnergyCut, energies < self.highEnergyCut
+                )
                 nPixelClusters = (photonEcut > 0).sum()
                 print("pixel %d,%d has about %d photons" % (i, j, nPixelClusters))
                 logger.info("pixel %d,%d has about %d photons" % (i, j, nPixelClusters))
@@ -216,9 +231,13 @@ class AnalyzeH5(object):
         y, bin_edges, _ = ax.hist(energies, nBins)
         bins = (bin_edges[:-1] + bin_edges[1:]) / 2
         ##print(y, bins)
-        a, mean, std = fitFunctions.estimateGaussianParametersFromUnbinnedArray(energies)
+        a, mean, std = fitFunctions.estimateGaussianParametersFromUnbinnedArray(
+            energies
+        )
         try:
-            popt, pcov = fitFunctions.curve_fit(fitFunctions.gaussian, bins, y, [a, mean, std])
+            popt, pcov = fitFunctions.curve_fit(
+                fitFunctions.gaussian, bins, y, [a, mean, std]
+            )
             mu = popt[1]
             sigma = popt[2]
             fittedFunc = fitFunctions.gaussian(bins, *popt)
