@@ -44,7 +44,7 @@ class BasicSuiteScript(PsanaBase):
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
         ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
-        self.outputDir = "../%s/" % (analysisType)
+        self.outputDir = "/%s/" % (analysisType)
         logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 
@@ -60,6 +60,7 @@ class BasicSuiteScript(PsanaBase):
             self.exp = self.experimentHash["exp"]
         except:
             pass
+        self.ROIfileNames = None
         try:
             ##if True:
             self.ROIfileNames = self.experimentHash["ROIs"]
@@ -72,11 +73,12 @@ class BasicSuiteScript(PsanaBase):
                 pass
         ##if False:
         except:
-            print("had trouble finding", self.ROIfileNames)
-            for currName in self.ROIfileNames:
-                logger.exception("had trouble finding" + currName)
+            if self.ROIfileNames is not None:
+                print("had trouble finding", self.ROIfileNames)
+                for currName in self.ROIfileNames:
+                    logger.exception("had trouble finding" + currName)
             self.ROI = None
-            self.ROIs = None
+            self.ROIs = []
         try:
             self.singlePixels = self.experimentHash["singlePixels"]
         except:
@@ -86,9 +88,10 @@ class BasicSuiteScript(PsanaBase):
         except:
             self.regionSlice = None
         if self.regionSlice is not None:
+            ## n.b. assumes 3d slice now
             self.sliceCoordinates = [
-                [self.regionSlice[0].start, self.regionSlice[0].stop],
                 [self.regionSlice[1].start, self.regionSlice[1].stop],
+                [self.regionSlice[2].start, self.regionSlice[2].stop],
             ]
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
@@ -170,9 +173,10 @@ class BasicSuiteScript(PsanaBase):
             self.runRange = None
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
-        self.fakePedestal = self.args.fakePedestal  ## in case needed
-        if self.fakePedestal is not None:
-            self.fakePedestalFrame = np.load(self.fakePedestal)  ##cast to uint32???
+        self.fakePedestal = None
+        self.fakePedestalFile = self.args.fakePedestalFile  ## in case needed
+        if self.fakePedestalFile is not None:
+            self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
 
         self.g0PedFile = self.args.g0PedFile
         if self.g0PedFile is not None:
@@ -230,8 +234,8 @@ class BasicSuiteScript(PsanaBase):
     def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
     
-    def noCommonModeCorrection(self, frame):
-        return frame
+    def noCommonModeCorrection(self, frames):
+        return frames
 
     def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
         ## this takes a 2d frame
@@ -240,11 +244,18 @@ class BasicSuiteScript(PsanaBase):
         regionCM = np.median(frame[region][frame[region] < arbitraryCut])
         return frame - regionCM
 
+    def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
+
+    def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
-        ## this takes a 2d frame
+        ## this takes a 2d object
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
-        ##rand = np.random.random()
         for r in range(self.detectorInfo.nRows):
             colOffset = 0
             ##for b in range(0, self.detNbanks):
@@ -255,12 +266,7 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detColsPerBank] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     rowCM = -666
                     print("rowCM problem")
@@ -277,19 +283,13 @@ class BasicSuiteScript(PsanaBase):
         for c in range(self.detCols):
             rowOffset = 0
             for b in range(0, self.detNbanksCol):
-                ##for b in range(0, 2):
                 try:
                     colCM = np.median(
                         frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
                             frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     colCM = -666
                     print("colCM problem")
