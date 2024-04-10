@@ -7,8 +7,9 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
 import copy
+
+import numpy as np
 
 a = np.load("roiFromSwitched_e550_rmfxx1005021.npy")
 b = copy.copy(a) * 0

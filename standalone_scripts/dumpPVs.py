@@ -8,9 +8,10 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 # ruff: noqa: F821
-import psana
 import sys
+
 import numpy as np
+import psana
 
 exp = sys.argv[1]
 run = eval(sys.argv[2])

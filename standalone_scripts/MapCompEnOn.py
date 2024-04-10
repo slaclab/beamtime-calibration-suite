@@ -7,14 +7,15 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import math
+import os
+import sys
+
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter
-import sys
-import os
-import math
 
 if len(sys.argv) != 3 or sys.argv[1] != "-f":
     print("Usage: python MapCompEnOn.py -f filename")

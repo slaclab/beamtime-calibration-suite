@@ -1,6 +1,6 @@
-import subprocess
 import os
 import shutil
+import subprocess
 
 
 def test_run_event_scan_parallel_slice_and_compare():

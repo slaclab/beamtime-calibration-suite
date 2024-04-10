@@ -10,15 +10,16 @@
 import logging
 import os
 import sys
-import numpy as np
-import matplotlib.pyplot as plt
+
 import h5py
+import matplotlib.pyplot as plt
+import numpy as np
 from scipy.optimize import curve_fit
 
-from calibrationSuite.psanaBase import PsanaBase
-import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
+import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.loggingSetup as ls
+from calibrationSuite.psanaBase import PsanaBase
 
 # for logging from current file
 logger = logging.getLogger(__name__)

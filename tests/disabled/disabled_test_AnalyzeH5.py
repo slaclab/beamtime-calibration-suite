@@ -1,6 +1,6 @@
-import subprocess
 import os
 import shutil
+import subprocess
 
 
 def test_run_analyzeh5_and_compare():

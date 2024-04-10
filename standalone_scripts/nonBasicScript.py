@@ -7,9 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import psana
 import sys
+
 import numpy as np
+import psana
 
 exp = sys.argv[1]
 run = eval(sys.argv[2])

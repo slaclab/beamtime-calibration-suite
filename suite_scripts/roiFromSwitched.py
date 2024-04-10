@@ -7,8 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
 import numpy as np
+
+from calibrationSuite.psanaBase import PsanaBase
+
 
 class RoiFromSwitched(PsanaBase):
     def __init__(self):

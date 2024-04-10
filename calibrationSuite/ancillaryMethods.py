@@ -7,10 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import binned_statistic
 import logging
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import binned_statistic
 
 logger = logging.getLogger(__name__)
 

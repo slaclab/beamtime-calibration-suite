@@ -7,13 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import psana
-
+import importlib.util
+import logging
 import os
 import sys
-import logging
-import importlib.util
+
 import numpy as np
+import psana
 from mpi4py import MPI
 
 from calibrationSuite.argumentParser import ArgumentParser

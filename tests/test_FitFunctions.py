@@ -1,19 +1,11 @@
 import numpy as np
 import pytest
+
 from calibrationSuite.fitFunctions import (
-    linear,
-    saturatedLinear,
-    saturatedLinearB,
-    gaussian,
-    gaussianArea,
-    estimateGaussianParametersFromUnbinnedArray,
-    estimateGaussianParametersFromXY,
-    getHistogramMeanStd,
-    calculateFitR2,
-    getBinCentersFromNumpyHistogram,
-    getRestrictedHistogram,
-    fitNorm,
-)
+    calculateFitR2, estimateGaussianParametersFromUnbinnedArray,
+    estimateGaussianParametersFromXY, fitNorm, gaussian, gaussianArea,
+    getBinCentersFromNumpyHistogram, getHistogramMeanStd,
+    getRestrictedHistogram, linear, saturatedLinear, saturatedLinearB)
 
 
 @pytest.mark.parametrize("a, b, expected", [(2, 3, np.array([5, 7, 9, 11, 13]))])

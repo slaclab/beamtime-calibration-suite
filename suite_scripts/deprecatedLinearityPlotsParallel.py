@@ -8,9 +8,12 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
-from calibrationSuite.psanaBase import PsanaBase
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+from calibrationSuite.psanaBase import PsanaBase
+
 ## This builds and analyzes a dict with keys:
 ## 'rois' - ROI fluxes and means
 ## 'g0s' -per-pixel g0 fluxes and values, ragged or None-filled

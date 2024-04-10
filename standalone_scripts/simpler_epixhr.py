@@ -7,10 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
+
+import cfg_utils as cfg_utils
 import psana
 from psmon import publish
-import cfg_utils as cfg_utils
-import sys
 
 expt = sys.argv[1]
 run = eval(sys.argv[2])

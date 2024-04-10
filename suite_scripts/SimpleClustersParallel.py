@@ -8,12 +8,14 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
-from calibrationSuite.psanaBase import PsanaBase
-from calibrationSuite.cluster import BuildClusters
-import calibrationSuite.fitFunctions as fitFunctions
+import numpy as np
 from scipy.optimize import curve_fit
+
+import calibrationSuite.fitFunctions as fitFunctions
+from calibrationSuite.cluster import BuildClusters
+from calibrationSuite.psanaBase import PsanaBase
 
 
 class SimpleClusters(PsanaBase):

@@ -7,17 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
 import logging
 import os
 import sys
-import numpy as np
+
+import h5py
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
-##from fitFineScan import *
-
 import calibrationSuite.loggingSetup as ls
+from calibrationSuite.psanaBase import PsanaBase
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ ls.setupScriptLogging(
 
 class TimeScanParallel(PsanaBase):
     def __init__(self):
-        super().__init__()  ##self)
+        super().__init__()
         self.className = self.__class__.__name__
         try:
             print("positive events:", "positive" in self.special)
@@ -138,24 +138,10 @@ class TimeScanParallel(PsanaBase):
             plt.savefig(figFileName)
             plt.close()
 
-    '''
-    def analyzeData(self, delays, data, label):
-        edge = np.zeros(data.shape[0])
-        for m in range(data.shape[1]):
-            for r in range(data.shape[2]):
-                for c in range(data.shape[3]):
-                    d = data[:, m, r, c]
-                    p0 = estimateFineScanPars(delays, d)
-                    f = fineScanFunc
-                    coeff, var = curve_fit(f, delays, d, p0=p0)
-                    edge[m, r, c] = coeff[1]
-        return edge
-    '''
-
     def analyze_h5(self, dataFile, norm, label):
-        import h5py
 
         a = h5py.File(dataFile)[norm]
+
         delays = np.array([k for k in a.keys()])
         delays = delays.astype("int")
         delays.sort()
@@ -175,21 +161,20 @@ class TimeScanParallel(PsanaBase):
 
 if __name__ == "__main__":
     tsp = TimeScanParallel()
-    print("have built a", tsp.className, "class")
-    logger.info("have built a" + tsp.className + "class")
-    if tsp.file is not None:
-        ##        tsp.analyze_h5(tsp.file, 'means', tsp.label)
-        ##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
+    print("have built a ", tsp.className, " class")
+    logger.info("have built a " + tsp.className + " class")
+
+    if tsp.file:
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
         print("done with standalone analysis of %s, exiting" % (tsp.file))
         logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
         sys.exit()
 
     tsp.setupPsana()
-    tsp.use_281_for_old_data = False
+
     ## this is a hack
-    if tsp.run < 500:  ## guess
-        tsp.use_281_for_old_data = True
+    use_281_for_old_data = tsp.run < 500
+    if use_281_for_old_data:  ## guess
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
 
@@ -204,36 +189,30 @@ if __name__ == "__main__":
     smd = tsp.ds.smalldata(filename=h5FileName)
 
     tsp.nGoodEvents = 0
-    stepMeans = {}
-    stepMeans["means"] = {}
-    stepMeans["ratios"] = {}
-    stepMeans["slice"] = {}
+    stepMeans = {"means": {}, "ratios": {}, "slice": {}}
 
     offset = len(tsp.ROIs)
 
     stepGen = tsp.getStepGen()
-    ##    for nstep, step in enumerate (tsp.ds.steps()):
     for nstep, step in enumerate(stepGen):
-        ##scanValue = tsp.getScanValue(step, useStringInfo=True)
         scanValue = tsp.getScanValue(step, True)
         print(scanValue, "in tsp")
         logger.info(str(scanValue) + "in tsp")
+
         roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(
             np.uint32
         )
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
-
-        nGoodInStep = 0
         stepSliceSum = np.zeros([666, 666])[tsp.regionSlice].astype("float32")
-        stepSliceSum = None
+        nGoodInStep = 0
+
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-            ##if not tsp.isBeamEvent(evt):
-            ##continue
 
-            doFast = [True, False][0]
-            fakeFlux = [True, False][1]  ## 0 for ASC lab or until bug found
+            doFast = True
+            fakeFlux = False ## 0 for ASC lab or until bug found
+
             if doFast:
                 ec = tsp.getEventCodes(evt)
 
@@ -243,7 +222,6 @@ if __name__ == "__main__":
                     logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
                 elif tsp.use_281_for_old_data and ec[281]:
                     frames = tsp.getRawData(evt, gainBitsMasked=True)
-                    ##print("281 only...")
                 elif ec[137]:
                     tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
@@ -256,7 +234,6 @@ if __name__ == "__main__":
                 frames = tsp.getRawData(evt, gainBitsMasked=True)
 
             if frames is None:
-                ##print("no frame")
                 continue
 
             if tsp.special is not None and "parity" in tsp.special:
@@ -278,10 +255,8 @@ if __name__ == "__main__":
 
             try:
                 stepSliceSum += frames[0][tsp.regionSlice]
-                ##stepEvents += 1
             except Exception:
                 stepSliceSum = frames[0][tsp.regionSlice].astype(np.float32)
-                ##stepEvents = 1
 
             for i, roi in enumerate(tsp.ROIs):
                 ##m = np.multiply(roi, frames).mean()
@@ -308,7 +283,6 @@ if __name__ == "__main__":
             ratioSums = None
 
         step_sums = None
-        ##print(roiAndPixelSums is None)
         step_sums = smd.sum(roiAndPixelSums)
         step_ratio_sums = smd.sum(ratioSums)
         step_nsum = smd.sum(nGoodInStep)
@@ -317,7 +291,6 @@ if __name__ == "__main__":
         except Exception:
             print(tsp.nGoodEvents)
             print(stepSliceSum.shape)
-            ##print(stepSliceSum)
             step_slice_sum = np.zeros([666, 666])[tsp.regionSlice].astype("float32")
 
         if False and roiAndPixelSums is not None:

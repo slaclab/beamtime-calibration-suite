@@ -8,7 +8,9 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import matplotlib.pyplot as plt
+
 from calibrationSuite.psanaBase import PsanaBase
+
 
 class LinearityPlotsAutoranging(PsanaBase):
     def __init__(self):

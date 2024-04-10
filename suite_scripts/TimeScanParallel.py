@@ -8,10 +8,12 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
-from calibrationSuite.psanaBase import PsanaBase
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
+
+from calibrationSuite.psanaBase import PsanaBase
 
 ##from fitFineScan import *
 

@@ -7,11 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
-import calibrationSuite.loggingSetup as ls
 import logging
 import os
+
 import numpy as np
+
+import calibrationSuite.loggingSetup as ls
+from calibrationSuite.psanaBase import PsanaBase
 
 # for logging from current file
 logger = logging.getLogger(__name__)

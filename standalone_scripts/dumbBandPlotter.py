@@ -7,9 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 
 dataFile = sys.argv[1]
 row = eval(sys.argv[2])

@@ -7,11 +7,14 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import AutoMinorLocator
+
+from calibrationSuite.psanaBase import PsanaBase
+
 ##from fitFineScan import *
 
 

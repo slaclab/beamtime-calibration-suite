@@ -7,14 +7,14 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import DataSource
-
 import logging
 import os
 
-from calibrationSuite.suiteBase import SuiteBase
-import calibrationSuite.psana2 as psana2
+from psana import DataSource
+
 import calibrationSuite.psana1 as psana1
+import calibrationSuite.psana2 as psana2
+from calibrationSuite.suiteBase import SuiteBase
 
 psanaBaseNum = 0
 if os.getenv("SUITE_PSANA_NUM") == "1":

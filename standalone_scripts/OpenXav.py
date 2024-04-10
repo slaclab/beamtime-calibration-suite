@@ -7,8 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import matplotlib.pyplot as plt
 import h5py
+import matplotlib.pyplot as plt
 
 file_name = "../scan/TimeScanParallel_c0_r286_n1.h5"  # Update with your file name
 

@@ -8,10 +8,12 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
-from calibrationSuite.psanaBase import PsanaBase
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
+
+from calibrationSuite.psanaBase import PsanaBase
 
 ##from fitFineScan import *
 
@@ -72,20 +74,6 @@ class TimeScanParallel(PsanaBase):
             % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
         )
         # plt.clf()
-
-    '''
-    def analyzeData(self, delays, data, label):
-        edge = np.zeros(data.shape[0])
-        for m in range(data.shape[1]):
-            for r in range(data.shape[2]):
-                for c in range(data.shape[3]):
-                    d = data[:, m, r, c]
-                    p0 = estimateFineScanPars(delays, d)
-                    f = fineScanFunc
-                    coeff, var = curve_fit(f, delays, d, p0=p0)
-                    edge[m, r, c] = coeff[1]
-        return edge
-    '''
 
     def analyze_h5(self, dataFile, norm, label):
         import h5py

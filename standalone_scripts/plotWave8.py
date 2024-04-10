@@ -7,9 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
 import sys
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 data = np.load(sys.argv[1])
 if True:

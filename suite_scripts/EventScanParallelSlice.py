@@ -7,15 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import sys
-from calibrationSuite.psanaBase import PsanaBase
-import calibrationSuite.loggingSetup as ls
 import logging
-import numpy as np
-import h5py
 import os
+import sys
+
+import h5py
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
+
+import calibrationSuite.loggingSetup as ls
+from calibrationSuite.psanaBase import PsanaBase
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -147,20 +149,6 @@ class EventScanParallel(PsanaBase):
                 plt.savefig(pltFileName)
                 logger.info("Wrote file: " + pltFileName)
                 plt.close()
-
-    '''
-    def analyzeData(self, delays, data, label):
-        edge = np.zeros(data.shape[0])
-        for m in range(data.shape[1]):
-            for r in range(data.shape[2]):
-                for c in range(data.shape[3]):
-                    d = data[:, m, r, c]
-                    p0 = estimateFineScanPars(delays, d)
-                    f = fineScanFunc
-                    coeff, var = curve_fit(f, delays, d, p0=p0)
-                    edge[m, r, c] = coeff[1]
-        return edge
-    '''
 
     def analyze_h5(self, dataFile, label):
         data = h5py.File(dataFile)

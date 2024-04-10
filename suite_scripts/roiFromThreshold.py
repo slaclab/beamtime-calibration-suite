@@ -8,8 +8,11 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
+
 import numpy as np
+
 from calibrationSuite.psanaBase import PsanaBase
+
 
 class RoiFromThreshold(PsanaBase):
     def __init__(self):

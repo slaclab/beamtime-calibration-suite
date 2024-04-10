@@ -7,10 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import DataSource
 import os
-import numpy as np
+
 import h5py
+import numpy as np
+from psana import DataSource
 
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"

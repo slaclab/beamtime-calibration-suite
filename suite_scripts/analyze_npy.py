@@ -7,16 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
-import re
 import logging
 import os
+import re
+import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
 from runInfo import runInfoDict
 
 import calibrationSuite.loggingSetup as ls
+from calibrationSuite.psanaBase import PsanaBase
 
 # for logging from current file
 logger = logging.getLogger(__name__)

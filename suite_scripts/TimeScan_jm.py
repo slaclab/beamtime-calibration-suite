@@ -7,11 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import PsanaBase
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
-##from fitFineScan import *
+
+from calibrationSuite.psanaBase import PsanaBase
 
 
 class TimeScan(PsanaBase):
@@ -67,20 +67,6 @@ class TimeScan(PsanaBase):
         plt.clf()
 
     # plt.show()
-
-    '''
-    def analyzeData(self, delays, data, label):
-        edge = np.zeros(data.shape[0])
-        for m in range(data.shape[1]):
-            for r in range(data.shape[2]):
-                for c in range(data.shape[3]):
-                    d = data[:, m, r, c]
-                    p0 = estimateFineScanPars(delays, d)
-                    f = fineScanFunc
-                    coeff, var = curve_fit(f, delays, d, p0=p0)
-                    edge[m, r, c] = coeff[1]
-        return edge
-    '''
 
 if __name__ == "__main__":
     tsr = TimeScan()
