@@ -118,7 +118,9 @@ class BasicSuiteScript(PsanaBase):
         self.daqCode = 281
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
-        self.fakeBeamCode = "fakeBeamCode" in self.special
+        self.fakeBeamCode = False
+        if self.special is not None:
+            self.fakeBeamCode = "fakeBeamCode" in self.special
 
         ##mymodule = importlib.import_module(full_module_name)
 

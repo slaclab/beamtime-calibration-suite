@@ -72,8 +72,8 @@ if __name__ == "__main__":
                         if cn.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in cn.special):
                             continue
                 if frames is None:
-                    print("None frames should not happen")
-                    logger.info("empty non-None frames")
+                    print("None frames on beam event, should not happen")
+                    logger.info("None frames on beam event")
                     continue
 
             else:

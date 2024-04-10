@@ -20,7 +20,8 @@ for i in range(4):
     
 experimentHash = {
     "detectorType": "epixm",
-    "exp": "rixx1005922",
+    ##"exp": "rixx1005922",
+    "exp": "rixx1003721",
     "location": "RixEndstation",
     "seedCut":40, ## pure guess
     "neighborCut":10, ##pure guess
