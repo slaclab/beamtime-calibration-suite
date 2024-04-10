@@ -7,7 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
+# ruff: noqa: F821
+import psana
 import sys
 import numpy as np
 
@@ -16,13 +17,15 @@ run = eval(sys.argv[2])
 pvList = sys.argv[3].split(",")
 allNames = pvList.join("_")
 
-detList = [DataSource(exp=exp, run=run, intg_det=pv) for pv in pvList]
+detList = [psana.DataSource(exp=exp, run=run, intg_det=pv) for pv in pvList]
 data = [[]] * len(pvList)
+# where is ds coming from?
 myrun = next(ds.runs())
 while True:
     evt = next(myrun.events())
     if evt is None:
         break
+    # where do dsList and det come from? psana.dsList ??
     for n, ds in enumerate(dsList):
         data[n].append(det(evt))
 

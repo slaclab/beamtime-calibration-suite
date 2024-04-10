@@ -7,14 +7,14 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
+from psana import DataSource
 
 import logging
 import os
 
-from calibrationSuite.suiteBase import *
-from calibrationSuite.psana2 import *
-from calibrationSuite.psana1 import *
+from calibrationSuite.suiteBase import SuiteBase
+import calibrationSuite.psana2 as psana2
+import calibrationSuite.psana1 as psana1
 
 psanaBaseNum = 0
 if os.getenv("SUITE_PSANA_NUM") == "1":
@@ -29,7 +29,7 @@ if psanaBaseNum == 2:
     os.environ["PS_SMD_N_EVENTS"] = "50"
     os.environ["PS_SRV_NODES"] = "1"
 else:
-    from PSCalib.NDArrIO import load_txt
+    pass
 
 
 logger = logging.getLogger(__name__)
@@ -62,9 +62,9 @@ class PsanaBase(SuiteBase):
 
     def setupPsana(self):
         if psanaBaseNum == 2:
-            setupPsana2(self)
+            psana2.setupPsana2(self)
         else:
-            setupPsana1(self)
+            psana1.setupPsana1(self)
 
     ######## Start of getters
 
@@ -81,18 +81,62 @@ class PsanaBase(SuiteBase):
         else:
             return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
+    # uses get_ds, which is psana 1 vs 2 specific 
+    def getEvtFromRunsTooSmartForMyOwnGood(self):
+        for r in self.runRange:
+            self.run = r
+            self.ds = self.get_ds()
+            try:
+                evt = next(self.ds.events())
+                yield evt
+            except Exception:
+                continue
+
+    # uses get_ds, which is psana 1 vs 2 specific 
+    def getEvtFromRuns(self):
+        try:  ## can't get yield to work
+            evt = next(self.ds.events())
+            return evt
+        except StopIteration:
+            i = self.runRange.index(self.run)
+            try:
+                self.run = self.runRange[i + 1]
+                print("switching to run %d" % (self.run))
+                logger.info("switching to run %d" % (self.run))
+                self.ds = self.get_ds(self.run)
+            except Exception:
+                print("have run out of new runs")
+                logger.exception("have run out of new runs")
+                return None
+            ##print("get event from new run")
+            evt = next(self.ds.events())
+            return evt
+
+    # uses get_ds, which is psana 1 vs 2 specific 
+    def getEvtOld(self, run=None):
+        oldDs = self.ds
+        if run is not None:
+            self.ds = self.get_ds(run)
+        try:  ## or just yield evt I think
+            evt = next(self.ds.events())
+        except StopIteration:
+            self.ds = oldDs
+            return None
+        self.ds = oldDs
+        return evt
+
     def isKicked(self, evt):
         if psanaBaseNum == 2:
             allcodes = self.getEventCodes(evt)
             return allcodes[self.desiredCodes["120Hz"]]
         else:
-            return isKickedPsana1(self, evt)
+            return psana1.isKickedPsana1(self, evt)
 
     def getFlux(self, evt):
         if psanaBaseNum == 2:
             return self.flux
         else:
-            return getFluxPsana1(self, evt)
+            return psana1.getFluxPsana1(self, evt)
 
     def getEvt(self):
         if psanaBaseNum == 2:
@@ -115,9 +159,9 @@ class PsanaBase(SuiteBase):
 
     def getRawData(self, evt, gainBitsMasked=True):
         if psanaBaseNum == 2:
-            return getRawDataPsana2(self, evt, gainBitsMasked)
+            return psana2.getRawDataPsana2(self, evt, gainBitsMasked)
         else:
-            return getRawDataPsana1(self, evt, gainBitsMasked)
+            return psana1.getRawDataPsana1(self, evt, gainBitsMasked)
 
     def getScanValue(self, step=-1, useStringInfo=False):
         # for psana1, where we don't specify a step arg
@@ -138,7 +182,7 @@ class PsanaBase(SuiteBase):
 
 
 if __name__ == "__main__":
-    bSS = BasicSuiteScript()
+    bSS = PsanaBase()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()

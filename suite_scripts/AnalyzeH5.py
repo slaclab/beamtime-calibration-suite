@@ -14,10 +14,8 @@ import calibrationSuite.ancillaryMethods as ancillaryMethods
 
 ##import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 
 ##import sys
-import argparse
 from calibrationSuite.argumentParser import ArgumentParser
 
 import logging
@@ -58,7 +56,7 @@ class AnalyzeH5(object):
         try:
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-        except:
+        except Exception:
             ## do something useful here, maybe
             self.analysisType = None
             ## but for now
@@ -83,8 +81,8 @@ class AnalyzeH5(object):
         energyHist = None
         clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
         try:
-            energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
-        except:
+            energyHist = np.concatenate(energyHist, [h5["energyHistogram"][()] for h5 in self.h5Files])
+        except Exception:
             pass
 
         self.nBins = 100
@@ -135,7 +133,7 @@ class AnalyzeH5(object):
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
-        foo = ax.hist(energy[energy > 0], 100)
+        ##foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         figFileName = "%s/%s_r%d_c%d_%s_E.png" % (
@@ -238,12 +236,12 @@ class AnalyzeH5(object):
             popt, pcov = fitFunctions.curve_fit(
                 fitFunctions.gaussian, bins, y, [a, mean, std]
             )
-            mu = popt[1]
-            sigma = popt[2]
+            ##mu = popt[1]
+            ##sigma = popt[2]
             fittedFunc = fitFunctions.gaussian(bins, *popt)
             ax.plot(bins, fittedFunc, color="b")
             return popt
-        except:
+        except Exception:
             return 0, 0, 0
 
 

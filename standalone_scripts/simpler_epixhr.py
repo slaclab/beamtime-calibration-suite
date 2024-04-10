@@ -7,23 +7,19 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import DataSource
-from cfg_utils import *
-import numpy as np
-
+import psana
+from psmon import publish
+import cfg_utils as cfg_utils
 import sys
 
 expt = sys.argv[1]
 run = eval(sys.argv[2])
 
-ds = DataSource(exp="%s" % (expt), run=run)
+ds = psana.DataSource(exp="%s" % (expt), run=run)
 myrun = next(ds.runs())
 det = myrun.Detector("epixhr")
 
 
-from psmon import publish
-import psmon.plots as plots
-from psmon.plotting import Histogram, LinePlot, Image
 
 publish.local = True
 publish.plot_opts.aspect = 1
@@ -34,7 +30,7 @@ tim = myrun.Detector("timing")
 try:
     scan = myrun.Detector("scan")
     print(vars(scan))
-except:
+except Exception:
     pass
 
 
@@ -66,5 +62,5 @@ for nstep, step in enumerate(myrun.steps()):
     for nevt, evt in enumerate(step.events()):
         if nevt == 0:
             print(f"step {nstep}")
-            dump_det_config(det, detName)
-            dump_det_config(det, detName + "hw")
+            cfg_utils.dump_det_config(det, detName)
+            cfg_utils.dump_det_config(det, detName + "hw")

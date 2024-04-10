@@ -8,10 +8,14 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import os
+import sys
 import h5py
 from calibrationSuite.psanaBase import PsanaBase
 import calibrationSuite.loggingSetup as ls
 from matplotlib.ticker import AutoMinorLocator
+import numpy as np
+import matplotlib.pyplot as plt
+import logging
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -25,6 +29,8 @@ ls.setupScriptLogging(
 class EventScanParallel(PsanaBase):
     def __init__(self):
         super().__init__()
+        self.className = self.__class__.__name__
+
 
     def plotData(self, data, pixels, eventNumbers, label):
         if "timestamp" in label:
@@ -109,6 +115,7 @@ class EventScanParallel(PsanaBase):
             logger.info("Wrote file: " + figFileName)
             plt.clf()
 
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -120,6 +127,7 @@ class EventScanParallel(PsanaBase):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    '''
 
     def analyze_h5(self, dataFile, label):
         data = h5py.File(dataFile)
@@ -129,8 +137,8 @@ class EventScanParallel(PsanaBase):
 
         pixels = data["pixels"][()]
         rois = data["rois"][()]
-        pixels = sortArrayByList(ts, pixels)
-        rois = sortArrayByList(ts, rois)
+        pixels = self.sortArrayByList(ts, pixels)
+        rois = self.sortArrayByList(ts, rois)
 
         # get time differences
         ts.sort()

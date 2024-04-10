@@ -7,9 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
 from calibrationSuite.psanaBase import PsanaBase
-from calibrationSuite.cluster import Cluster, BuildClusters
-
+from calibrationSuite.cluster import BuildClusters
+import calibrationSuite.fitFunctions as fitFunctions
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 class SimpleClusters(PsanaBase):
     def __init__(self):
@@ -18,7 +22,7 @@ class SimpleClusters(PsanaBase):
     def plotData(self, clusters, label):
         ax = plt.subplot()
         energy = clusters[:, :, 0]  ##.flatten()
-        foo = ax.hist(energy[energy > 0], 100)
+        ##foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         plt.savefig(
@@ -64,7 +68,7 @@ class SimpleClusters(PsanaBase):
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
                         fittedFunc = fitFunctions.gaussian(bins, *popt)
                         ax.plot(bins, fittedFunc, color="b")
-                    except:
+                    except Exception:
                         pass
                     ax.set_xlabel("energy (keV)")
                     ax.set_title("pixel %d,%d in slice, small cluster cuts" % (i, j))
@@ -113,7 +117,7 @@ class SimpleClusters(PsanaBase):
         import h5py
 
         data = h5py.File(dataFile)
-        simpleClusters = data["clusterData"][()]
+        ##simpleClusters = data["clusterData"][()]
         ##self.plotData(simpleClusters, label)
         energyHist = data["energyHistogram"][()]
         _, bins = np.histogram(energyHist, 250, [-5, 45])
@@ -197,7 +201,7 @@ if __name__ == "__main__":
             if gain is None:
                 gain = sic.det.calibconst["pedestals"][0][gainMode]
                 ## something wrong with the overall logic here
-        except:
+        except Exception:
             print("May not have a detector object in this data stream...")
             print("sic.det:", sic.det)
             pass
@@ -252,7 +256,7 @@ if __name__ == "__main__":
         h, _ = np.histogram(frame[sic.regionSlice], 250, [-5, 45])
         try:
             hSum += h
-        except:
+        except Exception:
             hSum = np.array(h)  ##.astype(np.uint32)
 
         nClusters = 0

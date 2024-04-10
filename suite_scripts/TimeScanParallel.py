@@ -7,7 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
 from calibrationSuite.psanaBase import PsanaBase
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 
 ##from fitFineScan import *
 
@@ -88,6 +92,7 @@ class TimeScanParallel(PsanaBase):
             )
             plt.clf()
 
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -99,6 +104,7 @@ class TimeScanParallel(PsanaBase):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    '''
 
     def analyze_h5(self, dataFile, norm, label):
         import h5py
@@ -186,13 +192,15 @@ if __name__ == "__main__":
                 continue
             nGoodInStep += 1
 
+            '''
             if False and tsp.doEveryPixel:
                 try:
                     stepSum += frames.astype(float)
                     stepEvents += 1
-                except:
+                except Exception:
                     stepSum = frames
                     stepEvents = 1
+            '''
 
             for i, roi in enumerate(tsp.ROIs):
                 ##m = np.multiply(roi, frames).mean()
@@ -235,6 +243,7 @@ if __name__ == "__main__":
         smd.save_summary(stepMeans)
     smd.done()
 
+    '''
     if False:
         np.save(
             "%s/means_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.camera, tsp.run, tsp.exp),
@@ -251,3 +260,4 @@ if __name__ == "__main__":
 
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")
+    '''

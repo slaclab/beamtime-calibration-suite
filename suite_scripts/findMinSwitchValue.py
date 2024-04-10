@@ -8,7 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
+import numpy as np
+import matplotlib.pyplot as plt
 
 class FindMinSwitchValue(PsanaBase):
     def __init__(self):
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         fG1 = rawFrames >= fmsv.g0cut
         try:
             b = np.bitwise_and(fG1, rawFrames < minRaw)
-        except:
+        except Exception:
             minRaw = rawFrames * 0 + 0xFFFF
             b = np.bitwise_and(fG1, rawFrames < minRaw)
 

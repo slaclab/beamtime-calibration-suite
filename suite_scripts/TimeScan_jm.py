@@ -8,7 +8,9 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 ##from fitFineScan import *
 
 
@@ -66,6 +68,7 @@ class TimeScan(PsanaBase):
 
     # plt.show()
 
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -77,7 +80,7 @@ class TimeScan(PsanaBase):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
-
+    '''
 
 if __name__ == "__main__":
     tsr = TimeScan()
@@ -159,7 +162,7 @@ if __name__ == "__main__":
                 try:
                     stepSum += frames.astype(float)
                     stepEvents += 1
-                except:
+                except Exception:
                     stepSum = frames
                     stepEvents = 1
 
@@ -195,7 +198,7 @@ if __name__ == "__main__":
     if tsr.doEveryPixel:
         if stepEvents != 0:
             stepMeanFrames.append(stepSum / stepEvents)
-        stepMeanFrames = np.array(sortArrayByList(delays, stepMeanFrames))
+        stepMeanFrames = np.array(tsr.sortArrayByList(delays, stepMeanFrames))
         np.save(
             "%s/%s_allMeanFrames_c%d_r%d.npy"
             % (tsr.outputDir, tsr.className, tsr.camera, tsr.run),
@@ -203,9 +206,9 @@ if __name__ == "__main__":
         )
         ##tsr.analyzeData(np.array(sorted(delays)), stepMeanFrames, 'test')
 
-    roiMeans = sortArrayByList(delays, roiMeans)
-    fluxes = sortArrayByList(delays, fluxes)
-    ratios = sortArrayByList(delays, ratios)
+    roiMeans = tsr.sortArrayByList(delays, roiMeans)
+    fluxes = tsr.sortArrayByList(delays, fluxes)
+    ratios = tsr.sortArrayByList(delays, ratios)
     delays = sorted(delays)
 
     np.save(

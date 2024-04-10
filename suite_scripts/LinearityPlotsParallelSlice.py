@@ -7,10 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import *
+import logging
+import os
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+import h5py
+from scipy.optimize import curve_fit
+
+from calibrationSuite.psanaBase import PsanaBase
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
-
 import calibrationSuite.loggingSetup as ls
 
 # for logging from current file
@@ -42,7 +49,7 @@ class LinearityPlotsParallel(PsanaBase):
             print("positive events:", "positive" in self.special)
             logger.info("positive events:" + str("positive" in self.special))
 
-        except:
+        except Exception:
             pass
 
     def plotAutorangingData(self, g0s, g1s, g0Fluxes, g1Fluxes, label):
@@ -471,7 +478,7 @@ if __name__ == "__main__":
 
         if nGoodEvents > lpp.maxNevents:
             break
-
+    '''
     if False:
         fileName = "%s/%s_%s_means_r%d_c%d_%s.npy" % (
             lpp.outputDir,
@@ -546,3 +553,4 @@ if __name__ == "__main__":
     smd.done()
 
     lpp.dumpEventCodeStatistics()
+    '''

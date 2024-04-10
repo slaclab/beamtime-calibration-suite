@@ -7,10 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import matplotlib.pyplot as plt
 from calibrationSuite.psanaBase import PsanaBase
 
-
-class LinearityPlotsAutoranging(BasicSuiteScript):
+class LinearityPlotsAutoranging(PsanaBase):
     def __init__(self):
         super().__init__("scan")  ##self)
 

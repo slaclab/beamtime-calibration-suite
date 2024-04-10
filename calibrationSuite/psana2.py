@@ -7,8 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import *
-
+import psana
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +23,8 @@ def setupPsana2(baseObj):
     try:
         baseObj.step_value = baseObj.myrun.Detector("step_value")
         baseObj.step_docstring = baseObj.myrun.Detector("step_docstring")
-    except:
+    # use 'Exception' to avoid excepting system-exiting exceptions (like KeyboardInterrupt), and also to appease linter    
+    except Exception:
         baseObj.step_value = baseObj.step_docstring = None
 
     ## baseObj.det = Detector('%s.0:%s.%d' %(baseObj.location, baseObj.detType, baseObj.camera), baseObj.ds.env())
@@ -40,13 +41,13 @@ def setupPsana2(baseObj):
 
     try:
         baseObj.mfxDg1 = baseObj.myrun.Detector("MfxDg1BmMon")
-    except:
+    except Exception:
         baseObj.mfxDg1 = None
         print("No flux source found")  ## if baseObj.verbose?
         logger.exception("No flux source found")
     try:
         baseObj.mfxDg2 = baseObj.myrun.Detector("MfxDg2BmMon")
-    except:
+    except Exception:
         baseObj.mfxDg2 = None
     ## fix hardcoding in the fullness of time
     baseObj.detEvts = 0
@@ -54,13 +55,13 @@ def setupPsana2(baseObj):
 
     baseObj.evrs = None
     try:
-        baseObj.wave8 = Detector(baseObj.fluxSource, baseObj.ds.env())
-    except:
+        baseObj.wave8 = psana.Detector(baseObj.fluxSource, baseObj.ds.env())
+    except Exception:
         baseObj.wave8 = None
     baseObj.config = None
     try:
-        baseObj.controlData = Detector("ControlData")
-    except:
+        baseObj.controlData = psana.Detector("ControlData")
+    except Exception:
         baseObj.controlData = None
 
 

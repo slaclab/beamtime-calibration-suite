@@ -7,10 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
+import numpy as np
 from calibrationSuite.psanaBase import PsanaBase
 
-
-class RoiFromThreshold(BasicSuiteScript):
+class RoiFromThreshold(PsanaBase):
     def __init__(self):
         super().__init__()  ##self)
         print("in", sys.argv[0])
@@ -46,7 +47,7 @@ if __name__ == "__main__":
 
         try:
             aboveThresholdPixels = np.bitwise_or(thresholded, aboveThresholdPixels)
-        except:
+        except Exception:
             ##print("first time hopefully")
             aboveThresholdPixels = thresholded  ##copy?
 

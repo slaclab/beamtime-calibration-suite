@@ -21,7 +21,7 @@ class DetectorInfo:
 
         knownTypes = ["epixhr", "epixM", "archon"]
         if detType not in knownTypes:
-            raise Exception("type %s not in known types" % (detType, knownTypes))
+            raise Exception("type %s not in known types %s" % (detType, knownTypes))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.chosenCameraType = None
@@ -53,8 +53,9 @@ class DetectorInfo:
         self.clusterShape = [3, 3]
 
     def setup_epixM(self, version=0):
-        # todo: setup detector here
-        temp = 0  # make python happy
+        # todo: setup detector here'
+        # make python happy
+        temp = 0 # noqa: F841 
 
     def setup_rixsCCD(self, mode="1d", version=0):
         self.nTestPixelsPerBank = 36

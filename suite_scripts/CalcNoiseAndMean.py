@@ -8,10 +8,12 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-from calibrationSuite.Stats import *
+from calibrationSuite.Stats import Stats
 import calibrationSuite.loggingSetup as ls
 import os
 import numpy as np
+import logging
+
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -82,7 +84,7 @@ if __name__ == "__main__":
                             continue
                     try:
                         frames = frames[0]
-                    except:
+                    except Exception:
                         if frames is None:
                             ##print("None frames")
                             continue
@@ -150,7 +152,7 @@ if __name__ == "__main__":
                     )[cn.regionSlice],
                 )
                 logging.info("Wrote file: " + meanCorrelationFileName)
-            except:
+            except Exception:
                 ## probably rms = 0.
                 continue
 

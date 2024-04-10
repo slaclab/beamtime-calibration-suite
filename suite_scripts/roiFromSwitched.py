@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
+import numpy as np
 
 class RoiFromSwitched(PsanaBase):
     def __init__(self):
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         fG1 = rawFrames >= rfs.g0cut
         try:
             switchedPixels = np.bitwise_or(fG1, switchedPixels)
-        except:
+        except Exception:
             ##print("first time hopefully")
             switchedPixels = fG1  ##copy?
 

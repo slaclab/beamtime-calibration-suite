@@ -8,6 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import binned_statistic
 import logging
 

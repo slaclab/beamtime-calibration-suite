@@ -47,7 +47,7 @@ class PersistenceCheckParallel(PsanaBase):
         rois = d[:, 0:offset]
         pixels = d[:, offset:]
         runString = "_r%d" % (self.run)
-        self.plotData(rois.T, pixels.T, delays, norm + label + runString)
+        self.plotData(rois.T, pixels.T, delays, label + runString)
 
 
 if __name__ == "__main__":
@@ -59,10 +59,10 @@ if __name__ == "__main__":
         print("done with standalone analysis of %s, exiting" % (pcp.file))
         sys.exit(0)
 
-    pc.setupPsana()
+    pcp.setupPsana()
     smd = pcp.ds.smalldata(
         filename="%s/%s_c%d_r%d_n%d.h5"
-        % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pc.size)
+        % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pcp.size)
     )
 
     nEvent = -1

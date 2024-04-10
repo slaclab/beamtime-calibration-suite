@@ -7,8 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
 from calibrationSuite.psanaBase import PsanaBase
-from calibrationSuite.cluster import Cluster, BuildClusters
+from calibrationSuite.cluster import BuildClusters
+import calibrationSuite.fitFunctions as fitFunctions
+from scipy.optimize import curve_fit
 
 
 class SimpleClusters(PsanaBase):
@@ -18,7 +23,7 @@ class SimpleClusters(PsanaBase):
     def plotData(self, clusters, label):
         ax = plt.subplot()
         energy = clusters[:, :, 0]  ##.flatten()
-        foo = ax.hist(energy[energy > 0], 100)
+        ##foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         plt.savefig(
@@ -64,7 +69,7 @@ class SimpleClusters(PsanaBase):
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
                         fittedFunc = fitFunctions.gaussian(bins, *popt)
                         ax.plot(bins, fittedFunc, color="b")
-                    except:
+                    except Exception:
                         pass
                     ax.set_xlabel("energy (keV)")
                     ax.set_title("pixel %d,%d in slice, small cluster cuts" % (i, j))

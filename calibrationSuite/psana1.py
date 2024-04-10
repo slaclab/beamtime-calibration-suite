@@ -7,9 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.psanaBase import *
+import psana
 import logging
-
 logger = logging.getLogger(__name__)
 
 
@@ -20,19 +19,19 @@ def setupPsana1(baseObj):
         baseObj.run = baseObj.runRange[0]
         baseObj.ds = baseObj.get_ds()
 
-    baseObj.det = Detector(
+    baseObj.det = psana.Detector(
         "%s.0:%s.%d" % (baseObj.location, baseObj.detType, baseObj.camera),
         baseObj.ds.env(),
     )
     baseObj.evrs = None
     try:
-        baseObj.wave8 = Detector(baseObj.fluxSource, baseObj.ds.env())
-    except:
+        baseObj.wave8 = psana.Detector(baseObj.fluxSource, baseObj.ds.env())
+    except Exception:
         baseObj.wave8 = None
     baseObj.config = None
     try:
-        baseObj.controlData = Detector("ControlData")
-    except:
+        baseObj.controlData = psana.Detector("ControlData")
+    except Exception:
         baseObj.controlData = None
 
 
@@ -47,19 +46,19 @@ def getFluxPsana1(baseObj, evt):
         try:
             if f < baseObj.fluxCut:
                 return None
-        except:
+        except Exception:
             pass
-    except:
+    except Exception:
         return None
     return f
 
 
 def isKickedPsana1(baseObj, evt):
     try:
-        evr = evt.get(EvrData.DataV4, baseObj.evrs[0])
-    except:
+        evr = evt.get(psana.EvrData.DataV4, baseObj.evrs[0])
+    except Exception:
         baseObj.get_evrs()
-        evr = evt.get(EvrData.DataV4, baseObj.evrs[0])
+        evr = evt.get(psana.EvrData.DataV4, baseObj.evrs[0])
 
     ##        kicked = False
     ##        try:
@@ -71,7 +70,7 @@ def isKickedPsana1(baseObj, evt):
         for ec in evr.fifoEvents():
             if ec.eventCode() == 137:
                 kicked = False
-    except:
+    except Exception:
         pass
     return kicked
 

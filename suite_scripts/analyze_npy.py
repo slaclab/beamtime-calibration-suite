@@ -10,10 +10,11 @@
 from calibrationSuite.psanaBase import PsanaBase
 import matplotlib.pyplot as plt
 import numpy as np
-import sys, re
+import sys
+import re
 import logging
 import os
-from runInfo import *
+from runInfo import runInfoDict
 
 import calibrationSuite.loggingSetup as ls
 
@@ -91,7 +92,7 @@ class AnalyzeOneScan(object):
         ax[1].hist(d.clip(*tuple(g0Range)), 100)
         ax[1].set_title(stat0)
 
-        figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0, stat1)
+        figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0)
         plt.savefig(figFileName)
         plt.close()
 
@@ -221,7 +222,7 @@ if __name__ == "__main__":
 
     try:
         statsArray = [sys.argv[2].split(",")]
-    except:
+    except Exception:
         pass
 
     label = f.split(".npy")[0]
@@ -236,11 +237,12 @@ if __name__ == "__main__":
             scanObj = LinearityInfo()
             if statsArray is None:
                 statsArray = [["g1min", "g1intercept"]]
+        '''
         elif "Foo" in f.split(",")[0]:  ##fake example
-            scanObj = FooInfo()
+            scanObj = FooInfo() # noqa: F405
             if statsArray is not None:
                 statsArray = [["g1min", "g1intercept"]]
-
+        '''
         a = CompareMultipleScans(scanObj, statsArray, dataArray, runList, label)
         a.analyze()
 

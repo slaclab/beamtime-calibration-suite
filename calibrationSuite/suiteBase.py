@@ -7,19 +7,15 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
+import psana
 
 import os
 import sys
 import logging
-import sys
-import os
 import importlib.util
 import numpy as np
 from mpi4py import MPI
 
-from calibrationSuite.fitFunctions import *
-from calibrationSuite.ancillaryMethods import *
 from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
 
@@ -145,7 +141,7 @@ class SuiteBase(object):
             self.location = self.args.location
         self.maxNevents = self.args.maxNevents
         self.skipNevents = self.args.skipNevents
-        if self.outputDir == None:
+        if self.outputDir is None:
             self.outputDir = self.args.path
 
         # if set, output folders will be relative to OUTPUT_ROOT
@@ -248,42 +244,13 @@ class SuiteBase(object):
         self.fpStatus = self.det.status(evt)  ## does this work?
         self.fpRMS = self.det.rms(evt)  ## does this work?
 
-    def getEvtFromRunsTooSmartForMyOwnGood(self):
-        for r in self.runRange:
-            self.run = r
-            self.ds = self.get_ds()
-            try:
-                evt = next(self.ds.events())
-                yield evt
-            except:
-                continue
-
-    def getEvtFromRuns(self):
-        try:  ## can't get yield to work
-            evt = next(self.ds.events())
-            return evt
-        except StopIteration:
-            i = self.runRange.index(self.run)
-            try:
-                self.run = self.runRange[i + 1]
-                print("switching to run %d" % (self.run))
-                logger.info("switching to run %d" % (self.run))
-                self.ds = self.get_ds(self.run)
-            except:
-                print("have run out of new runs")
-                logger.exception("have run out of new runs")
-                return None
-            ##print("get event from new run")
-            evt = next(self.ds.events())
-            return evt
-
     def get_evrs(self):
         if self.config is None:
             self.get_config()
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == psana.EvrData.ConfigV7:
                 self.evrs.append(key.src())
 
     def getPingPongParity(self, frameRegion):
@@ -298,7 +265,7 @@ class SuiteBase(object):
             return None
         try:
             return self.mfxDg1.raw.peakAmplitude(evt)
-        except:
+        except Exception:
             return None
 
     def _getFlux(self, evt):
@@ -312,13 +279,13 @@ class SuiteBase(object):
                 * self.fluxSign
             )
             ##print(f)
-        except Exception as e:
+        except Exception:
             # print(e)
             return None
         try:
             if f < self.fluxCut:
                 return None
-        except:
+        except Exception:
             pass
         return f
 
@@ -334,25 +301,13 @@ class SuiteBase(object):
     def getTimestamp(self, evt):
         return evt.timestamp
 
-    def getEvtOld(self, run=None):
-        oldDs = self.ds
-        if run is not None:
-            self.ds = self.get_ds(run)
-        try:  ## or just yield evt I think
-            evt = next(self.ds.events())
-        except StopIteration:
-            self.ds = oldDs
-            return None
-        self.ds = oldDs
-        return evt
-
     def getNextEvtFromGen(self, gen):
         ## this is needed to get flux information out of phase with detector
         ## information in mixed lcls1/2 mode
         for nevt, evt in enumerate(gen):
             try:
                 self.flux = self._getFlux(evt)
-            except:
+            except Exception:
                 pass
             if self.det.raw.raw(evt) is None:
                 continue
@@ -426,7 +381,7 @@ class SuiteBase(object):
                     frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
                     ##if r == 280 and rand > 0.999:
                     ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except:
+                except Exception:
                     rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
@@ -463,7 +418,7 @@ class SuiteBase(object):
                     ] -= colCM
                     ##if r == 280 and rand > 0.999:
                     ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
-                except:
+                except Exception:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")

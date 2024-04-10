@@ -8,7 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
+import numpy as np
+import matplotlib.pyplot as plt
 
 class HistogramFluxEtc(PsanaBase):
     def __init__(self):
@@ -61,7 +62,7 @@ if __name__ == "__main__":
             ##break
         try:
             eventCodes += hfe.getEventCodes(evt)
-        except:
+        except Exception:
             eventCodes = np.array(hfe.getEventCodes(evt))
 
         flux = hfe.getFlux(evt)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
             continue
         try:
             meanFrames += frames
-        except:
+        except Exception:
             meanFrames = frames
 
         nGoodEvents += 1

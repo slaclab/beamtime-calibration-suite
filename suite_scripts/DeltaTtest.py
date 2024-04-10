@@ -8,7 +8,10 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
+import numpy as np
+import sys
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 
 class EventScanParallel(PsanaBase):
     def __init__(self):
@@ -124,6 +127,7 @@ class EventScanParallel(PsanaBase):
                 )
                 plt.close()
 
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -135,6 +139,7 @@ class EventScanParallel(PsanaBase):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    '''
 
     def analyze_h5(self, dataFile, label):
         import h5py
@@ -154,7 +159,7 @@ class EventScanParallel(PsanaBase):
                 % (self.outputDir, self.camera, self.run, self.exp),
                 np.array(bitSlice),
             )
-        except:
+        except Exception:
             pass
 
         pulseIds.sort()
@@ -165,8 +170,8 @@ class EventScanParallel(PsanaBase):
         )
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
-        pixels = sortArrayByList(ts, pixels)
-        rois = sortArrayByList(ts, rois)
+        pixels = self.sortArrayByList(ts, pixels)
+        rois = self.sortArrayByList(ts, rois)
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
@@ -260,7 +265,7 @@ if __name__ == "__main__":
 
             try:
                 bitSliceSum += r
-            except:
+            except Exception :
                 bitSliceSum = r.astype(np.uint32)
 
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])

@@ -12,6 +12,8 @@ import logging
 import os
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 
 ##from fitFineScan import *
 
@@ -33,7 +35,7 @@ class TimeScanParallel(PsanaBase):
         try:
             print("positive events:", "positive" in self.special)
             logger.info("positive events:" + (["positive" in self.special]))
-        except:
+        except Exception:
             pass
 
     def plotData(self, rois, pixels, delays, label):
@@ -136,6 +138,7 @@ class TimeScanParallel(PsanaBase):
             plt.savefig(figFileName)
             plt.close()
 
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -147,6 +150,7 @@ class TimeScanParallel(PsanaBase):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    '''
 
     def analyze_h5(self, dataFile, norm, label):
         import h5py
@@ -275,7 +279,7 @@ if __name__ == "__main__":
             try:
                 stepSliceSum += frames[0][tsp.regionSlice]
                 ##stepEvents += 1
-            except:
+            except Exception:
                 stepSliceSum = frames[0][tsp.regionSlice].astype(np.float32)
                 ##stepEvents = 1
 
@@ -310,7 +314,7 @@ if __name__ == "__main__":
         step_nsum = smd.sum(nGoodInStep)
         try:
             step_slice_sum = smd.sum(stepSliceSum)
-        except:
+        except Exception:
             print(tsp.nGoodEvents)
             print(stepSliceSum.shape)
             ##print(stepSliceSum)
@@ -329,6 +333,7 @@ if __name__ == "__main__":
         smd.save_summary(stepMeans)
     smd.done()
 
+    '''
     if False:
         meansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (
             tsp.outputDir,
@@ -362,3 +367,4 @@ if __name__ == "__main__":
         tsp.plotData(roiMeans, delays, "signal")
 
         tsp.dumpEventCodeStatistics()
+    '''

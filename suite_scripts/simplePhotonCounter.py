@@ -8,8 +8,10 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from calibrationSuite.psanaBase import PsanaBase
-
 import calibrationSuite.loggingSetup as ls
+import logging
+import os
+import numpy as np
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -47,6 +49,7 @@ if __name__ == "__main__":
                 raise Exception
             print("using gain correction", gain)
 
+            rawFrames = spc.getRawData(evt, gainBitsMasked=False) #??
             frames = rawFrames.astype("float") - spc.fakePedestalFrame
             frames /= gain  ## this helps with the bit shift
             spc.photonCut = 6.0
@@ -60,7 +63,7 @@ if __name__ == "__main__":
             continue
         try:
             thresholded += (frames > spc.photonCut) * 1.0
-        except:
+        except Exception:
             thresholded = (frames > spc.photonCut) * 1.0
 
         nGoodEvents += 1
