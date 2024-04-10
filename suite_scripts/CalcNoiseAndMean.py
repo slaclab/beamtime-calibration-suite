@@ -71,16 +71,11 @@ if __name__ == "__main__":
                     if cn.special is not None and "parity" in cn.special:
                         if cn.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in cn.special):
                             continue
-                    try:
-                        frames = frames[0]
-                    except:
-                        if frames is None:
-                            ##print("None frames")
-                            continue
+                if frames is None:
+                    print("None frames should not happen")
+                    logger.info("empty non-None frames")
+                    continue
 
-                        print("empty non-None frames")
-                        logger.info("empty non-None frames")
-                        continue
             else:
                 ##print(ec)
                 continue
@@ -90,10 +85,11 @@ if __name__ == "__main__":
                 continue
             for i, p in enumerate(cn.singlePixels):
                 try:
-                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
+                    statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
                 except:
                     statsArray[i] = Stats(frames.shape)
-                    statsArray[i].accumulate(np.double(frames), frames[p[1:]])
+                    statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
+                    
         stats = statsArray[2]  ## only matters for cross-correlation
         noise = stats.rms()
         means = stats.mean()

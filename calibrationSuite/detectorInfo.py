@@ -22,7 +22,7 @@ class DetectorInfo:
         self.nBanksCol = -1
         self.nRowsPerBank = -1
         self.nColsPerBank = -1
-        self.dimension = -1
+        self.dimension = 3 ## suite attempts not to know
         self.nModules = -1
         self.aduPerKeV = None
         
@@ -58,6 +58,8 @@ class DetectorInfo:
         #self.gainMode = self.getGainMode()
         self.preferredCommonMode = 'regionCommonMode'
         self.clusterShape = [3,3]
+        self.seedCut = 4 ## maybe the minimum sensible
+        self.neighborCut = 0.5 ## probably too low given the noise
 
     def setup_epixM(self, version=0):
         self.nModules = 4
@@ -70,9 +72,10 @@ class DetectorInfo:
         self.nColsPerBank = self.nCols/self.nBanksCol
         self.preferredCommonMode = 'rowCommonMode'## guess
         self.clusterShape = [3,3]
-        self.dimension = 3
         self.gainMode = None ## may want to know about default, softHigh, softLow
         self.aduPerKeV = 666
+        self.seedCut = 4 ## hopefully can be lowered
+        self.neighborCut = 0.5 ## ditto
         
     def setup_rixsCCD(self, mode='1d', version=0):
         self.nTestPixelsPerBank = 36
@@ -80,7 +83,7 @@ class DetectorInfo:
         self.nCols = 4800 - self.nBanks*self.nTestPixelsPerBank
         self.preferredCommonMode = 'rixsCCDTestPixelSubtraction'
         if mode == '1d':
-            self.nRows = 300
+            self.nRows = 1
             self.clusterShape = [1,5] ## might be [1,3]
         else:
             self.nRows = 1200

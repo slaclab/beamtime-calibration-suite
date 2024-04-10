@@ -129,9 +129,16 @@ if __name__ == "__main__":
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = int(50 * 50 / 3 / 3 * 0.1 * 2)
-    seedCut = 4
-    neighborCut = 0.5
-    sic.clusterElements = ["energy", "row", "col", "nPixels", "isSquare"]
+    try:
+        seedCut = sic.detectorInfo.seedCut
+    except:
+        seedCut = 4
+    try:
+        neighborCut = sic.detectorInfo.neighborCut
+    except:
+        neighborCut = 0.5
+
+    sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
     nClusterElements = len(sic.clusterElements)
 
     ##sic.slices = [np.s_[0:100, 0:100], np.s_[200:300, 200:300]] ## fix this
@@ -176,7 +183,7 @@ if __name__ == "__main__":
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
-        if not sic.isBeamEvent(evt):
+        if not sic.skip283 and not sic.isBeamEvent(evt)
             continue
 
         rawFrames = sic.getRawData(evt)
@@ -185,7 +192,7 @@ if __name__ == "__main__":
 
         frames = None
         if sic.fakePedestal is not None:
-            frames = rawFrames.astype("float") - sic.fakePedestalFrame
+            frames = rawFrames.astype("float") - sic.fakePedestal
         elif pedestal is not None:
             frames = rawFrames.astype("float") - pedestal
         if frames is not None and gain is not None:
@@ -202,11 +209,11 @@ if __name__ == "__main__":
             if "regionCommonMode" in sic.special:
                 frame = sic.regionCommonModeCorrection(frame, sic.regionSlice, 2.0)
             if "rowCommonMode" in sic.special:
-                frame = sic.rowCommonModeCorrection(frame, 2.0)
+                frames = sic.rowCommonModeCorrection3d(frames, 2.0)
             if "colCommonMode" in sic.special:
-                frame = sic.colCommonModeCorrection(frame, 2.0)
+                frames = sic.colCommonModeCorrection3d(frames, 2.0)
 
-        if frame is None:
+        if frames is None:
             ##print("no frame")
             continue
         flux = sic.flux
@@ -219,7 +226,7 @@ if __name__ == "__main__":
             continue
 
         ## histogram frame to check pedestal
-        h, _ = np.histogram(frame[sic.regionSlice], 250, [-5, 45])
+        h, _ = np.histogram(frames[sic.regionSlice], 250, [-5, 45])
         try:
             hSum += h
         except:
@@ -227,18 +234,23 @@ if __name__ == "__main__":
 
         nClusters = 0
         clusterArray = np.zeros((maxClusters, nClusterElements))
-        bc = BuildClusters(frame[sic.regionSlice], seedCut, neighborCut)
-        fc = bc.findClusters()
-
-        for c in fc:
-            ##print(nClusters)
-            if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
-                clusterArray[nClusters] = [c.eTotal, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
-                nClusters += 1
+        for m in sic.analyzedModules:
             if nClusters == maxClusters:
-                print("have found %d clusters, mean energy:" % (maxClusters), np.array(clusterArray)[:, 0].mean())
-                ##print(frame)
                 continue
+            if sic.doSlice:
+                bc = BuildClusters(frames[m][sic.regionSlice], seedCut, neighborCut)
+            else
+                bc = BuildClusters(frames[m], seedCut, neighborCut)
+            fc = bc.findClusters()
+
+            for c in fc:
+                if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
+                    clusterArray[nClusters] = [c.eTotal, m, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
+                    nClusters += 1
+                if nClusters == maxClusters:
+                    print("have found %d clusters, mean energy:" % (maxClusters), np.array(clusterArray)[:, 0].mean())
+                    ## had continue here
+                    break
 
         smd.event(evt, clusterData=clusterArray)
 

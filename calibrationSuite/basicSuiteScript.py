@@ -61,18 +61,18 @@ class BasicSuiteScript(PsanaBase):
         except:
             pass
         self.ROIfileNames = None
-        try:
-            ##if True:
+        ##try:
+        if True:
             self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
-                self.ROIs.append(np.load(f + ".npy"))
+                self.ROIs.append(np.load(f))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
             except:
                 pass
-        ##if False:
-        except:
+        if False:
+        ##except:
             if self.ROIfileNames is not None:
                 print("had trouble finding", self.ROIfileNames)
                 for currName in self.ROIfileNames:
@@ -109,6 +109,7 @@ class BasicSuiteScript(PsanaBase):
         except:
             self.fluxSource = None
 
+        self.special = self.args.special
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
         self.nDaqCodeEvents = 0
@@ -117,7 +118,7 @@ class BasicSuiteScript(PsanaBase):
         self.daqCode = 281
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
-        self.fakeBeamCode = False
+        self.fakeBeamCode = "fakeBeamCode" in self.special
 
         ##mymodule = importlib.import_module(full_module_name)
 
@@ -209,7 +210,11 @@ class BasicSuiteScript(PsanaBase):
         else:
             self.detType = self.args.detType
 
-        self.special = self.args.special
+        try:
+            self.analyzedModules = self.experimentHash["analyzedModules"]
+        except:
+            self.analyzedModules = range(self.detectorInfo.nModules)
+            
         ## done with configuration
 
         self.ds = None
@@ -310,7 +315,8 @@ class BasicSuiteScript(PsanaBase):
         if ec[self.beamCode]:
             self.nBeamCodeEvents += 1
             return True
-        return False
+        ## for FEE, ASC, ...
+        return self.fakeBeamCode##False
 
     def dumpEventCodeStatistics(self):
         print(
