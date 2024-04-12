@@ -365,7 +365,13 @@ class BasicSuiteScript(PsanaBase):
             return frames & self.gainBitsMask
         return frames
 
-
+    def addFakePhotons(self, frames, occupancy, E, width):
+        shape = frames.shape
+        occ = np.random.random(shape)
+        fakes = np.random.normal(E, width, shape)
+        fakes[occ>occupancy] = 0
+        return frames + fakes, (fakes>0).sum()
+    
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")

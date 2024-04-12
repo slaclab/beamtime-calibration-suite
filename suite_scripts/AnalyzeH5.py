@@ -128,7 +128,7 @@ class AnalyzeH5(object):
         
         ax = plt.subplot()
         energy = clusters[:, :, 0]  ##.flatten()
-        maximumModule = clusters[:,:,1].max()
+        maximumModule = int(clusters[:,:,1].max())
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
@@ -148,6 +148,7 @@ class AnalyzeH5(object):
 
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
+        m = 1## temp hack
         fitInfo = np.zeros((maximumModule, rows, cols, 5))  ## mean, std, area, mu, sigma
         for i in range(rows):
             for j in range(cols):
@@ -162,12 +163,14 @@ class AnalyzeH5(object):
                 photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
                 nPixelClusters = (photonEcut > 0).sum()
                 print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
-                logger.info("pixel %m,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
+                logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
                 photonRegion = energies[photonEcut]
                 mean = photonRegion.mean()
                 std = photonRegion.std()
                 a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
                 area = fitFunctions.gaussianArea(a, sigma)
+                fitInfo[m, i, j] = mean, std, area, mu, sigma
+
                 ax.set_xlabel("energy (keV)")
                 ax.set_title("pixel %d,%d,%d, small cluster cuts" % (m, detRow, detCol))
                 plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
@@ -196,7 +199,6 @@ class AnalyzeH5(object):
         )
         np.save(npyFileName, fitInfo)
         logger.info("Wrote file: " + npyFileName)
-        fitInfo[i, j] = mean, std, area, mu, sigma
 
         gains = fitInfo[:, :, 3]
         goodGains = gains[np.bitwise_and(gains > 0, gains < 15)]

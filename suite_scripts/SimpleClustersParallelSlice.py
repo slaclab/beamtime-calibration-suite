@@ -155,7 +155,10 @@ if __name__ == "__main__":
 
     pedestal = None
     nComplaints = 0
-    gain = None
+    try:
+        gain = sic.detectorInfo.aduPerKeV
+    except:
+        gain = None
     if sic.special is not None:  ## and 'fakePedestal' in sic.special:
         if "FH" in sic.special:
             gain = 20  ##17.## my guess
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
-        if not sic.skip283 and not sic.isBeamEvent(evt)
+        if not sic.fakeBeamCode and not sic.isBeamEvent(evt):
             continue
 
         rawFrames = sic.getRawData(evt)
@@ -196,14 +199,15 @@ if __name__ == "__main__":
         elif pedestal is not None:
             frames = rawFrames.astype("float") - pedestal
         if frames is not None and gain is not None:
+            if sic.special is not None and "addFakePhotons" in sic.special:
+                frames, nAdded = sic.addFakePhotons(frames, 0.01, 666*10, 10)
+                print("added %d fake photons" %(nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
             frame = sic.getCalibData(evt)[0]
         if frames is None:
             print("something weird and bad happened, ignore event")
             continue
-        frame = frames[0]
-        ## in keV now, hopefully with a sensible pedestal
 
         if sic.special is not None:
             if "regionCommonMode" in sic.special:
@@ -214,8 +218,9 @@ if __name__ == "__main__":
                 frames = sic.colCommonModeCorrection3d(frames, 2.0)
 
         if frames is None:
-            ##print("no frame")
+            print("common mode killed frames???")
             continue
+
         flux = sic.flux
         if sic.useFlux and flux is None:
             continue
@@ -234,18 +239,22 @@ if __name__ == "__main__":
 
         nClusters = 0
         clusterArray = np.zeros((maxClusters, nClusterElements))
-        for m in sic.analyzedModules:
+        for module in sic.analyzedModules:
             if nClusters == maxClusters:
                 continue
-            if sic.doSlice:
-                bc = BuildClusters(frames[sic.regionSlice][m], seedCut, neighborCut)
-            else
-                bc = BuildClusters(frames[m], seedCut, neighborCut)
+            if sic.special is not None and 'slice' in sic.special:
+                bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
+            else:
+                bc = BuildClusters(frames[module], seedCut, neighborCut)
+
             fc = bc.findClusters()
+            if False:
+                print("found %d prospective clusters" %(len(fc)), bc.frame.max(), frames[sic.regionSlice][module].max())
 
             for c in fc:
+                ##print(c.goodCluster, c.nPixels, c.eTotal)
                 if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
-                    clusterArray[nClusters] = [c.eTotal, m, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
+                    clusterArray[nClusters] = [c.eTotal, module, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
                     nClusters += 1
                 if nClusters == maxClusters:
                     print("have found %d clusters, mean energy:" % (maxClusters), np.array(clusterArray)[:, 0].mean())
@@ -257,7 +266,7 @@ if __name__ == "__main__":
         sic.nGoodEvents += 1
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            f = frame[sic.regionSlice]
+            f = frames[sic.regionSlice]
             print(
                 "slice median, max, guess at single photon, guess at zero photon:",
                 np.median(f),

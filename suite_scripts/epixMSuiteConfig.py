@@ -35,5 +35,5 @@ experimentHash = {
     ##                  'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     ##"ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
     "ROIs": ["../data/smallRegionFourAsics.npy"],
-    "regionSlice": np.s_[:, 40:60:, 170:200],## random
+    "regionSlice": np.s_[0:4, 40:60:, 170:200],## random
 }
