@@ -216,7 +216,15 @@ class BasicSuiteScript(PsanaBase):
             self.analyzedModules = self.experimentHash["analyzedModules"]
         except:
             self.analyzedModules = range(self.detectorInfo.nModules)
-            
+
+        self.g0cut = self.detectorInfo.g0cut
+        if self.g0cut is not None:
+            self.gainBitsMask = self.g0cut - 1
+        else:
+            self.gainBitsMask = 0xffff ## might be dumb.  for non-autoranging
+
+        self.negativeGain = self.detectorInfo.negativeGain ## could just use the detector info in places it's defined
+        
         ## done with configuration
 
         self.ds = None
@@ -329,6 +337,33 @@ class BasicSuiteScript(PsanaBase):
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
+
+    def getRawData(self, evt, gainBitsMasked=True, negativeGain=False):
+        frames = self.plainGetRawData(evt)
+        if frames is None:
+            return None
+        if False and self.special:## turned off for a tiny bit of speed
+            if 'thirteenBits' in self.special:
+                frames = (frames & 0xfffe)
+                ##print("13bits")
+            elif 'twelveBits' in self.special:
+                frames = (frames & 0xfffc)
+                ##print("12bits")
+            elif 'elevenBits' in self.special:
+                frames = (frames & 0xfff8)
+                ##print("11bits")
+            elif 'tenBits' in self.special:
+                frames = (frames & 0xfff0)
+                ##print("10bits")
+        if self.negativeGain or negativeGain:
+            zeroPixels = frames==0
+            maskedData = frames & self.gainBitsMask
+            gainData = frames - maskedData
+            frames = gainData + self.gainBitsMask - maskedData
+            frames[zeroPixels] = 0
+        if gainBitsMasked:
+            return frames & self.gainBitsMask
+        return frames
 
 
 if __name__ == "__main__":

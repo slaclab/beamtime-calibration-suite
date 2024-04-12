@@ -192,7 +192,8 @@ if __name__ == "__main__":
 
     esp.setupPsana()
     try:
-        skip_283_check = "skip283" in esp.special
+        ##skip_283_check = "skip283" in esp.special
+        skip_283_check = "fakeBeamCode" in esp.special
     except:
         skip_283_check = False ## for running at MFX
 
@@ -219,6 +220,12 @@ if __name__ == "__main__":
             continue
         if esp.fakePedestal is not None:
             frames = frames.astype("float") - esp.fakePedestal
+            if esp.special is not None and "crazyModeForDionisio" in esp.special:
+                print("crazy mode for Dionisio")
+                plt.imshow(np.vstack(frames[1:3].clip(-500, 500)))
+                plt.colorbar()
+                plt.show()
+                
             ##print(esp.fakePedestalFrame[tuple(esp.singlePixels[2])])
             ##print(frames[tuple(esp.singlePixels[2])])
 

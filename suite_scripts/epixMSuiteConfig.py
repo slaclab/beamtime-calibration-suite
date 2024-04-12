@@ -23,6 +23,7 @@ experimentHash = {
     ##"exp": "rixx1005922",
     "exp": "rixx1003721",
     "location": "RixEndstation",
+    "analyzedModules":[1,2],
     "seedCut":40, ## pure guess
     "neighborCut":10, ##pure guess
     "fluxSource": "MfxDg1BmMon",

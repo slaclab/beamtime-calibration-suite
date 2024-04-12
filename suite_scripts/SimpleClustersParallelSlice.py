@@ -238,7 +238,7 @@ if __name__ == "__main__":
             if nClusters == maxClusters:
                 continue
             if sic.doSlice:
-                bc = BuildClusters(frames[m][sic.regionSlice], seedCut, neighborCut)
+                bc = BuildClusters(frames[sic.regionSlice][m], seedCut, neighborCut)
             else
                 bc = BuildClusters(frames[m], seedCut, neighborCut)
             fc = bc.findClusters()

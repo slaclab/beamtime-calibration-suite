@@ -25,6 +25,7 @@ class DetectorInfo:
         self.dimension = 3 ## suite attempts not to know
         self.nModules = -1
         self.aduPerKeV = None
+        self.negativeGain = False
         
         knownTypes = ['epixhr', 'epixm', 'archon']
         if detType not in knownTypes:
@@ -47,6 +48,7 @@ class DetectorInfo:
         return self.choosenCameraType
 
     def setup_epixhr(self, version=0):
+        self.g0cut = 1 << 14
         self.nRows = 288
         self.nCols = 284
         self.nColsPerBank = 96
@@ -62,6 +64,7 @@ class DetectorInfo:
         self.neighborCut = 0.5 ## probably too low given the noise
 
     def setup_epixM(self, version=0):
+        self.g0cut = 1 << 15
         self.nModules = 4
         ## per module (aka asic)
         self.nRows = 192
@@ -73,6 +76,7 @@ class DetectorInfo:
         self.preferredCommonMode = 'rowCommonMode'## guess
         self.clusterShape = [3,3]
         self.gainMode = None ## may want to know about default, softHigh, softLow
+        self.negativeGain = True
         self.aduPerKeV = 666
         self.seedCut = 4 ## hopefully can be lowered
         self.neighborCut = 0.5 ## ditto

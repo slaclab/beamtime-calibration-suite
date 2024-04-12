@@ -53,7 +53,7 @@ if __name__ == "__main__":
                     commonModeCut = 2.0## keV, calib
                     if cn.detObj and cn.detObj == 'raw':
                         frames = cn.getRawData(evt).astype('float')
-                        commonModeCut = 16384
+                        commonModeCut = self.gainBitsMask
                     else:
                         frames = cn.getCalibData(evt)
                     if frames is None:
@@ -91,7 +91,13 @@ if __name__ == "__main__":
                     statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
                     
         stats = statsArray[2]  ## only matters for cross-correlation
-        noise = stats.rms()
+        try:
+            noise = stats.rms()
+        except:
+            ## probably have no good events
+            cn.dumpEventCodeStatistics()
+            raise Exception("no stats object, probably no good events")
+        
         means = stats.mean()
         if cn.special is not None and "slice" in cn.special:
             noise = noise[cn.regionSlice]

@@ -85,11 +85,12 @@ class TimeScanParallel(BasicSuiteScript):
             plt.close()
 
     def plotSliceData(self, sliceData, delays, label):
-        for i in range(9):
+        print("in plot slice data, asic 1 for the moment")
+        for i in range(5):
             ##slicePixel = [i*2, i*2]
             ax = plt.subplot()
             ##ax.plot(delays, sliceData[:,tuple(slicePixel)], label="slicePixel%d" %(i))
-            ax.plot(delays, sliceData[:, i * 2, i * 2], label="slicePixel%d" % (i))
+            ax.plot(delays, sliceData[:, 1, i * 2, i * 2], label="slicePixel%d" % (i))
             plt.grid(which="major", linewidth=0.75)
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
@@ -126,6 +127,7 @@ class TimeScanParallel(BasicSuiteScript):
 
         runString = "_r%d" % (self.run)
         if norm != "slice":
+            print("doing %s analysis" %(norm))
             offset = len(self.ROIs)
             rois = d[:, 0:offset]
             pixels = d[:, offset:]
