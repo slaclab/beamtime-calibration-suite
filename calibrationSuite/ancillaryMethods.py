@@ -54,14 +54,12 @@ def selectedClusters(clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=
 
 
 def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
-    print(clusters.shape)
     mCut = clusters[:,:,1] == module
     pixelRowCol = np.bitwise_and((clusters[:, :, 2] == row), (clusters[:, :, 3] == col))
     if isSquare is None:
         small = clusters[:, :, 4] < nPixelCut
     else:
         small = np.bitwise_and((clusters[:, :, 4] < nPixelCut), (clusters[:, :, 5] == isSquare))
-    ##print(mCut.shape, small.shape, pixelRowCol.shape)
     c = clusters[np.bitwise_and.reduce([mCut, small, pixelRowCol])]
     ##print(c.shape)
     ##print(c)
