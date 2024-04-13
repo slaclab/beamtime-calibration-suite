@@ -21,7 +21,7 @@ class ArgumentParser:
         self.parser.add_argument("-r", "--run", type=int, help="run")
         self.parser.add_argument("-R", "--runRange", help="run range, format ...")
         self.parser.add_argument("--fivePedestalRun", type=int, help="5 pedestal run")
-        self.parser.add_argument("--fakePedestal", type=str, help="fake pedestal file")
+        self.parser.add_argument("--fakePedestalFile", type=str, help="fake pedestal file")
         self.parser.add_argument("--g0PedFile", type=str, help="g0 pedestal file")
         self.parser.add_argument("--g1PedFile", type=str, help="g1 pedestal file")
         self.parser.add_argument("--g0GainFile", type=str, help="g0 gain file")

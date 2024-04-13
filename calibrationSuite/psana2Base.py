@@ -45,8 +45,6 @@ class PsanaBase(object):
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         ##self.g0cut = 1<<15 ## 2022
-        self.g0cut = 1 << 14  ## 2023
-        self.gainBitsMask = self.g0cut - 1
 
         self.allowed_timestamp_mismatch = 1000
 
@@ -84,7 +82,8 @@ class PsanaBase(object):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)
+        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
+        return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
 
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
@@ -305,27 +304,9 @@ class PsanaBase(object):
             return sv
         return self.step_value(step)
 
-    def getRawData(self, evt, gainBitsMasked=True):
-        frames = self.det.raw.raw(evt)
-        if frames is None:
-            return None
-        if self.special:
-            if 'thirteenBits' in self.special:
-                frames = (frames & 0xfffe)
-                ##print("13bits")
-            elif 'twelveBits' in self.special:
-                frames = (frames & 0xfffc)
-                ##print("12bits")
-            elif 'elevenBits' in self.special:
-                frames = (frames & 0xfff8)
-                ##print("11bits")
-            elif 'tenBits' in self.special:
-                frames = (frames & 0xfff0)
-                ##print("10bits")
-        if gainBitsMasked:
-            return frames & self.gainBitsMask
-        return frames
-
+    def plainGetRawData(self, evt):
+        return self.det.raw.raw(evt)
+    
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames

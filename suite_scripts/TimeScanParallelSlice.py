@@ -62,10 +62,11 @@ class TimeScanParallel(BasicSuiteScript):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
 
-        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
-        plt.savefig(figFileName)
-        logger.info("Wrote file: " + figFileName)
-        plt.close()
+        if self.ROIs != []:
+            figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            plt.savefig(figFileName)
+            logger.info("Wrote file: " + figFileName)
+            plt.close()
         # plt.show()
 
         for i, p in enumerate(self.singlePixels):
@@ -84,11 +85,12 @@ class TimeScanParallel(BasicSuiteScript):
             plt.close()
 
     def plotSliceData(self, sliceData, delays, label):
-        for i in range(9):
+        print("in plot slice data, asic 1 for the moment")
+        for i in range(5):
             ##slicePixel = [i*2, i*2]
             ax = plt.subplot()
             ##ax.plot(delays, sliceData[:,tuple(slicePixel)], label="slicePixel%d" %(i))
-            ax.plot(delays, sliceData[:, i * 2, i * 2], label="slicePixel%d" % (i))
+            ax.plot(delays, sliceData[:, 1, i * 2, i * 2], label="slicePixel%d" % (i))
             plt.grid(which="major", linewidth=0.75)
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
@@ -125,6 +127,7 @@ class TimeScanParallel(BasicSuiteScript):
 
         runString = "_r%d" % (self.run)
         if norm != "slice":
+            print("doing %s analysis" %(norm))
             offset = len(self.ROIs)
             rois = d[:, 0:offset]
             pixels = d[:, offset:]
@@ -138,7 +141,7 @@ if __name__ == "__main__":
     print("have built a", tsp.className, "class")
     logger.info("have built a" + tsp.className + "class")
     if tsp.file is not None:
-        ##        tsp.analyze_h5(tsp.file, 'means', tsp.label)
+        tsp.analyze_h5(tsp.file, 'means', tsp.label)
         ##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
         print("done with standalone analysis of %s, exiting" % (tsp.file))
@@ -148,7 +151,7 @@ if __name__ == "__main__":
     tsp.setupPsana()
     tsp.use_281_for_old_data = False
     ## this is a hack
-    if tsp.run < 500: ## guess
+    if tsp.exp == 'foo' and tsp.run < 500: ## guess
         tsp.use_281_for_old_data = True
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
@@ -175,7 +178,7 @@ if __name__ == "__main__":
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
 
         nGoodInStep = 0
-        stepSliceSum = np.zeros([666, 666])[tsp.regionSlice].astype("float32")
+        stepSliceSum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[tsp.regionSlice].astype("float32")
         stepSliceSum = None
         for nevt, evt in enumerate(step.events()):
             if evt is None:
@@ -184,14 +187,15 @@ if __name__ == "__main__":
             ##continue
 
             doFast = [True, False][0]
-            fakeFlux = [True, False][1] ## 0 for ASC lab or until bug found
+            fakeFlux = [True, False][0] ## 0 for ASC lab, FEE
             if doFast:
                 ec = tsp.getEventCodes(evt)
 
-                if tsp.isBeamEvent(evt):
+                ##tsp.isBeamEvent(evt):
+                if tsp.detectorInfo.detectorType == 'epixm' or tsp.isBeamEvent(evt):##FEE hack
                     frames = tsp.getRawData(evt, gainBitsMasked=True)
-                    print("real beam on event", nstep, nevt)
-                    logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
+                    ##print("real beam on event", nstep, nevt)
+                    ##logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
                 elif tsp.use_281_for_old_data and ec[281]:
                     frames = tsp.getRawData(evt, gainBitsMasked=True)
                     ##print("281 only...")
@@ -226,10 +230,10 @@ if __name__ == "__main__":
             nGoodInStep += 1
 
             try:
-                stepSliceSum += frames[0][tsp.regionSlice]
+                stepSliceSum += frames[tsp.regionSlice]
                 ##stepEvents += 1
             except:
-                stepSliceSum = frames[0][tsp.regionSlice].astype(np.float32)
+                stepSliceSum = frames[tsp.regionSlice].astype(np.float32)
                 ##stepEvents = 1
 
             for i, roi in enumerate(tsp.ROIs):
@@ -267,9 +271,9 @@ if __name__ == "__main__":
             print(tsp.nGoodEvents)
             print(stepSliceSum.shape)
             ##print(stepSliceSum)
-            step_slice_sum = np.zeros([666, 666])[tsp.regionSlice].astype("float32")
+            step_slice_sum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[tsp.regionSlice].astype("float32")
 
-        if False and roiAndPixelSums is not None:
+        if roiAndPixelSums is not None:
             step_sums = smd.sum(roiAndPixelSums)
             step_ratio_sums = smd.sum(ratioSums)
             step_nsum = smd.sum(nGoodInStep)

@@ -44,7 +44,7 @@ class BasicSuiteScript(PsanaBase):
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
         ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
-        self.outputDir = "../%s/" % (analysisType)
+        self.outputDir = "/%s/" % (analysisType)
         logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 
@@ -60,23 +60,25 @@ class BasicSuiteScript(PsanaBase):
             self.exp = self.experimentHash["exp"]
         except:
             pass
-        try:
-            ##if True:
+        self.ROIfileNames = None
+        ##try:
+        if True:
             self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
-                self.ROIs.append(np.load(f + ".npy"))
+                self.ROIs.append(np.load(f))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
             except:
                 pass
-        ##if False:
-        except:
-            print("had trouble finding", self.ROIfileNames)
-            for currName in self.ROIfileNames:
-                logger.exception("had trouble finding" + currName)
+        if False:
+        ##except:
+            if self.ROIfileNames is not None:
+                print("had trouble finding", self.ROIfileNames)
+                for currName in self.ROIfileNames:
+                    logger.exception("had trouble finding" + currName)
             self.ROI = None
-            self.ROIs = None
+            self.ROIs = []
         try:
             self.singlePixels = self.experimentHash["singlePixels"]
         except:
@@ -86,9 +88,10 @@ class BasicSuiteScript(PsanaBase):
         except:
             self.regionSlice = None
         if self.regionSlice is not None:
+            ## n.b. assumes 3d slice now
             self.sliceCoordinates = [
-                [self.regionSlice[0].start, self.regionSlice[0].stop],
                 [self.regionSlice[1].start, self.regionSlice[1].stop],
+                [self.regionSlice[2].start, self.regionSlice[2].stop],
             ]
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
@@ -106,6 +109,7 @@ class BasicSuiteScript(PsanaBase):
         except:
             self.fluxSource = None
 
+        self.special = self.args.special
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
         self.nDaqCodeEvents = 0
@@ -115,6 +119,8 @@ class BasicSuiteScript(PsanaBase):
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
         self.fakeBeamCode = False
+        if self.special is not None:
+            self.fakeBeamCode = "fakeBeamCode" in self.special
 
         ##mymodule = importlib.import_module(full_module_name)
 
@@ -170,9 +176,10 @@ class BasicSuiteScript(PsanaBase):
             self.runRange = None
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
-        self.fakePedestal = self.args.fakePedestal  ## in case needed
-        if self.fakePedestal is not None:
-            self.fakePedestalFrame = np.load(self.fakePedestal)  ##cast to uint32???
+        self.fakePedestal = None
+        self.fakePedestalFile = self.args.fakePedestalFile  ## in case needed
+        if self.fakePedestalFile is not None:
+            self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
 
         self.g0PedFile = self.args.g0PedFile
         if self.g0PedFile is not None:
@@ -205,7 +212,19 @@ class BasicSuiteScript(PsanaBase):
         else:
             self.detType = self.args.detType
 
-        self.special = self.args.special
+        try:
+            self.analyzedModules = self.experimentHash["analyzedModules"]
+        except:
+            self.analyzedModules = range(self.detectorInfo.nModules)
+
+        self.g0cut = self.detectorInfo.g0cut
+        if self.g0cut is not None:
+            self.gainBitsMask = self.g0cut - 1
+        else:
+            self.gainBitsMask = 0xffff ## might be dumb.  for non-autoranging
+
+        self.negativeGain = self.detectorInfo.negativeGain ## could just use the detector info in places it's defined
+        
         ## done with configuration
 
         self.ds = None
@@ -230,8 +249,8 @@ class BasicSuiteScript(PsanaBase):
     def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
     
-    def noCommonModeCorrection(self, frame):
-        return frame
+    def noCommonModeCorrection(self, frames):
+        return frames
 
     def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
         ## this takes a 2d frame
@@ -240,11 +259,18 @@ class BasicSuiteScript(PsanaBase):
         regionCM = np.median(frame[region][frame[region] < arbitraryCut])
         return frame - regionCM
 
+    def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
+
+    def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
-        ## this takes a 2d frame
+        ## this takes a 2d object
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
-        ##rand = np.random.random()
         for r in range(self.detectorInfo.nRows):
             colOffset = 0
             ##for b in range(0, self.detNbanks):
@@ -255,12 +281,7 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detColsPerBank] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     rowCM = -666
                     print("rowCM problem")
@@ -277,19 +298,13 @@ class BasicSuiteScript(PsanaBase):
         for c in range(self.detCols):
             rowOffset = 0
             for b in range(0, self.detNbanksCol):
-                ##for b in range(0, 2):
                 try:
                     colCM = np.median(
                         frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
                             frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     colCM = -666
                     print("colCM problem")
@@ -310,7 +325,8 @@ class BasicSuiteScript(PsanaBase):
         if ec[self.beamCode]:
             self.nBeamCodeEvents += 1
             return True
-        return False
+        ## for FEE, ASC, ...
+        return self.fakeBeamCode##False
 
     def dumpEventCodeStatistics(self):
         print(
@@ -322,7 +338,40 @@ class BasicSuiteScript(PsanaBase):
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
 
+    def getRawData(self, evt, gainBitsMasked=True, negativeGain=False):
+        frames = self.plainGetRawData(evt)
+        if frames is None:
+            return None
+        if False and self.special:## turned off for a tiny bit of speed
+            if 'thirteenBits' in self.special:
+                frames = (frames & 0xfffe)
+                ##print("13bits")
+            elif 'twelveBits' in self.special:
+                frames = (frames & 0xfffc)
+                ##print("12bits")
+            elif 'elevenBits' in self.special:
+                frames = (frames & 0xfff8)
+                ##print("11bits")
+            elif 'tenBits' in self.special:
+                frames = (frames & 0xfff0)
+                ##print("10bits")
+        if self.negativeGain or negativeGain:
+            zeroPixels = frames==0
+            maskedData = frames & self.gainBitsMask
+            gainData = frames - maskedData
+            frames = gainData + self.gainBitsMask - maskedData
+            frames[zeroPixels] = 0
+        if gainBitsMasked:
+            return frames & self.gainBitsMask
+        return frames
 
+    def addFakePhotons(self, frames, occupancy, E, width):
+        shape = frames.shape
+        occ = np.random.random(shape)
+        fakes = np.random.normal(E, width, shape)
+        fakes[occ>occupancy] = 0
+        return frames + fakes, (fakes>0).sum()
+    
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
