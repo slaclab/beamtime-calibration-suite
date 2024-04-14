@@ -1,6 +1,14 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
 import argparse
 import numpy as np
-import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import sys
@@ -9,7 +17,7 @@ from scipy.optimize import curve_fit  ## here?
 from calibrationSuite.fitFunctions import *
 from calibrationSuite.ancillaryMethods import *
 from calibrationSuite.argumentParser import ArgumentParser
-
+from calibrationSuite.detectorInfo import DetectorInfo
 import os
 
 if os.getenv("foo") == "1":
@@ -30,88 +38,78 @@ class BasicSuiteScript(PsanaBase):
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
 
-        args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(args))
         ##mymodule = importlib.import_module(full_module_name)
-
-        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that.
-        # if neither are set, use the default 'suiteConfig.py' file.
-        defaultConfigFileName = "suiteConfig.py"
-        secondaryConfigFileName = defaultConfigFileName if args.configFile is None else args.configFile
-        # secondaryConfigFileName is returned if env var not set
-        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
-        config = self.importConfigFile(configFileName)
-        if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
-            sys.exit(1)
-        experimentHash = config.experimentHash
 
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
         ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
-        self.outputDir = "../%s/" % (analysisType)
+        self.outputDir = "/%s/" % (analysisType)
         logging.info("output dir: " + self.outputDir)
         ##self.outputDir = '/tmp'
 
+        self.detectorInfo = DetectorInfo(self.experimentHash['detectorType'])
+        
         self.className = self.__class__.__name__
 
         try:
-            self.location = experimentHash["location"]
+            self.location = self.experimentHash["location"]
         except:
             pass
         try:
-            self.exp = experimentHash["exp"]
+            self.exp = self.experimentHash["exp"]
         except:
             pass
-        try:
-            ##if True:
-            self.ROIfileNames = experimentHash["ROIs"]
+        self.ROIfileNames = None
+        ##try:
+        if True:
+            self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
-                self.ROIs.append(np.load(f + ".npy"))
+                self.ROIs.append(np.load(f))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
             except:
                 pass
-        ##if False:
-        except:
-            print("had trouble finding", self.ROIfileNames)
-            for currName in self.ROIfileNames:
-                logger.exception("had trouble finding" + currName)
+        if False:
+        ##except:
+            if self.ROIfileNames is not None:
+                print("had trouble finding", self.ROIfileNames)
+                for currName in self.ROIfileNames:
+                    logger.exception("had trouble finding" + currName)
             self.ROI = None
-            self.ROIs = None
+            self.ROIs = []
         try:
-            self.singlePixels = experimentHash["singlePixels"]
+            self.singlePixels = self.experimentHash["singlePixels"]
         except:
             self.singlePixels = None
         try:
-            self.regionSlice = experimentHash["regionSlice"]
+            self.regionSlice = self.experimentHash["regionSlice"]
         except:
             self.regionSlice = None
         if self.regionSlice is not None:
+            ## n.b. assumes 3d slice now
             self.sliceCoordinates = [
-                [self.regionSlice[0].start, self.regionSlice[0].stop],
                 [self.regionSlice[1].start, self.regionSlice[1].stop],
+                [self.regionSlice[2].start, self.regionSlice[2].stop],
             ]
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
 
         try:
-            self.fluxSource = experimentHash["fluxSource"]
+            self.fluxSource = self.experimentHash["fluxSource"]
             try:
-                self.fluxChannels = experimentHash["fluxChannels"]
+                self.fluxChannels = self.experimentHash["fluxChannels"]
             except:
                 self.fluxChannels = range(8, 16)  ## wave8
             try:
-                self.fluxSign = experimentHash["fluxSign"]
+                self.fluxSign = self.experimentHash["fluxSign"]
             except:
                 self.fluxSign = 1
         except:
             self.fluxSource = None
 
+        self.special = self.args.special
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
         self.nDaqCodeEvents = 0
@@ -121,69 +119,112 @@ class BasicSuiteScript(PsanaBase):
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
         self.fakeBeamCode = False
+        if self.special is not None:
+            self.fakeBeamCode = "fakeBeamCode" in self.special
 
         ##mymodule = importlib.import_module(full_module_name)
 
         ## for standalone analysis
         self.file = None
-        if args.files is not None:
-            self.file = args.files
+        if self.args.files is not None:
+            self.file = self.args.files
         self.label = ""
-        if args.label is not None:
-            self.label = args.label
+        if self.args.label is not None:
+            self.label = self.args.label
 
-        ## analyzing xtc
-        if args.run is not None:
-            self.run = args.run
-        if args.camera is not None:
-            self.camera = args.camera
-        if args.exp is not None:
-            self.exp = args.exp
-        if args.location is not None:
-            self.location = args.location
-        if args.maxNevents is not None:
-            self.maxNevents = args.maxNevents
-        if args.skipNevents is not None:
-            self.skipNevents = args.skipNevents
-        if args.path is not None:
-            self.outputDir = args.path
+        ## analyzing xtcs
+        if self.args.run is not None:
+            self.run = self.args.run
+        if self.args.camera is not None:
+            self.camera = self.args.camera
+        if self.args.exp is not None:
+            self.exp = self.args.exp
+        if self.args.location is not None:
+            self.location = self.args.location
+        if self.args.maxNevents is not None:
+            self.maxNevents = self.args.maxNevents
+        if self.args.skipNevents is not None:
+            self.skipNevents = self.args.skipNevents
+        if self.args.path is not None:
+            self.outputDir = self.args.path
         # if set, output folders will be relative to OUTPUT_ROOT
         # if not, they will be relative to the current script file
         self.outputDir = os.getenv("OUTPUT_ROOT", "") + self.outputDir
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
             print("could not find output dir: " + self.outputDir)
-            print("so creating dir: " + self.outputDir)
             logger.info("could not find output dir: " + self.outputDir)
-            logger.info("creating dir: " + self.outputDir)
-            os.makedirs(self.outputDir)
+            print("please create this dir, exiting...")
+            logger.info("please create this dir, exiting...")
+            exit(1)
+            # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
+            #print("so creating dir: " + self.outputDir)
+            #logger.info("creating dir: " + self.outputDir)
+            #os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
-            os.chmod(self.outputDir, 0o777)
-        self.detObj = args.detObj
-        if args.threshold is not None:
-            self.threshold = eval(args.threshold)
+            #os.chmod(self.outputDir, 0o777)
+        self.detObj = self.args.detObj
+        if self.args.threshold is not None:
+            self.threshold = eval(self.args.threshold)
         else:
             self.threshold = None
-        if args.fluxCut is not None:
-            self.fluxCut = args.fluxCut
+        if self.args.fluxCut is not None:
+            self.fluxCut = self.args.fluxCut
         try:
-            self.runRange = eval(args.runRange)  ## in case needed
+            self.runRange = eval(self.args.runRange)  ## in case needed
         except:
             self.runRange = None
 
-        self.fivePedestalRun = args.fivePedestalRun  ## in case needed
-        self.fakePedestal = args.fakePedestal  ## in case needed
-        if self.fakePedestal is not None:
-            self.fakePedestalFrame = np.load(self.fakePedestal)  ##cast to uint32???
+        self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
+        self.fakePedestal = None
+        self.fakePedestalFile = self.args.fakePedestalFile  ## in case needed
+        if self.fakePedestalFile is not None:
+            self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
 
-        if args.detType == "":
+        self.g0PedFile = self.args.g0PedFile
+        if self.g0PedFile is not None:
+            ##self.g0Ped = np.load(self.g0PedFile)
+            self.g0Ped = np.array([np.load(self.g0PedFile)])##temp hack
+            print(self.g0Ped.shape)
+            
+        self.g1PedFile = self.args.g0PedFile
+        if self.g1PedFile is not None:
+            ##self.g1Ped = np.load(self.g1PedFile)
+            self.g1Ped = np.array([np.load(self.g1PedFile)])##temp hack
+
+        self.g0GainFile = self.args.g0GainFile
+        if self.g0GainFile is not None:
+            self.g0Gain = np.load(self.g0GainFile)
+
+        self.g1GainFile = self.args.g1GainFile
+        if self.g1GainFile is not None:
+            self.g1Gain = np.load(self.g1GainFile)
+
+        self.offsetFile = self.args.offsetFile
+        if self.offsetFile is not None:
+            self.offset = np.load(self.offsetFile)
+
+        if self.args.detType == "":
             ## assume epix10k for now
-            if args.nModules is not None:
-                self.detType = self.ePix10k_cameraTypes[args.nModules]
+            if self.args.nModules is not None:
+                self.detectorInfo.setNModules(self.args.nModules)
+                self.detType = self.detectorInfo.getCameraType()
         else:
-            self.detType = args.detType
+            self.detType = self.args.detType
 
-        self.special = args.special
+        try:
+            self.analyzedModules = self.experimentHash["analyzedModules"]
+        except:
+            self.analyzedModules = range(self.detectorInfo.nModules)
+
+        self.g0cut = self.detectorInfo.g0cut
+        if self.g0cut is not None:
+            self.gainBitsMask = self.g0cut - 1
+        else:
+            self.gainBitsMask = 0xffff ## might be dumb.  for non-autoranging
+
+        self.negativeGain = self.detectorInfo.negativeGain ## could just use the detector info in places it's defined
+        
         ## done with configuration
 
         self.ds = None
@@ -191,15 +232,6 @@ class BasicSuiteScript(PsanaBase):
 
         ##self.setupPsana()
         ##do this later or skip for -file
-
-    def importConfigFile(self, file_path):
-        if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
-            return None
-        spec = importlib.util.spec_from_file_location("config", file_path)
-        config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
-        return config_module
 
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,
@@ -214,8 +246,11 @@ class BasicSuiteScript(PsanaBase):
                 np.save(roiFile, roi)
         self.ROI = roi
 
-    def noCommonModeCorrection(self, frame):
-        return frame
+    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+    
+    def noCommonModeCorrection(self, frames):
+        return frames
 
     def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
         ## this takes a 2d frame
@@ -224,12 +259,19 @@ class BasicSuiteScript(PsanaBase):
         regionCM = np.median(frame[region][frame[region] < arbitraryCut])
         return frame - regionCM
 
+    def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
+
+    def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
-        ## this takes a 2d frame
+        ## this takes a 2d object
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
-        ##rand = np.random.random()
-        for r in range(self.detRows):
+        for r in range(self.detectorInfo.nRows):
             colOffset = 0
             ##for b in range(0, self.detNbanks):
             for b in range(0, 2):
@@ -239,12 +281,7 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detColsPerBank] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
                     frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
                 except:
                     rowCM = -666
                     print("rowCM problem")
@@ -261,25 +298,19 @@ class BasicSuiteScript(PsanaBase):
         for c in range(self.detCols):
             rowOffset = 0
             for b in range(0, self.detNbanksCol):
-                ##for b in range(0, 2):
                 try:
                     colCM = np.median(
-                        frame[rowOffset : rowOffset + self.detRowsPerBank, c][
-                            frame[rowOffset : rowOffset + self.detRowsPerBank, c] < arbitraryCut
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
+                            frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
-                    ##if r == 280 and rand > 0.999:
-                    ##print(b, frame[r, colOffset:colOffset + self.detColsPerBank], rowCM, rowCM<arbitraryCut-1, rowCM*(rowCM<arbitraryCut-1))
-                    ##frame[r, colOffset:colOffset + self.detColsPerBank] -= rowCM*(rowCM<arbitraryCut-1)
-                    frame[rowOffset : rowOffset + self.detRowsPerBank, c] -= colCM
-                    ##if r == 280 and rand > 0.999:
-                    ##print(frame[r, colOffset:colOffset + self.detColsPerBank], np.median(frame[r, colOffset:colOffset + self.detColsPerBank]))
+                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
                 except:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
-                    print(frame[rowOffset : rowOffset + self.detRowsPerBank], c)
-                rowOffset += self.detRowsPerBank
+                    print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
+                rowOffset += self.detectorInfo.nRowsPerBank
         return frame
 
     def isBeamEvent(self, evt):
@@ -294,7 +325,8 @@ class BasicSuiteScript(PsanaBase):
         if ec[self.beamCode]:
             self.nBeamCodeEvents += 1
             return True
-        return False
+        ## for FEE, ASC, ...
+        return self.fakeBeamCode##False
 
     def dumpEventCodeStatistics(self):
         print(
@@ -306,7 +338,40 @@ class BasicSuiteScript(PsanaBase):
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
 
+    def getRawData(self, evt, gainBitsMasked=True, negativeGain=False):
+        frames = self.plainGetRawData(evt)
+        if frames is None:
+            return None
+        if False and self.special:## turned off for a tiny bit of speed
+            if 'thirteenBits' in self.special:
+                frames = (frames & 0xfffe)
+                ##print("13bits")
+            elif 'twelveBits' in self.special:
+                frames = (frames & 0xfffc)
+                ##print("12bits")
+            elif 'elevenBits' in self.special:
+                frames = (frames & 0xfff8)
+                ##print("11bits")
+            elif 'tenBits' in self.special:
+                frames = (frames & 0xfff0)
+                ##print("10bits")
+        if self.negativeGain or negativeGain:
+            zeroPixels = frames==0
+            maskedData = frames & self.gainBitsMask
+            gainData = frames - maskedData
+            frames = gainData + self.gainBitsMask - maskedData
+            frames[zeroPixels] = 0
+        if gainBitsMasked:
+            return frames & self.gainBitsMask
+        return frames
 
+    def addFakePhotons(self, frames, occupancy, E, width):
+        shape = frames.shape
+        occ = np.random.random(shape)
+        fakes = np.random.normal(E, width, shape)
+        fakes[occ>occupancy] = 0
+        return frames + fakes, (fakes>0).sum()
+    
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")

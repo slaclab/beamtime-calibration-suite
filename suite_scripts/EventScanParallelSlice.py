@@ -1,26 +1,30 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
 from calibrationSuite.basicSuiteScript import *
+import calibrationSuite.loggingSetup as ls
 import logging
+import h5py
+import os
 
 # for logging from current file
 logger = logging.getLogger(__name__)
-
-import calibrationSuite.loggingSetup as ls
-import os
-
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
-
+ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("misc")  ##self)
-        self.only283 = [True, False][0]  ## special beam event code
-        print("only analyzing event code 283 flag set to", self.only283)
-
         logging.info("Output dir: " + self.outputDir)
 
-    def plotData(self, data, pixels, eventNumbers, dPulseId, label):
+    def plotData(self, rois, pixels, eventNumbers, dPulseId, label):
         if "timestamp" in label:
             xlabel = "Timestamp (s)"
             ##xlabel = 'Timestamp (scaled to separation)'
@@ -32,7 +36,7 @@ class EventScanParallel(BasicSuiteScript):
             ##data[i] -= data[i].mean()
             ax = plt.subplot()
             ##ax.plot(eventNumbers,data[i], label=self.ROIfileNames[i])
-            ax.scatter(eventNumbers, data[i], label=self.ROIfileNames[i])
+            ax.scatter(eventNumbers, rois[i], label=self.ROIfileNames[i])
             plt.grid(which="major", linewidth=0.5)
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
@@ -58,7 +62,7 @@ class EventScanParallel(BasicSuiteScript):
         for i, roi in enumerate(self.ROIs):
             ax = plt.subplot()
             ##ax.plot(eventNumbers, data[i], label=self.ROIfileNames[i])
-            ax.scatter(eventNumbers, data[i], label=self.ROIfileNames[i])
+            ax.scatter(eventNumbers, rois[i], label=self.ROIfileNames[i])
             plt.grid(which="major", linewidth=0.75)
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
@@ -68,17 +72,18 @@ class EventScanParallel(BasicSuiteScript):
             ##plt.yscale('log')
             plt.legend(loc="upper right")
 
-        figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (
-            self.outputDir,
-            self.__class__.__name__,
-            self.run,
-            self.camera,
-            label,
-            i,
-        )
-        logger.info("Wrote file: " + figFileName)
-        plt.savefig(figFileName)
-        plt.clf()
+        if self.ROIs != []:
+            figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
+            logger.info("Wrote file: " + figFileName)
+            plt.savefig(figFileName)
+            plt.clf()
         # plt.show()
 
         for i, p in enumerate(self.singlePixels):
@@ -132,17 +137,20 @@ class EventScanParallel(BasicSuiteScript):
         return edge
 
     def analyze_h5(self, dataFile, label):
-        import h5py
-
         data = h5py.File(dataFile)
         print(data.keys())
-        logger.info("keys: " + str(data.keys))
+
         ts = data["timestamps"][()]
-        print(ts)
+        print("ts: ", ts)
+
         pulseIds = data["pulseIds"][()]
         pixels = data["pixels"][()]
-        rois = data["rois"][()]
-
+        try:
+            rois = data["rois"][()]
+        except:
+            rois = None
+        
+        # get summedBitSlice and save it to a numpy file
         try:
             bitSlice = data["summedBitSlice"][()]
             npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
@@ -151,30 +159,31 @@ class EventScanParallel(BasicSuiteScript):
         except:
             pass
 
+        # sort and save pulseIds to a numpy file
         pulseIds.sort()
-
         npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
         logger.info("Wrote file: " + npyFileName)
         np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
+        # sort pixels and rois based on timestamps
         pixels = sortArrayByList(ts, pixels)
-        rois = sortArrayByList(ts, rois)
+        if rois is not None:
+            rois = sortArrayByList(ts, rois)
+
+        
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
         print("ts: ", ts)
-
         self.plotData(np.array(rois).T, np.array(pixels).T, ts, dPulseId, "timestamps" + label)
 
 
 if __name__ == "__main__":
-    commandUsed = sys.executable + " " + " ".join(sys.argv)
-    logger.info("Ran with cmd: " + commandUsed)
-
     esp = EventScanParallel()
-    print("have built a" + esp.className + "class")
-    logger.info("have built a" + esp.className + "class")
+    print("have built a " + esp.className + "class")
+    logger.info("have built a " + esp.className + "class")
+
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
         print("done with standalone analysis of %s, exiting" % (esp.file))
@@ -182,6 +191,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     esp.setupPsana()
+    try:
+        ##skip_283_check = "skip283" in esp.special
+        skip_283_check = "fakeBeamCode" in esp.special
+    except:
+        skip_283_check = False ## for running at MFX
 
     h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size)
     smd = esp.ds.smalldata(filename=h5FileName)
@@ -196,7 +210,7 @@ if __name__ == "__main__":
         if evt is None:
             continue
         ec = esp.getEventCodes(evt)
-        if esp.only283:
+        if not skip_283_check:
             if not ec[283]:
                 ##print(ec)
                 continue
@@ -205,24 +219,27 @@ if __name__ == "__main__":
             ##print("no frame")
             continue
         if esp.fakePedestal is not None:
-            frame = frames.astype("float")[0] - esp.fakePedestalFrame
-            frames = np.array([frame])
+            frames = frames.astype("float") - esp.fakePedestal
+            if esp.special is not None and "crazyModeForDionisio" in esp.special:
+                print("crazy mode for Dionisio")
+                plt.imshow(np.vstack(frames[1:3].clip(-500, 500)))
+                plt.colorbar()
+                plt.show()
+                
             ##print(esp.fakePedestalFrame[tuple(esp.singlePixels[2])])
             ##print(frames[tuple(esp.singlePixels[2])])
 
             if esp.special is not None and "rowCommonMode" in esp.special:
-                frames = np.array([esp.rowCommonModeCorrection(frame)])
+                frames = np.array([esp.rowCommonModeCorrection3d(frames)])
             if esp.special is not None and "colCommonMode" in esp.special:
-                frames = np.array([esp.colCommonModeCorrection(frame)])
+                frames = np.array([esp.colCommonModeCorrection3d(frames)])
             if esp.special is not None and "regionCommonMode" in esp.special:
                 ##oldFrames = frames
-                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666)])
+                frames = np.array([esp.regionCommonModeCorrection(frames, esp.regionSlice, 666)])
                 ##print(frames-oldFrames)
         else:
-            frame = frames.astype('float')[0]
-            frames = np.array([frame])
             if esp.special is not None and 'regionCommonMode' in esp.special:
-                frames = np.array([esp.regionCommonModeCorrection(frame, esp.regionSlice, 666666)])
+                frames = np.array([esp.regionCommonModeCorrection(frames, esp.regionSlice, 666666)])
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):
@@ -233,7 +250,7 @@ if __name__ == "__main__":
             pixelValues[i].append(frames[tuple(esp.singlePixels[i])])
 
         if esp.fakePedestal is None:
-            slice = frames[0][esp.regionSlice]
+            slice = frames[esp.regionSlice].astype('uint16')
             sliceView = slice.view(np.uint8).reshape(slice.size, 2)
             r = np.unpackbits(sliceView, axis=1, bitorder="little")[:, ::-1]
 
@@ -245,14 +262,16 @@ if __name__ == "__main__":
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])
         ##print(frames[tuple(esp.singlePixels[0])], parityTest)
 
-        smd.event(
-            evt,
-            timestamps=evt.datetime().timestamp(),
-            pulseIds=esp.getPulseId(evt),
-            rois=np.array([roiMeans[i][-1] for i in range(len(esp.ROIs))]),
-            pixels=np.array([pixelValues[i][-1] for i in range(len(esp.singlePixels))]),
-            ##bitSlice = r
-        )
+        smdDict = {'timestamps':evt.datetime().timestamp(),
+                   'pulseIds':esp.getPulseId(evt),
+                   'pixels':np.array([pixelValues[i][-1] for i in range(len(esp.singlePixels))])
+        }
+        rois = np.array(None) ## might not be defined, and smd doesn't like (0,)
+        if esp.ROIs != []:
+            smdDict['rois'] = np.array([roiMeans[i][-1] for i in range(len(esp.ROIs))])
+                                                                        
+        smd.event(evt, **smdDict)
+
 
         esp.nGoodEvents += 1
         if esp.nGoodEvents % 100 == 0:
@@ -262,6 +281,7 @@ if __name__ == "__main__":
         if esp.nGoodEvents > esp.maxNevents:
             break
 
+    print(esp.outputDir)
     npyFileName = "%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp)
     np.save(npyFileName, np.array(roiMeans))
     logger.info("Wrote file: " + npyFileName)

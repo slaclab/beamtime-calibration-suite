@@ -1,3 +1,12 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
 import argparse
 
 
@@ -12,10 +21,16 @@ class ArgumentParser:
         self.parser.add_argument("-r", "--run", type=int, help="run")
         self.parser.add_argument("-R", "--runRange", help="run range, format ...")
         self.parser.add_argument("--fivePedestalRun", type=int, help="5 pedestal run")
-        self.parser.add_argument("--fakePedestal", type=str, help="fake pedestal file")
+        self.parser.add_argument("--fakePedestalFile", type=str, help="fake pedestal file")
+        self.parser.add_argument("--g0PedFile", type=str, help="g0 pedestal file")
+        self.parser.add_argument("--g1PedFile", type=str, help="g1 pedestal file")
+        self.parser.add_argument("--g0GainFile", type=str, help="g0 gain file")
+        self.parser.add_argument("--g1GainFile", type=str, help="g1 gain file")
+        self.parser.add_argument("--offsetFile", type=str, help="offset file for stitching")
         self.parser.add_argument("-c", "--camera", type=int, help="camera.n")
         self.parser.add_argument("-p", "--path", type=str, help="the base path to the output directory")
         self.parser.add_argument("-n", "--nModules", type=int, help="nModules")
+        self.parser.add_argument("--mode", type=str, help="detector mode (1d, 2d, ...?") ## might be discoverable otherwise
         self.parser.add_argument(
             "-d", "--detType", type=str, default="", help="Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ..."
         )

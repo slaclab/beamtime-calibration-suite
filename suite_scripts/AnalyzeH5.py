@@ -1,3 +1,12 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
 import h5py
 import numpy as np
 import calibrationSuite.fitFunctions as fitFunctions
@@ -114,10 +123,12 @@ class AnalyzeH5(object):
         plt.close()
 
     def analyzeSimpleClusters(self, clusters):
+        ## v. sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
+        ## should make a dict for this info and use below instead of indices
+        
         ax = plt.subplot()
         energy = clusters[:, :, 0]  ##.flatten()
-        ##energy *= 2 ## temporary, due to bit shift
-        ##print(energy[energy>0][666:777])
+        maximumModule = int(clusters[:,:,1].max())
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
@@ -137,36 +148,40 @@ class AnalyzeH5(object):
 
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 5))  ## mean, std, area, mu, sigma
+        m = 1## temp hack
+        fitInfo = np.zeros((maximumModule, rows, cols, 5))  ## mean, std, area, mu, sigma
         for i in range(rows):
             for j in range(cols):
                 detRow, detCol = self.sliceToDetector(i, j)
                 ax = plt.subplot()
-                currGoodClusters = ancillaryMethods.goodClusters(clusters, i, j, nPixelCut=3, isSquare=1)
+                currGoodClusters = ancillaryMethods.goodClusters(clusters, m, i, j, nPixelCut=3, isSquare=1)
                 if len(currGoodClusters) < 5:
-                    print("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
-                    logger.info("too few clusters in slice pixel %d, %d: %d" % (i, j, len(currGoodClusters)))
+                    print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                    logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                     continue
                 energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
                 photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
                 nPixelClusters = (photonEcut > 0).sum()
-                print("pixel %d,%d has about %d photons" % (i, j, nPixelClusters))
-                logger.info("pixel %d,%d has about %d photons" % (i, j, nPixelClusters))
+                print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
+                logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
                 photonRegion = energies[photonEcut]
                 mean = photonRegion.mean()
                 std = photonRegion.std()
                 a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
                 area = fitFunctions.gaussianArea(a, sigma)
+                fitInfo[m, i, j] = mean, std, area, mu, sigma
+
                 ax.set_xlabel("energy (keV)")
-                ax.set_title("pixel %d,%d, small cluster cuts" % (detRow, detCol))
+                ax.set_title("pixel %d,%d,%d, small cluster cuts" % (m, detRow, detCol))
                 plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
                 plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
                 plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
-                figFileName = "%s/%s_r%d_c%d_r%d_c%d_%s_E.png" % (
+                figFileName = "%s/%s_m%d_r%d_c%d_r%d_c%d_%s_E.png" % (
                     self.outputDir,
                     self.__class__.__name__,
                     self.run,
                     self.camera,
+                    m,
                     detRow,
                     detCol,
                     self.label,
@@ -175,18 +190,15 @@ class AnalyzeH5(object):
                 logger.info("Wrote file: " + figFileName)
                 plt.close()
 
-                npyFileName = "%s/%s_r%d_c%d_r%d_c%d_%s_fitInfo.npy" % (
-                    self.outputDir,
-                    self.__class__.__name__,
-                    self.run,
-                    self.camera,
-                    detRow,
-                    detCol,
-                    self.label,
-                )
-                np.save(npyFileName, fitInfo)
-                logger.info("Wrote file: " + npyFileName)
-                fitInfo[i, j] = mean, std, area, mu, sigma
+        npyFileName = "%s/%s_r%d_c%d_%s_fitInfo.npy" % (
+            self.outputDir,
+            self.__class__.__name__,
+            self.run,
+            self.camera,
+            self.label,
+        )
+        np.save(npyFileName, fitInfo)
+        logger.info("Wrote file: " + npyFileName)
 
         gains = fitInfo[:, :, 3]
         goodGains = gains[np.bitwise_and(gains > 0, gains < 15)]

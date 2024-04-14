@@ -1,3 +1,12 @@
+##############################################################################
+## This file is part of 'SLAC Beamtime Calibration Suite'.
+## It is subject to the license terms in the LICENSE.txt file found in the
+## top-level directory of this distribution and at:
+##    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
+## No part of 'SLAC Beamtime Calibration Suite', including this file,
+## may be copied, modified, propagated, or distributed except according to
+## the terms contained in the LICENSE.txt file.
+##############################################################################
 import numpy as np
 from scipy.stats import binned_statistic
 import logging
@@ -44,15 +53,17 @@ def selectedClusters(clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=
     pass
 
 
-def goodClusters(clusters, row, col, nPixelCut=4, isSquare=None):
-    ##print(clusters)
-    pixelRowCol = np.bitwise_and((clusters[:, :, 1] == row), (clusters[:, :, 2] == col))
+def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
+    mCut = clusters[:,:,1] == module
+    pixelRowCol = np.bitwise_and((clusters[:, :, 2] == row), (clusters[:, :, 3] == col))
     if isSquare is None:
-        small = clusters[:, :, 3] < nPixelCut
+        small = clusters[:, :, 4] < nPixelCut
     else:
-        small = np.bitwise_and((clusters[:, :, 3] < nPixelCut), (clusters[:, :, 4] == isSquare))
-    return clusters[np.bitwise_and(small, pixelRowCol)]
-
+        small = np.bitwise_and((clusters[:, :, 4] < nPixelCut), (clusters[:, :, 5] == isSquare))
+    c = clusters[np.bitwise_and.reduce([mCut, small, pixelRowCol])]
+    ##print(c.shape)
+    ##print(c)
+    return c
 
 def getClusterEnergies(clusters):
     ##print(clusters)
