@@ -128,7 +128,7 @@ if __name__ == "__main__":
     smd = sic.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.camera, sic.run, size))
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
-    maxClusters = int(50 * 50 / 3 / 3 * 0.1 * 2)
+    maxClusters = 1000##int(50 * 50 / 3 / 3 * 0.1 * 2)
     try:
         seedCut = sic.detectorInfo.seedCut
     except:

@@ -40,7 +40,8 @@ class AnalyzeH5(object):
         self.files = args.files.replace(" ", "")
         print(self.files)
         self.outputDir = args.path
-        logging.info("Output dir: " + self.outputDir)
+        print("output dir:", self.outputDir)
+        ##logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
 
@@ -88,7 +89,7 @@ class AnalyzeH5(object):
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
         np.save(npyFileName, clusters)
-        logger.info("Wrote file: " + npyFileName)
+        ##logger.info("Wrote file: " + npyFileName)
 
         self.analyzeSimpleClusters(clusters)
 
@@ -148,7 +149,7 @@ class AnalyzeH5(object):
 
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        m = 1## temp hack
+        m = 1## temp hack, Kaz's favorite asic, off by 1
         fitInfo = np.zeros((maximumModule, rows, cols, 5))  ## mean, std, area, mu, sigma
         for i in range(rows):
             for j in range(cols):

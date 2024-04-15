@@ -27,7 +27,7 @@ ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # 
 class LinearityPlotsParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("scan")  ##self)
-        self.saturated = [True, False][0]
+        self.saturated = [True, False][1]
         print("using saturation fit =", self.saturated)
         logger.info("using saturation fit =" + str(self.saturated))
         self.residuals = [True, False][0]
@@ -172,8 +172,8 @@ class LinearityPlotsParallel(BasicSuiteScript):
         lpp.plotDataROIs(rois.T, fluxes, "ROIs")
 
     def analyze_h5_slice(self, dataFile, label):
-        module = 0
-        nModules = 1
+        module = 2
+        nModules = 3
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
         pixels = data["slice"][()]
@@ -185,15 +185,16 @@ class LinearityPlotsParallel(BasicSuiteScript):
         for i in range(rows):
             for j in range(cols):
                 iDet, jDet = self.sliceToDetector(i, j)
-                self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
-                self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
-                self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
-                self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
-                self.fitInfo[module, i, j, 12] = self.offset[module, iDet, jDet]
-                g0 = pixels[:, i, j] < lpp.g0cut
+                if False:
+                    self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
+                    self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
+                    self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
+                    self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
+                    self.fitInfo[module, i, j, 12] = self.offset[module, iDet, jDet]
+                g0 = pixels[:, module, i, j] < lpp.g0cut
                 g1 = np.logical_not(g0)
                 if len(g0[g0]) > 2:
-                    y = np.bitwise_and(pixels[:, i, j][g0], lpp.gainBitsMask)
+                    y = np.bitwise_and(pixels[:, module, i, j][g0], lpp.gainBitsMask)
                     y_g0_max = y.max()
                     x = fluxes[g0]
                     if self.profiles:
@@ -208,6 +209,8 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                         ##np.save("temp_r%dc%d_y.py" %(i,j), y)
                         ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
+                        ##print(fitInfo.shape)
+                        ##print(fitPar)
                         self.fitInfo[module, i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
                         self.fitInfo[module, i, j, 2] = r2
                         self.fitInfo[module, i, j, 6] = y_g0_max
@@ -226,7 +229,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                 plt.figure(1)
 
                 if len(g1[g1]) > 2:
-                    y = np.bitwise_and(pixels[:, i, j][g1], lpp.gainBitsMask)
+                    y = np.bitwise_and(pixels[:, module, i, j][g1], lpp.gainBitsMask)
                     y_g1_min = y.min()
                     x = fluxes[g1]
                     if self.profiles:
@@ -372,7 +375,7 @@ if __name__ == "__main__":
             fluxes=flux,
             rois=np.array(roiMeans),
             pixels=np.array(singlePixelData),
-            slice=rawFrames[0][lpp.regionSlice],
+            slice=rawFrames[lpp.regionSlice]
         )
 
         nGoodEvents += 1
