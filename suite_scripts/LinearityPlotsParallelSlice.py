@@ -32,7 +32,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
         logger.info("using saturation fit =" + str(self.saturated))
         self.residuals = [True, False][0]
         self.profiles = [True, False][1]
-        self.seabornProfiles = [True, False][1]
+        self.seabornProfiles = [True, False][0]
         try:
             print("positive events:", "positive" in self.special)
             logger.info("positive events:" + str("positive" in self.special))
@@ -413,6 +413,7 @@ if __name__ == "__main__":
         logger.info("Wrote file: " + fileName)
 
     if False:
+        print("this is broken")
         label = "rawInTimeDot"
         if doKazFlux:
             label = "raw_smarterPoints"
