@@ -27,29 +27,38 @@ if __name__ == "__main__":
 
     nGoodEvents = 0
     thresholded = None
-    while True:
-        evt = spc.getEvt()
-        if evt is None:
-            break
-        if not spc.isBeamEvent(evt):
-            continue
-        gain = None
-        if spc.special is not None and "fakePedestal" in spc.special:
+    gain = None
+    if spc.fakePedestal is not None:
+        if spc.detectorInfo is not None:
+            gain = spc.detectorInfo.aduPerKeV
+        else:
             if "FH" in spc.special:
                 gain = 20  ##17.## my guess
             elif "FM" in spc.special:
                 gain = 6.66  # 20/3
             else:
                 raise Exception
-            print("using gain correction", gain)
+        print("using gain correction", gain)
+    
+    if spc.threshold is not None:
+        spc.photonCut = spc.threshold
+    else:
+        spc.photonCut = 6.0
+        print("using photon cut", spc.photonCut)
+        
+    while True:
+        evt = spc.getEvt()
+        if evt is None:
+            break
+        if not spc.isBeamEvent(evt):
+            print('foo')
+            continue
 
-            frames = rawFrames.astype("float") - spc.fakePedestalFrame
-            frames /= gain  ## this helps with the bit shift
-            spc.photonCut = 6.0
+        if spc.fakePedestal is not None:
+            frames = rawFrames.astype("float") - spc.fakePedestal
+            frames /= gain ## psana may not have the right default
         else:
             frames = spc.getCalibData(evt)
-            spc.photonCut = 6  # .*2 ## keV
-            ## *2 because of bit shift
 
         if frames is None:
             ##print("No contrib found")
@@ -69,8 +78,8 @@ if __name__ == "__main__":
     if spc.special is not None and "slice" in spc.special:
         thresholded = thresholded[0][spc.regionSlice]
 
-    npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp), thresholded / nGoodEvents
-    np.save(npyFileName)
+    npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp)
+    np.save(npyFileName, thresholded / nGoodEvents)
     logger.info("Wrote file: " + npyFileName)
     print(
         "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"

@@ -25,14 +25,14 @@ class CalcNoise(BasicSuiteScript):
 
 if __name__ == "__main__":
     cn = CalcNoise()
-    print("have built a " + cn.className + "class")
-    logger.info("have built a " + cn.className + "class")
+    print("have built a " + cn.className + " class")
+    logger.info("have built a " + cn.className + " class")
 
     cn.setupPsana()
-    if cn.special is not None and "skip281" in cn.special:
-        skip281 = True
+    if cn.special is not None and "skip283" in cn.special:
+        skip283 = True
     else:
-        skip281 = False
+        skip283 = False
 
     stepGen = cn.getStepGen()
     ##for nstep, step in enumerate (cn.ds.steps()):
@@ -48,12 +48,12 @@ if __name__ == "__main__":
             ec = cn.getEventCodes(evt)
             beamEvent = cn.isBeamEvent(evt)
             ##if ec[281] or skip281:
-            if beamEvent or skip281:
+            if beamEvent or skip283:
                 if cn.special is not None and "CommonMode" in cn.special:
                     commonModeCut = 2.0## keV, calib
                     if cn.detObj and cn.detObj == 'raw':
                         frames = cn.getRawData(evt).astype('float')
-                        commonModeCut = 16384
+                        commonModeCut = self.gainBitsMask
                     else:
                         frames = cn.getCalibData(evt)
                     if frames is None:
@@ -71,16 +71,11 @@ if __name__ == "__main__":
                     if cn.special is not None and "parity" in cn.special:
                         if cn.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in cn.special):
                             continue
-                    try:
-                        frames = frames[0]
-                    except:
-                        if frames is None:
-                            ##print("None frames")
-                            continue
+                if frames is None:
+                    print("None frames on beam event, should not happen")
+                    logger.info("None frames on beam event")
+                    continue
 
-                        print("empty non-None frames")
-                        logger.info("empty non-None frames")
-                        continue
             else:
                 ##print(ec)
                 continue
@@ -90,12 +85,19 @@ if __name__ == "__main__":
                 continue
             for i, p in enumerate(cn.singlePixels):
                 try:
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
                 except:
                     statsArray[i] = Stats(frames.shape)
-                    statsArray[i].accumulate(np.double(frames), frames[p[1], p[2]])
+                    statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
+                    
         stats = statsArray[2]  ## only matters for cross-correlation
-        noise = stats.rms()
+        try:
+            noise = stats.rms()
+        except:
+            ## probably have no good events
+            cn.dumpEventCodeStatistics()
+            raise Exception("no stats object, probably no good events")
+        
         means = stats.mean()
         if cn.special is not None and "slice" in cn.special:
             noise = noise[cn.regionSlice]

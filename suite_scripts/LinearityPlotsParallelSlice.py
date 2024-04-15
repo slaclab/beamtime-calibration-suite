@@ -172,14 +172,24 @@ class LinearityPlotsParallel(BasicSuiteScript):
         lpp.plotDataROIs(rois.T, fluxes, "ROIs")
 
     def analyze_h5_slice(self, dataFile, label):
+        module = 0
+        nModules = 1
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
         pixels = data["slice"][()]
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        fitInfo = np.zeros((rows, cols, 8))  ##g0 slope, intercept, r2; g1 x3; max, min
+        if self.fitInfo is None:
+            self.fitInfo = np.zeros((nModules, rows, cols, 13))  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
+
         for i in range(rows):
             for j in range(cols):
+                iDet, jDet = self.sliceToDetector(i, j)
+                self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
+                self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
+                self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
+                self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
+                self.fitInfo[module, i, j, 12] = self.offset[module, iDet, jDet]
                 g0 = pixels[:, i, j] < lpp.g0cut
                 g1 = np.logical_not(g0)
                 if len(g0[g0]) > 2:
@@ -198,9 +208,9 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                         ##np.save("temp_r%dc%d_y.py" %(i,j), y)
                         ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
-                        fitInfo[i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
-                        fitInfo[i, j, 2] = r2
-                        fitInfo[i, j, 6] = y_g0_max
+                        self.fitInfo[module, i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
+                        self.fitInfo[module, i, j, 2] = r2
+                        self.fitInfo[module, i, j, 6] = y_g0_max
                         if i % 2 == 0 and i == j:
                             plt.figure(1)
                             plt.scatter(x, y, zorder=1, marker=".", s=1)
@@ -227,9 +237,9 @@ class LinearityPlotsParallel(BasicSuiteScript):
                     if x is not None:
                         fitPar, covar, fitFunc, r2 = self.fitData(x, y)
                         print(i, j, fitPar, r2, 1)
-                        fitInfo[i, j, 3:5] = fitPar
-                        fitInfo[i, j, 5] = r2
-                        fitInfo[i, j, 7] = y_g1_min
+                        self.fitInfo[module, i, j, 3:5] = fitPar
+                        self.fitInfo[module, i, j, 5] = r2
+                        self.fitInfo[module, i, j, 7] = y_g1_min
                         if i % 2 == 0 and i == j:
                             plt.scatter(x, y, zorder=3, marker=".")
                             plt.plot(x, fitFunc, color="k", zorder=4)
@@ -253,7 +263,8 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         plt.close()
 
         npyFileName = "%s/%s_r%d_sliceFits_%s.npy" % (self.outputDir, self.className, self.run, label)
-        np.save(npyFileName, fitInfo)
+        np.save(npyFileName, self.fitInfo) ## fix this to be called once
+        ## not once per module
         logger.info("Wrote file: " + npyFileName)
 
 if __name__ == "__main__":
@@ -261,6 +272,7 @@ if __name__ == "__main__":
     print("have built an LPP")
     logger.info("have built an LPP")
     if lpp.file is not None:
+        lpp.fitInfo = None
         lpp.analyze_h5(lpp.file, lpp.label + "_raw")
         lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
         print("done with standalone analysis of %s, exiting" % (lpp.file))

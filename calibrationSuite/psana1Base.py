@@ -11,6 +11,8 @@ from psana import *
 from PSCalib.NDArrIO import load_txt
 import logging
 import sys
+import os
+from calibrationSuite.argumentParser import ArgumentParser
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,37 @@ class PsanaBase(object):
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
 
-    ##        self.setupPsana()
+        self.args = ArgumentParser().parse_args()
+        logger.info("parsed cmdline args: " + str(self.args))
+
+        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
+        # if neither are set, use the default 'suiteConfig.py' file
+        defaultConfigFileName = "suiteConfig.py"
+        secondaryConfigFileName = defaultConfigFileName if self.args.configFile is None else self.args.configFile
+        # secondaryConfigFileName is returned if env var not set
+        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
+        config = self.importConfigFile(configFileName)
+        if config is None:
+            print("\ncould not find or read config file: " + configFileName)
+            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            print("exiting...")
+            sys.exit(1)
+        self.experimentHash = config.experimentHash
+        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
+        if self.experimentHash['detectorType'] not in knownTypes:
+            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+            return -1
+
+    ## self.setupPsana()
+
+    def importConfigFile(self, file_path):
+        if not os.path.exists(file_path):
+            print(f"The file '{file_path}' does not exist")
+            return None
+        spec = importlib.util.spec_from_file_location("config", file_path)
+        config_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(config_module)
+        return config_module
 
     def get_ds(self, run=None):
         if run is None:

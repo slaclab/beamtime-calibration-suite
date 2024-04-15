@@ -8,6 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from psana import *
+from calibrationSuite.argumentParser import ArgumentParser
+import importlib.util
 
 ##from PSCalib.NDArrIO import load_txt
 
@@ -43,17 +45,45 @@ class PsanaBase(object):
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         ##self.g0cut = 1<<15 ## 2022
-        self.g0cut = 1 << 14  ## 2023
-        self.gainBitsMask = self.g0cut - 1
 
         self.allowed_timestamp_mismatch = 1000
 
+        self.args = ArgumentParser().parse_args()
+        logger.info("parsed cmdline args: " + str(self.args))
+
+        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
+        # if neither are set, use the default 'suiteConfig.py' file
+        defaultConfigFileName = "suiteConfig.py"
+        secondaryConfigFileName = defaultConfigFileName if self.args.configFile is None else self.args.configFile
+        # secondaryConfigFileName is returned if env var not set
+        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
+        config = self.importConfigFile(configFileName)
+        if config is None:
+            print("\ncould not find or read config file: " + configFileName)
+            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            print("exiting...")
+            sys.exit(1)
+        self.experimentHash = config.experimentHash
+        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
+        if self.experimentHash['detectorType'] not in knownTypes:
+            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+            return -1
         ##self.setupPsana()
+
+    def importConfigFile(self, file_path):
+        if not os.path.exists(file_path):
+            print(f"The file '{file_path}' does not exist")
+            return None
+        spec = importlib.util.spec_from_file_location("config", file_path)
+        config_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(config_module)
+        return config_module
 
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource(exp=self.exp, run=run, intg_det="epixhr", max_events=self.maxNevents)
+        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
+        return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
 
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
@@ -73,17 +103,11 @@ class PsanaBase(object):
         ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
         ## make this less dumb to accomodate epixM etc.
         ## use a dict etc.
-        self.det = self.myrun.Detector("epixhr")
+        self.det = self.myrun.Detector(self.experimentHash['detectorType'])
         if self.det is None:
             print("no det object for epixhr, what?  Pretend it's ok.")
             ##raise Exception
         ## could set to None and reset with first frame I guess, or does the det object know?
-        self.detRows = 288
-        self.detCols = 384
-        self.detColsPerBank = 96
-        self.detNbanks = int(self.detCols / self.detColsPerBank)
-        self.detNbanksCol = 2  ## assumes four asics
-        self.detRowsPerBank = int(self.detRows / self.detNbanksCol)
 
         self.timing = self.myrun.Detector("timing")
         self.desiredCodes = {"120Hz": 272, "4kHz": 273, "5kHz": 274}
@@ -280,27 +304,9 @@ class PsanaBase(object):
             return sv
         return self.step_value(step)
 
-    def getRawData(self, evt, gainBitsMasked=True):
-        frames = self.det.raw.raw(evt)
-        if frames is None:
-            return None
-        if self.special:
-            if 'thirteenBits' in self.special:
-                frames = (frames & 0xfffe)
-                ##print("13bits")
-            elif 'twelveBits' in self.special:
-                frames = (frames & 0xfffc)
-                ##print("12bits")
-            elif 'elevenBits' in self.special:
-                frames = (frames & 0xfff8)
-                ##print("11bits")
-            elif 'tenBits' in self.special:
-                frames = (frames & 0xfff0)
-                ##print("10bits")
-        if gainBitsMasked:
-            return frames & self.gainBitsMask
-        return frames
-
+    def plainGetRawData(self, evt):
+        return self.det.raw.raw(evt)
+    
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames
