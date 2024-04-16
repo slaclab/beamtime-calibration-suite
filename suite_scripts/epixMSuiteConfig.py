@@ -38,6 +38,6 @@ experimentHash = {
     #                  'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     ##                  'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     ##"ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
-    "ROIs": ["../data/smallRegionFourAsics.npy", "../data/smallRegionTwoAsicsForBhavna.npy"],
+    "ROIs": ["../data/cometPinhole.npy", "../data/smallRegionFourAsics.npy", "../data/smallRegionTwoAsicsForBhavna.npy"],
     "regionSlice": np.s_[0:4, 150:180:, 340:368],## small region near Kaz rec
 }
