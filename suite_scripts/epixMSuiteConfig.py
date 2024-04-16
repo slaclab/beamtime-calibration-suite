@@ -24,8 +24,8 @@ singlePixelArray.append([2, 178, 367])
     
 experimentHash = {
     "detectorType": "epixm",
-    ##"exp": "rixx1005922",
-    "exp": "rixx1003721",
+    "exp": "rixx1005922",
+    ##"exp": "rixx1003721",
     "location": "RixEndstation",
     "analyzedModules":[1,2],
     "seedCut":40, ## pure guess
@@ -38,6 +38,6 @@ experimentHash = {
     #                  'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     ##                  'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     ##"ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
-    "ROIs": ["../data/smallRegionFourAsics.npy"],
-    "regionSlice": np.s_[0:4, 160:180:, 350:368],## random
+    "ROIs": ["../data/smallRegionFourAsics.npy", "../data/smallRegionTwoAsicsForBhavna.npy"],
+    "regionSlice": np.s_[0:4, 150:180:, 340:368],## small region near Kaz rec
 }

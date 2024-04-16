@@ -56,6 +56,7 @@ class AnalyzeH5(object):
         try:
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
+            print('slice coordinates:', self.sliceCoordinates)
         except:
             ## do something useful here, maybe
             self.analysisType = None
@@ -83,7 +84,7 @@ class AnalyzeH5(object):
         except:
             pass
 
-        self.nBins = 100
+        self.nBins = 200## for epixM with a lot of 2 photon events...
         self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
         ##tmp
@@ -177,7 +178,7 @@ class AnalyzeH5(object):
                 plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
                 plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
                 plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
-                figFileName = "%s/%s_m%d_r%d_c%d_r%d_c%d_%s_E.png" % (
+                figFileName = "%s/%s_r%d_c%d_m%d_r%d_c%d_%s_E.png" % (
                     self.outputDir,
                     self.__class__.__name__,
                     self.run,
