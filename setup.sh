@@ -13,5 +13,6 @@ echo "export OUTPUT_ROOT="\"$OUTPUT_ROOT\"
 
 # point to which config file to use
 #export SUITE_CONFIG="rixSuiteConfig.py"
-export SUITE_CONFIG="epixMSuiteConfig.py"
+config_file_dir="$current_dir/config_files"
+export SUITE_CONFIG="$config_file_dir/epixMSuiteConfig.py"
 echo "export SUITE_CONFIG="\"$SUITE_CONFIG\"
