@@ -11,14 +11,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys, re
 
-from runInfo import *
-
 import calibrationSuite.loggingSetup as ls
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+
+
+runInfoDict = {'591':'AML 2500', '638':'AML 120'}
 
 
 class LinearityInfo(object):  ## describes the .npy array
