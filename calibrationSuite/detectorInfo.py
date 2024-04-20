@@ -79,7 +79,7 @@ class DetectorInfo:
         self.negativeGain = True
         self.aduPerKeV = 666
         self.seedCut = 4 ## hopefully can be lowered
-        self.neighborCut = 0.5 ## ditto
+        self.neighborCut = 0.25 ## ditto
         
     def setup_rixsCCD(self, mode='1d', version=0):
         self.nTestPixelsPerBank = 36
