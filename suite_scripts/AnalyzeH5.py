@@ -40,7 +40,8 @@ class AnalyzeH5(object):
         self.files = args.files.replace(" ", "")
         print(self.files)
         self.outputDir = args.path
-        logging.info("Output dir: " + self.outputDir)
+        print("output dir:", self.outputDir)
+        ##logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
 
@@ -55,6 +56,7 @@ class AnalyzeH5(object):
         try:
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
+            print('slice coordinates:', self.sliceCoordinates)
         except:
             ## do something useful here, maybe
             self.analysisType = None
@@ -82,13 +84,13 @@ class AnalyzeH5(object):
         except:
             pass
 
-        self.nBins = 100
+        self.nBins = 200## for epixM with a lot of 2 photon events...
         self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
         np.save(npyFileName, clusters)
-        logger.info("Wrote file: " + npyFileName)
+        ##logger.info("Wrote file: " + npyFileName)
 
         self.analyzeSimpleClusters(clusters)
 
@@ -148,7 +150,7 @@ class AnalyzeH5(object):
 
         rows = self.sliceEdges[0]
         cols = self.sliceEdges[1]
-        m = 1## temp hack
+        m = 1## temp hack, Kaz's favorite asic, off by 1
         fitInfo = np.zeros((maximumModule, rows, cols, 5))  ## mean, std, area, mu, sigma
         for i in range(rows):
             for j in range(cols):
@@ -176,7 +178,7 @@ class AnalyzeH5(object):
                 plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
                 plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
                 plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
-                figFileName = "%s/%s_m%d_r%d_c%d_r%d_c%d_%s_E.png" % (
+                figFileName = "%s/%s_r%d_c%d_m%d_r%d_c%d_%s_E.png" % (
                     self.outputDir,
                     self.__class__.__name__,
                     self.run,

@@ -51,10 +51,11 @@ if __name__ == "__main__":
         if evt is None:
             break
         if not spc.isBeamEvent(evt):
-            print('foo')
+            ##print('foo')
             continue
 
         if spc.fakePedestal is not None:
+            rawFrames = spc.getRawData(evt)
             frames = rawFrames.astype("float") - spc.fakePedestal
             frames /= gain ## psana may not have the right default
         else:

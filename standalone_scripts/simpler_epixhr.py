@@ -19,6 +19,7 @@ run = eval(sys.argv[2])
 ds = DataSource(exp="%s" % (expt), run=run)
 myrun = next(ds.runs())
 det = myrun.Detector("epixhr")
+det = myrun.Detector("epixm")
 
 
 from psmon import publish
