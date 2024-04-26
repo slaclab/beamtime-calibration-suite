@@ -97,6 +97,7 @@ class PsanaBase(object):
         try:
             self.step_value = self.myrun.Detector("step_value")
             self.step_docstring = self.myrun.Detector("step_docstring")
+            ##print('foo', self.step_value, self.step_docstring)
         except:
             self.step_value = self.step_docstring = None
 
@@ -297,11 +298,12 @@ class PsanaBase(object):
         ##print(self.step_value(step),self.step_docstring(step),useStringInfo)
         if useStringInfo:
             payload = self.step_docstring(step)
-            ##print(payload)
+            print(payload)
             sv = eval(payload.split()[-1][:-1])
+            ##print('sv', sv)
             print("step", int(self.step_value(step)), sv)
             logger.info("step" + str(int(self.step_value(step))) + str(sv))
-            return sv
+            return int(float(sv))
         return self.step_value(step)
 
     def plainGetRawData(self, evt):

@@ -7,8 +7,6 @@ current_dir=$(pwd)
 export PYTHONPATH="$PYTHONPATH:$current_dir"
 
 # so output folders are written in a shared location
-#export OUTPUT_ROOT="/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/"
-export OUTPUT_ROOT="/sdf/data/lcls/ds/rix/rixx1005922/scratch/"
 echo "export OUTPUT_ROOT="\"$OUTPUT_ROOT\"
 
 # point to which config file to use

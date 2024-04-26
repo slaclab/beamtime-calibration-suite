@@ -29,6 +29,8 @@ class TimeScanParallel(BasicSuiteScript):
             pass
 
     def plotData(self, rois, pixels, delays, label):
+##        print(type(delays))
+##        print('delays here:', delays)
         for i, roi in enumerate(self.ROIs):
             ax = plt.subplot()
             ax.plot(delays, rois[i], label=self.ROIfileNames[i])
@@ -36,7 +38,7 @@ class TimeScanParallel(BasicSuiteScript):
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
-            plt.xlabel("Time delay (Ticks)")
+            plt.xlabel("Time delay (Ticks/1000)")
             # plt.ylabel('Step Mean (keV)')
             plt.ylabel("Step Mean (ADU)")
             plt.grid(which="major", linewidth=0.75)
@@ -56,7 +58,7 @@ class TimeScanParallel(BasicSuiteScript):
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
-            plt.xlabel("Time delay (Ticks)")
+            plt.xlabel("Time delay (Ticks/1000)")
             # plt.ylabel('Step Mean (keV)')
             plt.ylabel("Step Mean (ADU)")
             ##plt.yscale('log')
@@ -76,7 +78,7 @@ class TimeScanParallel(BasicSuiteScript):
             minor_locator = AutoMinorLocator(5)
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
-            plt.xlabel("Delay (Ticks)")
+            plt.xlabel("Delay (Ticks/1000)")
             plt.ylabel("Pixel ADU")
 
             figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
@@ -119,10 +121,14 @@ class TimeScanParallel(BasicSuiteScript):
 
         a = h5py.File(dataFile)[norm]
         delays = np.array([k for k in a.keys()])
-        delays = delays.astype("int")
+        print(delays)
+        ##delays = delays.astype('float').astype("int")
+        ##delays = delays.astype('float').astype("int")
         delays.sort()
         d = np.array([a[str(k)] for k in delays])
         delays = np.array([d for d in delays])
+        delays = [eval(d)/1000. for d in delays]
+        ##delays /= 1000.
         print(delays)
 
         runString = "_r%d" % (self.run)
@@ -168,7 +174,7 @@ if __name__ == "__main__":
     offset = len(tsp.ROIs)
 
     stepGen = tsp.getStepGen()
-    ##    for nstep, step in enumerate (tsp.ds.steps()):
+    ##for nstep, step in enumerate (tsp.ds.steps()):
     for nstep, step in enumerate(stepGen):
         ##scanValue = tsp.getScanValue(step, useStringInfo=True)
         scanValue = tsp.getScanValue(step, True)
@@ -193,12 +199,12 @@ if __name__ == "__main__":
 
                 ##tsp.isBeamEvent(evt):
                 if tsp.detectorInfo.detectorType == 'epixm' or tsp.isBeamEvent(evt):##FEE hack
-                    frames = tsp.getRawData(evt, gainBitsMasked=True)
+                    frames = tsp.getRawData(evt)##, gainBitsMasked=True)
                     ##print("real beam on event", nstep, nevt)
                     ##logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
                 elif tsp.use_281_for_old_data and ec[281]:
-                    frames = tsp.getRawData(evt, gainBitsMasked=True)
-                    ##print("281 only...")
+                    frames = tsp.getRawData(evt)##, gainBitsMasked=True)
+                    print("281 only...")
                 elif ec[137]:
                     tsp.flux = tsp._getFlux(evt) ## fix this
                     continue
@@ -208,7 +214,7 @@ if __name__ == "__main__":
                     continue
             else:
                 tsp.flux = tsp._getFlux(evt)  ## fix this
-                frames = tsp.getRawData(evt, gainBitsMasked=True)
+                frames = tsp.getRawData(evt)##, gainBitsMasked=True)
 
             if frames is None:
                 ##print("no frame")
