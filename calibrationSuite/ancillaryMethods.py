@@ -67,9 +67,19 @@ def getSmallClusters(clusters, nPixelCut=4):
 def getSquareClusters(clusters):
     return clusters[clusters[:,5]==1]
 
-def getMatchedClusters(clusters, m, row, col):
-    matched = np.bitwise_and.reduce([(clusters[:,1]==m), (clusters[:,2]==row), clusters[:,3]==col])
-    return clusters[matched]
+def getMatchedClusters(clusters, dimension, n):
+    if dimension == 'column':
+        return clusters[(clusters[:,3]==n)]
+    if dimension == 'row':
+        return clusters[(clusters[:,2]==n)]
+    if dimension == 'module':
+        return clusters[(clusters[:,1]==n)]
+    return None
+
+
+##def getMatchedClusters(clusters, m, row, col):
+##    matched = np.bitwise_and.reduce([(clusters[:,1]==m), (clusters[:,2]==row), clusters[:,3]==col])
+##    return clusters[matched]
 
 def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     ## this is too slow

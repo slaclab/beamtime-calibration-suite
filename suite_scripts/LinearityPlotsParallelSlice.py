@@ -80,11 +80,17 @@ class LinearityPlotsParallel(BasicSuiteScript):
             if partialMode != 1 and len(g0s[i]) > 0:
                 x = g0Fluxes[i]
                 y = g0s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order)  ##add fit_reg=None for no plot
+                ##yMaxPlot = y.max()
+                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order, truncate=True)  ##add fit_reg=None for no plot
+                ## truncate added to keep epixM plot lines from messing with y limits 
             if partialMode != 0 and len(g1s[i]) > 0:
                 x = g1Fluxes[i]
                 y = g1s[i]
-                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order)  ##add fit_reg=None for no plot
+                ##try:## using truncate instead
+                    ##yMaxPlot = max(y.max(), yMaxPlot)
+                ##except:
+                    ##yMaxPlot = y.max()
+                sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order, truncate=True)  ##add fit_reg=None for no plot
             plt.xlabel("wave8 flux (ADU)")
             if "raw" in label:
                 plt.ylabel("Red medium, blue low (ADU)")
