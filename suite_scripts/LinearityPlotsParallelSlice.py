@@ -107,7 +107,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 ##lot of hackiness here
 
             plt.title(label + "_profile")
-            figFileName = "%s/%s_p%d_r%d_c%d_%s_profile.png" % (self.outputDir, self.className, i, self.run, self.camera, label)
+            figFileName = "%s/%s_p%d_mod%d_row%d_col%d_r%d_c%d_%s_profile.png" % (self.outputDir, self.className, i, p[0], p[1], p[2], self.run, self.camera, label)
             plt.savefig(figFileName)
             plt.close()
 
