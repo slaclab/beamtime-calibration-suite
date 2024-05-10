@@ -23,6 +23,9 @@ import os
 if os.getenv("foo") == "1":
     print("psana1")
     from calibrationSuite.psana1Base import *
+elif os.getenv("foo") == "0":
+    print("rogue or whatever")
+    from calibrationSuite.nonPsanaBase import *
 else:
     print("psana2")
     from calibrationSuite.psana2Base import *
