@@ -184,15 +184,19 @@ if __name__ == "__main__":
             print("sic.det:", sic.det)
             pass
 
+
+    zeroLowGain = False
+    if sic.special and 'zeroLowGain' in sic.special:
+        zeroLowGain = True
+        
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
         if not sic.fakeBeamCode and not sic.isBeamEvent(evt):
             continue
-
-        zeroLowGain = False
-        if sic.special and 'zeroLowGain' in sic.special:
+        
+        if zeroLowGain:
             rawFrames = sic.getRawData(evt, gainBitsMasked=False)
         else:
             rawFrames = sic.getRawData(evt)
