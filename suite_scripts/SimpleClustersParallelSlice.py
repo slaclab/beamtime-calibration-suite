@@ -191,15 +191,28 @@ if __name__ == "__main__":
         if not sic.fakeBeamCode and not sic.isBeamEvent(evt):
             continue
 
-        rawFrames = sic.getRawData(evt)
+        zeroLowGain = False
+        if sic.special and 'zeroLowGain' in sic.special:
+            rawFrames = sic.getRawData(evt, gainBitsMasked=False)
+        else:
+            rawFrames = sic.getRawData(evt)
+
+
         if rawFrames is None:
             continue
+        if zeroLowGain: g1 = rawFrames>=sic.g0cut
 
         frames = None
         if sic.fakePedestal is not None:
             frames = rawFrames.astype("float") - sic.fakePedestal
+            if zeroLowGain: frames[g1] = 0
         elif pedestal is not None:
             frames = rawFrames.astype("float") - pedestal
+            if zeroLowGain: frames[g1] = 0
+        ##else:
+            ##print("something is probably wrong, need a pedestal to cluster")
+            ##sys.exit(0)
+            
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666*10, 10)
