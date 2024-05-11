@@ -52,7 +52,7 @@ class DetectorInfo:
         self.nRows = 288
         self.nCols = 284
         self.nColsPerBank = 96
-        self.detNbanks = int(self.nCols / self.nColsPerBank)
+        self.nBanksRow = int(self.nCols / self.nColsPerBank)
         self.nBanksCol = 2
         self.nRowsPerBank = int(self.nRows / self.nBanksCol)
 
@@ -69,17 +69,17 @@ class DetectorInfo:
         ## per module (aka asic)
         self.nRows = 192
         self.nBanksRow = 4
-        self.nRowsPerBank = self.nRows/self.nBanksRow
+        self.nRowsPerBank = int(self.nRows/self.nBanksRow)
         self.nCols = 384
         self.nBanksCol = 6
-        self.nColsPerBank = self.nCols/self.nBanksCol
+        self.nColsPerBank = int(self.nCols/self.nBanksCol)
         self.preferredCommonMode = 'rowCommonMode'## guess
         self.clusterShape = [3,3]
         self.gainMode = None ## may want to know about default, softHigh, softLow
         self.negativeGain = True
         self.aduPerKeV = 666
         self.seedCut = 4 ## hopefully can be lowered
-        self.neighborCut = 0.5 ## ditto
+        self.neighborCut = 0.25 ## ditto
         
     def setup_rixsCCD(self, mode='1d', version=0):
         self.nTestPixelsPerBank = 36

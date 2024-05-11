@@ -125,10 +125,10 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
-    smd = sic.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.camera, sic.run, size))
+    smd = sic.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size))
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
-    maxClusters = 1000##int(50 * 50 / 3 / 3 * 0.1 * 2)
+    maxClusters = 10000##int(50 * 50 / 3 / 3 * 0.1 * 2)
     try:
         seedCut = sic.detectorInfo.seedCut
     except:
@@ -137,6 +137,8 @@ if __name__ == "__main__":
         neighborCut = sic.detectorInfo.neighborCut
     except:
         neighborCut = 0.5
+
+    print("using seed, neighbor cuts", seedCut, neighborCut)
 
     sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
     nClusterElements = len(sic.clusterElements)
@@ -182,22 +184,39 @@ if __name__ == "__main__":
             print("sic.det:", sic.det)
             pass
 
+
+    zeroLowGain = False
+    if sic.special and 'zeroLowGain' in sic.special:
+        zeroLowGain = True
+        
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
         if not sic.fakeBeamCode and not sic.isBeamEvent(evt):
             continue
+        
+        if zeroLowGain:
+            rawFrames = sic.getRawData(evt, gainBitsMasked=False)
+        else:
+            rawFrames = sic.getRawData(evt)
 
-        rawFrames = sic.getRawData(evt)
+
         if rawFrames is None:
             continue
+        if zeroLowGain: g1 = rawFrames>=sic.g0cut
 
         frames = None
         if sic.fakePedestal is not None:
             frames = rawFrames.astype("float") - sic.fakePedestal
+            if zeroLowGain: frames[g1] = 0
         elif pedestal is not None:
             frames = rawFrames.astype("float") - pedestal
+            if zeroLowGain: frames[g1] = 0
+        ##else:
+            ##print("something is probably wrong, need a pedestal to cluster")
+            ##sys.exit(0)
+            
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666*10, 10)
@@ -211,7 +230,7 @@ if __name__ == "__main__":
 
         if sic.special is not None:
             if "regionCommonMode" in sic.special:
-                frame = sic.regionCommonModeCorrection(frame, sic.regionSlice, 2.0)
+                frames = sic.regionCommonModeCorrection(frames, sic.regionSlice, 2.0)
             if "rowCommonMode" in sic.special:
                 frames = sic.rowCommonModeCorrection3d(frames, 2.0)
             if "colCommonMode" in sic.special:
@@ -219,7 +238,7 @@ if __name__ == "__main__":
 
         if frames is None:
             print("common mode killed frames???")
-            continue
+            raise Exception
 
         flux = sic.flux
         if sic.useFlux and flux is None:

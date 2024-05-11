@@ -12,7 +12,6 @@ import numpy as np
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 
-##import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
@@ -32,7 +31,6 @@ logger = logging.getLogger(__name__)
 
 class AnalyzeH5(object):
     def __init__(self):
-        print("in init")
 
         args = ArgumentParser().parse_args()
 
@@ -78,7 +76,13 @@ class AnalyzeH5(object):
     def clusterAnalysis(self):
         clusters = None
         energyHist = None
-        clusters = np.concatenate([h5["clusterData"][()] for h5 in self.h5Files])
+        clusters = np.concatenate(
+            [ancillaryMethods.getEnergeticClusters(h5["clusterData"][()])
+            for h5 in self.h5Files])
+        ## getEnergeticClusters
+        ## makes [events, maxClusters, nClusterElements] -> [m, n]
+        ## makes memory violation a bit less likely too
+        
         try:
             energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
         except:
@@ -129,8 +133,20 @@ class AnalyzeH5(object):
         ## should make a dict for this info and use below instead of indices
         
         ax = plt.subplot()
-        energy = clusters[:, :, 0]  ##.flatten()
-        maximumModule = int(clusters[:,:,1].max())
+        energy = clusters[:, 0]  ##.flatten()
+        maximumModule = int(clusters[:,1].max())
+        analyzedModules = np.unique(clusters[:,1]).astype('int')
+        print("analyzing modules", analyzedModules)
+
+        ##rows = self.sliceEdges[0]
+        ##cols = self.sliceEdges[1]
+        ## doesn't exist in h5 yet so calculate dumbly instead
+        rows = int(clusters[:,2].max())+1
+        cols = int(clusters[:,3].max())+1
+        print("appear to have a slice with %d rows, %d cols" %(rows, cols))
+        self.sliceCoordinates = [[0, rows], [0, cols]] ## temp - get from h5
+        self.sliceEdges = [rows, cols]
+
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
@@ -148,50 +164,55 @@ class AnalyzeH5(object):
         logger.info("Wrote file: " + figFileName)
         plt.close()
 
-        rows = self.sliceEdges[0]
-        cols = self.sliceEdges[1]
-        m = 1## temp hack, Kaz's favorite asic, off by 1
-        fitInfo = np.zeros((maximumModule, rows, cols, 5))  ## mean, std, area, mu, sigma
-        for i in range(rows):
-            for j in range(cols):
-                detRow, detCol = self.sliceToDetector(i, j)
-                ax = plt.subplot()
-                currGoodClusters = ancillaryMethods.goodClusters(clusters, m, i, j, nPixelCut=3, isSquare=1)
-                if len(currGoodClusters) < 5:
-                    print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
-                    logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
-                    continue
-                energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
-                photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
-                nPixelClusters = (photonEcut > 0).sum()
-                print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
-                logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
-                photonRegion = energies[photonEcut]
-                mean = photonRegion.mean()
-                std = photonRegion.std()
-                a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
-                area = fitFunctions.gaussianArea(a, sigma)
-                fitInfo[m, i, j] = mean, std, area, mu, sigma
+        verbose = False
+        fitInfo = np.zeros((maximumModule+1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
+        for m in analyzedModules:
+            modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, 'module', m)
+            for i in range(rows):
+                rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, 'row', i)
 
-                ax.set_xlabel("energy (keV)")
-                ax.set_title("pixel %d,%d,%d, small cluster cuts" % (m, detRow, detCol))
-                plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
-                plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
-                plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
-                figFileName = "%s/%s_r%d_c%d_m%d_r%d_c%d_%s_E.png" % (
-                    self.outputDir,
-                    self.__class__.__name__,
-                    self.run,
-                    self.camera,
-                    m,
-                    detRow,
-                    detCol,
-                    self.label,
-                )
-                plt.savefig(figFileName)
-                logger.info("Wrote file: " + figFileName)
-                plt.close()
-
+                for j in range(cols):
+                    detRow, detCol = self.sliceToDetector(i, j)
+                    currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, 'column', j)
+                    if len(currGoodClusters) < 5:
+                        print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                        logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                        continue
+                    energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
+                    photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
+                    nPixelClusters = (photonEcut > 0).sum()
+                    print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
+                    logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
+                    photonRegion = energies[photonEcut]
+                    mean = photonRegion.mean()
+                    std = photonRegion.std()
+                    ax = plt.subplot()
+                    a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
+                    area = fitFunctions.gaussianArea(a, sigma)
+                    fitInfo[m, i, j] = mean, std, area, mu, sigma
+                    if i%13==1 and j%17==1:
+                        ## don't save a zillion plots when analyzing full array
+                        ## should add singlePixelArray here
+                        ax.set_xlabel("energy (keV)")
+                        ax.set_title("pixel %d,%d,%d, small cluster cuts" % (m, detRow, detCol))
+                        plt.figtext(0.7, 0.8, "%d entries (peak)" % (area))
+                        plt.figtext(0.7, 0.75, "mu %0.2f" % (mu))
+                        plt.figtext(0.7, 0.7, "sigma %0.2f" % (sigma))
+                        figFileName = "%s/%s_r%d_c%d_m%d_r%d_c%d_%s_E.png" % (
+                            self.outputDir,
+                            self.__class__.__name__,
+                            self.run,
+                            self.camera,
+                            m,
+                            detRow,
+                            detCol,
+                            self.label,
+                        )
+                        plt.savefig(figFileName)
+                        logger.info("Wrote file: " + figFileName)
+                    plt.close()
+                    
         npyFileName = "%s/%s_r%d_c%d_%s_fitInfo.npy" % (
             self.outputDir,
             self.__class__.__name__,
@@ -220,7 +241,6 @@ class AnalyzeH5(object):
     def histogramAndFitGaussian(self, ax, energies, nBins):
         y, bin_edges, _ = ax.hist(energies, nBins)
         bins = (bin_edges[:-1] + bin_edges[1:]) / 2
-        ##print(y, bins)
         a, mean, std = fitFunctions.estimateGaussianParametersFromUnbinnedArray(energies)
         try:
             popt, pcov = fitFunctions.curve_fit(fitFunctions.gaussian, bins, y, [a, mean, std])
