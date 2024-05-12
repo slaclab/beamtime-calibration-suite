@@ -23,8 +23,9 @@ command = "python AnalyzeH5.py -r %s -f " % (baseRun)
 for r in runs:
     globString = "%s/%s*r%s*.h5" % (basePath, analysisType, r)
     f = glob.glob(globString)
+    f0 = [x for x in f if 'part' not in x]
     try:
-        command += f[-1] + ","
+        command += f0[-1] + ","
     except:
         print("could not find %s" % (globString))
 

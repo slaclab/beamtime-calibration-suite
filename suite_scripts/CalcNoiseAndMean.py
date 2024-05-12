@@ -59,11 +59,19 @@ if __name__ == "__main__":
                     if frames is None:
                         continue
                     if "noCommonMode" in cn.special:
-                        frames = cn.noCommonModeCorrection(frames[0])
+                        frames = cn.noCommonModeCorrection(frames)
                     elif "rowCommonMode" in cn.special:
-                        frames = cn.rowCommonModeCorrection(frames[0], 2.0)
+                        if self.fakePedestal is None:
+                            print("row common mode needs reasonable pedestal")
+                            raise Exception
+                        frames = frames - cn.fakePedestal
+                        frames = cn.rowCommonModeCorrection3d(frames, 2.0)
                     elif "colCommonMode" in cn.special:
-                        frames = cn.colCommonModeCorrection(frames[0], 2.0)
+                        if self.fakePedestal is None:
+                            print("col common mode needs reasonable pedestal")
+                            raise Exception
+                        frames = frames - cn.fakePedestal
+                        frames = cn.colCommonModeCorrection3d(frames, 2.0)
                     elif "regionCommonMode" in cn.special:
                         frames = cn.regionCommonModeCorrection(frames[0], cn.regionSlice, commonModeCut)
                 else:
@@ -107,6 +115,9 @@ if __name__ == "__main__":
         else:
             pass
 
+        if cn.fakePedestal is not None:
+            cn.label += "_fakePdestal"
+            
         meanRmsFileName = "%s/CalcNoiseAndMean_%s_rms_r%d_step%s.npy" % (cn.outputDir, cn.label, cn.run, nstep)
         np.save(meanRmsFileName, noise)
         meanFileName = "%s/CalcNoiseAndMean_mean_%s_r%d_step%s.npy" % (cn.outputDir, cn.label, cn.run, nstep)

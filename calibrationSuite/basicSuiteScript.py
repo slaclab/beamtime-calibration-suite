@@ -262,10 +262,12 @@ class BasicSuiteScript(PsanaBase):
     def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
         for module in self.analyzedModules:
             frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
-
+        return frames
+    
     def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
         for module in self.analyzedModules:
             frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+        return frames
 
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
         ## this takes a 2d object
@@ -273,21 +275,21 @@ class BasicSuiteScript(PsanaBase):
 
         for r in range(self.detectorInfo.nRows):
             colOffset = 0
-            ##for b in range(0, self.detNbanks):
-            for b in range(0, 2):
+            for b in range(0, self.detectorInfo.nBanksCol):
+            ##for b in range(0, 2):
                 try:
                     rowCM = np.median(
-                        frame[r, colOffset : colOffset + self.detColsPerBank][
-                            frame[r, colOffset : colOffset + self.detColsPerBank] < arbitraryCut
+                        frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank][
+                            frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] < arbitraryCut
                         ]
                     )
-                    frame[r, colOffset : colOffset + self.detColsPerBank] -= rowCM
+                    frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
                 except:
                     rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
-                    print(frame[r, colOffset : colOffset + self.detColsPerBank])
-                colOffset += self.detColsPerBank
+                    print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
+                colOffset += self.detectorInfo.nColsPerBank
         return frame
 
     def colCommonModeCorrection(self, frame, arbitraryCut=1000):
@@ -295,9 +297,9 @@ class BasicSuiteScript(PsanaBase):
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
         ##rand = np.random.random()
-        for c in range(self.detCols):
+        for c in range(self.detectorInfo.nCols):
             rowOffset = 0
-            for b in range(0, self.detNbanksCol):
+            for b in range(0, self.detectorInfo.nBanksRow):
                 try:
                     colCM = np.median(
                         frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][

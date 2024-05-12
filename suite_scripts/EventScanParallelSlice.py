@@ -112,6 +112,7 @@ class EventScanParallel(BasicSuiteScript):
                 ax.hist(pixels[i], 100, range=[pixels[i].min().astype("int"), pixels[i].max().astype("int")])
                 plt.xlabel("Pixel ADU")
                 plt.title("Event scan projection of pixel %d" % (i))
+                plt.yscale('log')
                 pltFileName = "%s/%s_r%d_c%d_%s_pixel%d_hist.png" % (
                     self.outputDir,
                     self.__class__.__name__,
@@ -197,7 +198,15 @@ if __name__ == "__main__":
     except:
         skip_283_check = False ## for running at MFX
 
-    h5FileName = "%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size)
+    zeroLowGain = False
+    zeroHighGain = False
+    if esp.special:
+        if "zeroLowGain" in esp.special:
+            zeroLowGain = True
+        elif "zeroHighGain" in esp.special:
+            zeroHighGain = True
+
+    h5FileName = "%s/%s_c%d_r%d_%s_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.label, size)
     smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0
@@ -215,11 +224,23 @@ if __name__ == "__main__":
                 ##print(ec)
                 continue
         frames = esp.getRawData(evt, gainBitsMasked=True)
+        if zeroLowGain or zeroHighGain:
+            frames = esp.getRawData(evt, gainBitsMasked=False)
+            if zeroLowGain:
+                gainFilter = frames>=esp.g0cut
+            else:
+                gainFilter = ~ (frames>=esp.g0cut)
+            frames[gainFilter] = 0
+            frames = frames & esp.gainBitsMask
+
         if frames is None:
             ##print("no frame")
             continue
         if esp.fakePedestal is not None:
             frames = frames.astype("float") - esp.fakePedestal
+            if zeroLowGain or zeroHighGain:
+                frames[gainFilter] = 0
+
             if esp.special is not None and "crazyModeForDionisio" in esp.special:
                 print("crazy mode for Dionisio")
                 plt.imshow(np.vstack(frames[1:3].clip(-500, 500)))

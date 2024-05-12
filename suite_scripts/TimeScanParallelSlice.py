@@ -120,16 +120,16 @@ class TimeScanParallel(BasicSuiteScript):
         import h5py
 
         a = h5py.File(dataFile)[norm]
-        delays = np.array([k for k in a.keys()])
-        print(delays)
+        delays = np.array([int(eval(k)) for k in a.keys()])
+        print('delays:', delays)
         ##delays = delays.astype('float').astype("int")
         ##delays = delays.astype('float').astype("int")
         delays.sort()
         d = np.array([a[str(k)] for k in delays])
         delays = np.array([d for d in delays])
-        delays = [eval(d)/1000. for d in delays]
+        delays = [d/1000. for d in delays]
         ##delays /= 1000.
-        print(delays)
+        print('scaled delays', delays)
 
         runString = "_r%d" % (self.run)
         if norm != "slice":
@@ -146,13 +146,15 @@ if __name__ == "__main__":
     tsp = TimeScanParallel()
     print("have built a", tsp.className, "class")
     logger.info("have built a" + tsp.className + "class")
-    if tsp.file is not None:
+    print('tsp.file', tsp.file)
+    fileMadeByScript = tsp.file.split('/')[-1].startswith(tsp.className)
+    if tsp.file is not None and fileMadeByScript:##and tsp.psanaType != 0: ## added type for rogue
         tsp.analyze_h5(tsp.file, 'means', tsp.label)
         ##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
         print("done with standalone analysis of %s, exiting" % (tsp.file))
         logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
-        sys.exit()
+        sys.exit(0)
 
     tsp.setupPsana()
     tsp.use_281_for_old_data = False
@@ -161,7 +163,12 @@ if __name__ == "__main__":
         tsp.use_281_for_old_data = True
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
-    
+
+    if 'size' in dir(): ## check for rogue
+        print("size is", size)
+    else:
+        size = 666
+        
     h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, size)
     smd = tsp.ds.smalldata(filename=h5FileName)
 
