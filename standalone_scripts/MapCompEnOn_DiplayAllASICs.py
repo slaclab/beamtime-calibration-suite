@@ -19,6 +19,7 @@ base_filename = os.path.splitext(os.path.basename(file_name))[0]
 
 # Open the HDF5 file
 with h5py.File(file_name, 'r') as file:
+    print("Opening file")
     # Define the name of the group containing the datasets
     group_name = "slice"  # Change this to the actual group name
     dataset_names = list(file[group_name].keys())
@@ -41,11 +42,11 @@ with h5py.File(file_name, 'r') as file:
 #plt.colorbar()  # Add a colorbar for reference
 #plt.show()
 
+print("Data are ready for combination")
 
 timeVec = [float(x) * 1 for x in dataset_names]
 
 if (combined_data.ndim==4):
-   
     NumOfASIC=combined_data.shape[1]
     VecASIC = [i for i in range(NumOfASIC)]
 
@@ -74,12 +75,11 @@ if (combined_data.ndim==4):
 
    
    
-
+print("Data combined")
    
 
 rowsNum=combined_data.shape[1]
 colsNum=combined_data.shape[2]
-
 
 X1=np.zeros((rowsNum, colsNum))
 Y1=np.zeros((rowsNum, colsNum))
@@ -92,13 +92,16 @@ Xinterp=np.linspace(min(timeVec),max(timeVec),5000)
                            
 AvAll=np.mean(combined_data,axis=(1,2))
 
+print("rowsNum: {}, colsNum: {}".format(rowsNum, colsNum))
+
 #for ir in range(0,rowsNum):
 #    for ic in range(0,colsNum):
 minir=0
 maxir=rowsNum
 minic=0
 maxic=colsNum
-for ir in range(minir,maxir):
+if False:
+  for ir in range(minir,maxir):
     for ic in range(minic,maxic):
        # print('row :',ir)
        # print('col :',ic)
@@ -143,7 +146,8 @@ for ir in range(minir,maxir):
             plt.plot(thediff,'b.')
             plt.plot(smoothed_data,'r')
             plt.show()
-       
+
+print("Data ready")
 #        print(X1[ir,ic])
 #        print(X2[ir,ic])
 #        print(X3[ir,ic])
@@ -194,8 +198,12 @@ plt.savefig(save_path)
 
 def onclick(event):
     ix, iy = event.xdata, event.ydata
+    
     colsel= math.trunc(ix)
     rowsel=math.trunc(iy)
+    ir = rowsel
+    ic = colsel
+    
     #print(f'x = {ix}, y = {iy}')
 
     timelineToDisplay=combined_data[:,rowsel,colsel]
