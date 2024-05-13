@@ -52,6 +52,7 @@ class ArgumentParser:
         self.parser.add_argument("-L", "--label", type=str, help="analysis label")
         self.parser.add_argument("-t", "--threshold", help="threshold (ADU or keV or wave8) depending on --detObj")
         self.parser.add_argument("--fluxCut", type=float, help="minimum flux to be included in analysis")
+        self.parser.add_argument("--seedCut", help="seed cut for clustering")
         self.parser.add_argument(
             "--special",
             type=str,

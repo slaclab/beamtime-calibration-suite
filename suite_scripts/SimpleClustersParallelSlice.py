@@ -129,10 +129,13 @@ if __name__ == "__main__":
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000##int(50 * 50 / 3 / 3 * 0.1 * 2)
-    try:
-        seedCut = sic.detectorInfo.seedCut
-    except:
-        seedCut = 4
+    if sic.seedCut is not None:
+        seedCut = sic.seedCut
+    else:
+        try:
+            seedCut = sic.detectorInfo.seedCut
+        except:
+            seedCut = 4
     try:
         neighborCut = sic.detectorInfo.neighborCut
     except:

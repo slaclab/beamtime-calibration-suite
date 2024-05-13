@@ -78,7 +78,7 @@ class DetectorInfo:
         self.gainMode = None ## may want to know about default, softHigh, softLow
         self.negativeGain = True
         self.aduPerKeV = 666
-        self.seedCut = 4 ## hopefully can be lowered
+        self.seedCut = 2
         self.neighborCut = 0.25 ## ditto
         
     def setup_rixsCCD(self, mode='1d', version=0):
