@@ -30,8 +30,9 @@ experimentHash = {
     "analyzedModules":[1,2],
     "seedCut":40, ## pure guess
     "neighborCut":10, ##pure guess
-    "fluxSource": "MfxDg1BmMon",
-    'fluxChannels':[15],
+##    "fluxSource": "MfxDg1BmMon",
+    "fluxSource": "MfxDg2BmMon",
+    'fluxChannels':[11],
     "fluxSign": -1,
     "singlePixels": singlePixelArray,
     #                  'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']
