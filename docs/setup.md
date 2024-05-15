@@ -101,3 +101,10 @@ ls -lt ../setup_test_output
 //if ran correctly, should see these non-empty files:
 //EventScanParallel_c0_r349_n1.h5, eventNumbers_c0_r349_rixx1003721.npy, means_c0_r349_rixx1003721.npy
 ```
+
+## 9: Run the tests (optional):
+* run the following terminal command:
+```
+cd ~/repos/beamtime_calibtation_suite
+pytest .
+```
