@@ -1,6 +1,10 @@
 name: Run Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ["main", "development"]
+  pull_request:
+    branches: ["main", "development"]
 
 jobs:
   test:
@@ -24,4 +28,4 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest tests/test_FitFunctions.py
+        pytest .
