@@ -1,9 +1,10 @@
 import os
 import subprocess
 import re
+import copy
 
 def test_environment_setup():
-    env = os.environ.copy()
+    env = copy.deepcopy(os.environ)
 
     # Run setup script with the copied environment
     setup_script_path = "../setup.sh"
@@ -24,5 +25,5 @@ def test_environment_setup():
         # checking PYTHONPATH is a bit annoying and pretty obvious when its broke, skip checking for now
         if key == 'PYTHONPATH':
             continue
-        assert key in os.environ
-        assert os.environ[key] == expected_value
+        assert key in env
+        assert env[key] == expected_value
