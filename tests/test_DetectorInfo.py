@@ -34,7 +34,7 @@ def test_epixm_setup():
     assert detector.gainMode is None
     assert detector.negativeGain is True
     assert detector.aduPerKeV == 666
-    assert detector.seedCut == 4
+    assert detector.seedCut == 2
     assert detector.neighborCut == 0.25
 
 def test_archon_setup():
