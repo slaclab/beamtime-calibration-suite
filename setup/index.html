@@ -62,6 +62,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#8-run-an-example-script">8: Run an example script</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-run-the-tests-optional">9: Run the tests (optional):</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -214,6 +216,13 @@ OUTPUT_ROOT= python EventScanParallelSlice.py -r 457 -p ../setup_test_output
 ls -lt ../setup_test_output
 //if ran correctly, should see these non-empty files:
 //EventScanParallel_c0_r349_n1.h5, eventNumbers_c0_r349_rixx1003721.npy, means_c0_r349_rixx1003721.npy
+</code></pre>
+<h2 id="9-run-the-tests-optional">9: Run the tests (optional):</h2>
+<ul>
+<li>run the following terminal command:</li>
+</ul>
+<pre><code>cd ~/repos/beamtime_calibtation_suite
+pytest .
 </code></pre>
               
             </div>
