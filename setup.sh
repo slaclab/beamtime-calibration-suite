@@ -1,6 +1,8 @@
 #!/bin/bash
 # Setup environment variables
 
+echo "executing the following commands..."
+
 # Get the current directory
 current_dir=$(pwd)
 # so scripts can find the calibrationSuite library code

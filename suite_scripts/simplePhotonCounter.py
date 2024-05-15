@@ -77,7 +77,7 @@ if __name__ == "__main__":
         if nGoodEvents > spc.maxNevents:
             break
     if spc.special is not None and "slice" in spc.special:
-        thresholded = thresholded[0][spc.regionSlice]
+        thresholded = thresholded[spc.regionSlice]
 
     npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp)
     np.save(npyFileName, thresholded / nGoodEvents)

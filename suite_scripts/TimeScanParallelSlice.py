@@ -146,9 +146,11 @@ if __name__ == "__main__":
     tsp = TimeScanParallel()
     print("have built a", tsp.className, "class")
     logger.info("have built a" + tsp.className + "class")
-    print('tsp.file', tsp.file)
-    fileMadeByScript = tsp.file.split('/')[-1].startswith(tsp.className)
-    if tsp.file is not None and fileMadeByScript:##and tsp.psanaType != 0: ## added type for rogue
+    fileMadeByScript = False
+    if tsp.file is not None:
+        print('tsp.file', tsp.file)
+        fileMadeByScript = tsp.file.split('/')[-1].startswith(tsp.className)
+    if fileMadeByScript:##and tsp.psanaType != 0: ## added type for rogue
         tsp.analyze_h5(tsp.file, 'means', tsp.label)
         ##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
