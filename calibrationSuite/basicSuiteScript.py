@@ -168,6 +168,10 @@ class BasicSuiteScript(PsanaBase):
             self.threshold = eval(self.args.threshold)
         else:
             self.threshold = None
+        if self.args.seedCut is not None:
+            self.seedCut = eval(self.args.seedCut)
+        else:
+            self.seedCut = None
         if self.args.fluxCut is not None:
             self.fluxCut = self.args.fluxCut
         try:

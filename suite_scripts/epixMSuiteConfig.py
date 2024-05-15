@@ -30,14 +30,16 @@ experimentHash = {
     "analyzedModules":[1,2],
     "seedCut":40, ## pure guess
     "neighborCut":10, ##pure guess
-    "fluxSource": "MfxDg1BmMon",
-    'fluxChannels':[11],
-    "fluxSign": -1,
+##    "fluxSource": "MfxDg1BmMon",
+    "fluxSource": "MfxDg2BmMon",
+    'fluxChannels':[15],
+    "fluxSign": 1, ## for dg2
+##    "fluxSign": -1,
     "singlePixels": singlePixelArray,
     #                  'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']
     #                  'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     ##                  'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     ##"ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
     "ROIs": ["../data/cometPinhole.npy", "../data/smallRegionFourAsics.npy", "../data/smallRegionTwoAsicsForBhavna.npy"],
-    "regionSlice": np.s_[0:4, 150:180:, 340:368],## small region near Kaz rec
+    "regionSlice": np.s_[0:4, 0:192:, 0:384],## small region near Kaz rec
 }
