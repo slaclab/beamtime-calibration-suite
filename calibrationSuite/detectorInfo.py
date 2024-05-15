@@ -10,29 +10,38 @@
 class DetectorInfo:
     def __init__(self, detType):
 
-        # declare these here in case any setup_X functions don't
-        # and -1 so caller knows things are not setup (non-0 to avoid error on divide)
+        # declare all detector-specific info vars here in case any setup_X functions don't,
+        # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
+        self.nModules = -1
 
-        self.detectorType = detType
-        ## this information is per module
         self.nRows = -1
         self.nCols = -1
         self.nColsPerBank = -1
+        self.nBanks = -1
         self.nBanksRow = -1
         self.nBanksCol = -1
         self.nRowsPerBank = -1
-        self.nColsPerBank = -1
-        self.dimension = 3 ## suite attempts not to know
-        self.nModules = -1
+
         self.aduPerKeV = None
         self.negativeGain = False
-        
+
+        self.preferredCommonMode = None
+        self.clusterShape = None
+
+        self.g0_cut = None
+        self.seedCut = None
+        self.neighborCut = None
+        # end of detector-specific vars
+
+        self.detectorType = detType
+        self.choosenCameraType = None
+        self.dimension = 3 ## suite attempts not to know
+
         knownTypes = ['epixhr', 'epixm', 'archon']
         if detType not in knownTypes:
             raise Exception("type %s not in known types" % (detType, knownTypes))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-        self.chosenCameraType = None
 
         if detType == 'epixhr':
             self.setup_epixhr()
@@ -42,7 +51,7 @@ class DetectorInfo:
             self.setup_rixsCCD()
 
     def setNModules(self, n):
-        self.choosenCameraType = self.ePix10kCameraTypes[n]
+        self.choosenCameraType = self.ePix10kCameraTypes.get(n)
 
     def getCameraType(self):
         return self.choosenCameraType
@@ -55,7 +64,6 @@ class DetectorInfo:
         self.nBanksRow = int(self.nCols / self.nColsPerBank)
         self.nBanksCol = 2
         self.nRowsPerBank = int(self.nRows / self.nBanksCol)
-
         #need to still implement getGainMode()
         #self.gainMode = self.getGainMode()
         self.preferredCommonMode = 'regionCommonMode'
