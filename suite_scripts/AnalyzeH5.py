@@ -89,7 +89,10 @@ class AnalyzeH5(object):
             pass
 
         self.nBins = 200## for epixM with a lot of 2 photon events...
-        self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
+        if self.seedCut is None:
+            self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
+        else:
+            self.lowEnergyCut = self.seedCut * 0.8 ## 0.8 is dumb here
         self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)

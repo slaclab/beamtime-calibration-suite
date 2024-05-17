@@ -32,7 +32,7 @@ class SimpleClusters(BasicSuiteScript):
                 pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
                 small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
                 smallPixel = np.bitwise_and(small, pixel)
-                pixelEcut0 = np.bitwise_and(smallPixel, energy > 4)  ## adjusted due to gains not making sense
+                pixelEcut0 = np.bitwise_and(smallPixel, energy > sic.seedCut*0.8)  ## adjusted due to gains not making sense
                 pixelEcut = np.bitwise_and(
                     pixelEcut0, energy < 20
                 )  ## would be good to get rid of these entirely when things make sense
