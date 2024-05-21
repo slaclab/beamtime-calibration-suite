@@ -83,7 +83,8 @@ class PsanaBase(object):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
-        return DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
+        ds = DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
+        return ds
 
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
