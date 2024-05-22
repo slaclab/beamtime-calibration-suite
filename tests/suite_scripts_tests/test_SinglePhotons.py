@@ -7,9 +7,7 @@ import pytest
 @pytest.fixture(scope="module", autouse=True)
 def setup_and_teardown_directories():
     expected_directories = [
-        '../suite_scripts/testing_calc_noise_mean_1',
-        '../suite_scripts/testing_calc_noise_mean_2',
-        '../suite_scripts/testing_calc_noise_mean_3',
+        '../suite_scripts/test_single_photons',
     ]
 
     # Setup: create directories
@@ -32,12 +30,12 @@ def run_command(command):
     return result
 
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /testing_calc_noise_mean_1'],
-     'testing_calc_noise_mean_1'),
-    (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /testing_calc_noise_mean_2'],
-     'testing_calc_noise_mean_2'),
-    #(['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /testing_calc_noise_mean_3'],
-    # 'testing_calc_noise_mean_3'),
+    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons'],
+     'test_single_photons'),
+    (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons'],
+     'test_single_photons'),
+    (['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
+     'test_single_photons'),
 ])
 def test_calculation(command, output_location):
 
