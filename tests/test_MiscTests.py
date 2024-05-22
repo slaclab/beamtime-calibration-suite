@@ -26,7 +26,7 @@ def test_environment_setup():
     # Iterate and print out the values of expected_values
     for key, value in expected_values.items():
         if key == "PYTHONPATH":
-            assert value == "$PYTHONPATH:$current_dir"
+            assert value == "$PYTHONPATH:$git_project_root_dir"
         elif key == "OUTPUT_ROOT":
             assert value != ""
         elif key == "SUITE_CONFIG":
