@@ -24,11 +24,19 @@ def setup_and_teardown_directories():
 
 setup_commands = "cd ../ && source setup.sh && export OUTPUT_ROOT=. && cd suite_scripts"
 
+def psana_installed():
+    try:
+        import psana
+        return True
+    except ImportError:
+        return False
+
 def run_command(command):
     print("cmd: ", command)
     result = subprocess.run(command, capture_output=True, text=True)
     return result
 
+@pytest.mark.skipif(not psana_installed(), reason="Can only test with psana library on S3DF!")
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /testing_time_scan_parallel_slice_1'],
      'testing_time_scan_parallel_slice_1'),
