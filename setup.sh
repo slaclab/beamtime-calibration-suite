@@ -1,12 +1,11 @@
 #!/bin/bash
 # Setup environment variables
 
-echo "executing the following commands..."
 
-# Get the current directory
-current_dir=$(pwd)
+# current_dir=$(pwd)
+git_project_root_dir=$(git rev-parse --show-toplevel)
 # so scripts can find the calibrationSuite library code
-export PYTHONPATH="$PYTHONPATH:$current_dir"
+export PYTHONPATH="$PYTHONPATH:$git_project_root_dir"
 echo "PYTHONPATH = $PYTHONPATH"
 
 # so output folders are written in a shared location
