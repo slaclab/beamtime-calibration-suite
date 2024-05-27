@@ -6,6 +6,26 @@ import pytest
 import subprocess
 from PIL import Image, ImageChops
 
+'''
+Tests the following commands:
+(based on scripts usage described here: https://confluence.slac.stanford.edu/display/LCLSDET/Feb+2024+beamtime+analysis+instructions)
+
+python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1
+python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2
+python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3
+
+python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice
+python MapCompEnOn.py -f /test_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice
+
+python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'
+python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar
+python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
+
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons
+python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons
+python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons
+'''
 class SuiteTester:
     def __init__(self):
         self.isPsanaInstalled = self.psana_installed()
@@ -87,22 +107,6 @@ def suite_tester():
 
 
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'],
-     'test_linearity_scan'),
-    (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar'],
-     'test_linearity_scan'),
-    #(['bash', '-c', 'python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy'],
-    #'test_linearity_scan'),
-    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice'],
-     'test_linearity_scan'),
-])
-def test_LinerarityScans(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
-        pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
-
-
-@pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1'],
      'test_noise_1'),
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2'],
@@ -111,20 +115,6 @@ def test_LinerarityScans(suite_tester, command, output_location):
      #'test_noise_3'),
 ])
 def test_Noise(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
-        pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
-
-
-@pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons'],
-     'test_single_photons'),
-    (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons'],
-     'test_single_photons'),
-    #(['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
-     #'test_single_photons'),
-])
-def test_SinglePhoton(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
@@ -143,13 +133,32 @@ def test_TiminingScan(suite_tester, command, output_location):
     suite_tester.test_command(command, output_location)
 '''
 
-'''
+
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python AnalyzeH5.py -r 470 -f /sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r468_n1.h5,/sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r469_n1.h5,/sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r470_n1.h5'],
-     'test_analyze_h5'),
+    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons'],
+     'test_single_photons'),
+    (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons'],
+     'test_single_photons'),
+    #(['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
+     #'test_single_photons'),
 ])
-def test_TiminingScan(suite_tester, command, output_location):
+def test_SinglePhoton(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
-'''
+
+
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'],
+     'test_linearity_scan'),
+    (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar'],
+     'test_linearity_scan'),
+    #(['bash', '-c', 'python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy'],
+    #'test_linearity_scan'),
+    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice'],
+     'test_linearity_scan'),
+])
+def test_LinerarityScans(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
