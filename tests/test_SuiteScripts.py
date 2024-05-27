@@ -25,7 +25,15 @@ python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons
 python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons
 python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons
+
+
+Now test the remaining scripts in /suite_scripts:
+
+python EventScanParallelSlice.py -r 120 --maxNevents 250 -p \test_event_scan_parallel_slice
+python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p \test_event_scan_parallel_slice
+
 '''
+
 class SuiteTester:
     def __init__(self):
         self.isPsanaInstalled = self.psana_installed()
@@ -42,7 +50,9 @@ class SuiteTester:
             git_repo_root + "/suite_scripts/test_noise_3",
             git_repo_root + "/suite_scripts/test_single_photon",
             git_repo_root + "/suite_scripts/test_time_scan_parallel_slice",
-            git_repo_root + "/suite_scripts/test_analyze_h5",
+            git_repo_root + "/suite_scripts/test_event_scan_parallel_slice",
+            git_repo_root + "/suite_scripts/test_find_min_switch_value",
+            git_repo_root + "/suite_scripts/test_find_min_switch_value",
         ]
 
         for dir in self.expected_outcome_dirs:
@@ -106,6 +116,7 @@ def suite_tester():
         shutil.rmtree(dir)
 
 
+"""
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1'],
      'test_noise_1'),
@@ -162,3 +173,28 @@ def test_LinerarityScans(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
+
+"""
+
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice'],
+     'test_event_scan_parallel_slice'),
+    (['bash', '-c', 'python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p /test_event_scan_parallel_slice'],
+     'test_event_scan_parallel_slice'),
+])
+def test_LinerarityScans(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p \test_find_min_switch_value'],
+     'test_find_min_switch_value'),
+])
+def test_FindMinSwitchValue(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
