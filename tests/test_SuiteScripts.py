@@ -32,6 +32,18 @@ Now test the remaining scripts in /suite_scripts:
 python EventScanParallelSlice.py -r 120 --maxNevents 250 -p \test_event_scan_parallel_slice
 python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p \test_event_scan_parallel_slice
 
+python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p \test_find_min_switch_value
+
+python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_histogram_flux_etc
+
+python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check
+
+python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check
+
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi
+
+python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_search_for_non_switching
 '''
 
 class SuiteTester:
@@ -52,7 +64,9 @@ class SuiteTester:
             git_repo_root + "/suite_scripts/test_time_scan_parallel_slice",
             git_repo_root + "/suite_scripts/test_event_scan_parallel_slice",
             git_repo_root + "/suite_scripts/test_find_min_switch_value",
-            git_repo_root + "/suite_scripts/test_find_min_switch_value",
+            git_repo_root + "/suite_scripts/test_histogram_flux_etc",
+            git_repo_root + "/suite_scripts/test_roi",
+            git_repo_root + "/suite_scripts/test_search_for_non_switching",
         ]
 
         for dir in self.expected_outcome_dirs:
@@ -116,7 +130,6 @@ def suite_tester():
         shutil.rmtree(dir)
 
 
-"""
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1'],
      'test_noise_1'),
@@ -174,8 +187,7 @@ def test_LinerarityScans(suite_tester, command, output_location):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
 
-"""
-
+    
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice'],
      'test_event_scan_parallel_slice'),
@@ -192,6 +204,58 @@ def test_LinerarityScans(suite_tester, command, output_location):
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p \test_find_min_switch_value'],
      'test_find_min_switch_value'),
+])
+def test_FindMinSwitchValue(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
+
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_histogram_flux_etc'],
+     'test_histogram_flux_etc'),
+])
+def test_FindMinSwitchValue(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
+
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check'],
+     'test_persistence_check'),
+    (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check],
+     'test_persistence_check'),
+])
+def test_FindMinSwitchValue(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
+
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi'],
+     'test_roi'),
+    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi'],
+     'test_roi'),
+])
+def test_FindMinSwitchValue(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
+
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_search_for_non_switching'],
+     'test_roi'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
