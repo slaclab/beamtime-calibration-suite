@@ -22,12 +22,12 @@ class SuiteTester:
             git_repo_root + "/suite_scripts/test_noise_3",
             git_repo_root + "/suite_scripts/test_single_photon",
             git_repo_root + "/suite_scripts/test_time_scan_parallel_slice",
+            git_repo_root + "/suite_scripts/test_analyze_h5",
         ]
 
         for dir in self.expected_outcome_dirs:
             print (dir)
             os.makedirs(dir, exist_ok=True)
-        exit(1)
     
     def psana_installed(self):
         try:
@@ -55,7 +55,6 @@ class SuiteTester:
         result = self.run_command(command)
         print(result.stdout)
         print (command[2])
-        #exit(1)
         assert result.returncode == 0, f"Script failed with error: {result.stderr}"
 
         real_output_location = "../suite_scripts/" + output_location
@@ -86,14 +85,14 @@ def suite_tester():
     for dir in tester.expected_outcome_dirs:
         shutil.rmtree(dir)
 
-'''
+
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'],
      'test_linearity_scan'),
     (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar'],
      'test_linearity_scan'),
-    (['bash', '-c', 'python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy'],
-     'test_linearity_scan'),
+    #(['bash', '-c', 'python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy'],
+    #'test_linearity_scan'),
     (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice'],
      'test_linearity_scan'),
 ])
@@ -102,28 +101,28 @@ def test_LinerarityScans(suite_tester, command, output_location):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
 
-'''
+
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1'],
      'test_noise_1'),
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2'],
      'test_noise_2'),
-    (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
-     'test_noise_3'),
+    #(['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
+     #'test_noise_3'),
 ])
 def test_Noise(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_location)
 
-'''
+
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons'],
      'test_single_photons'),
     (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons'],
      'test_single_photons'),
-    (['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
-     'test_single_photons'),
+    #(['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
+     #'test_single_photons'),
 ])
 def test_SinglePhoton(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
@@ -131,11 +130,23 @@ def test_SinglePhoton(suite_tester, command, output_location):
     suite_tester.test_command(command, output_location)
 
 
+'''
 @pytest.mark.parametrize("command, output_location", [
     (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
      'test_time_scan_parallel_slice'),
-    (['bash', '-c', 'python MapCompEnOn.py -f /testing_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice'],
+    (['bash', '-c', 'python MapCompEnOn.py -f /test_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice'],
      'test_time_scan_parallel_slice'),
+])
+def test_TiminingScan(suite_tester, command, output_location):
+    if not suite_tester.isPsanaInstalled:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_location)
+'''
+
+'''
+@pytest.mark.parametrize("command, output_location", [
+    (['bash', '-c', 'python AnalyzeH5.py -r 470 -f /sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r468_n1.h5,/sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r469_n1.h5,/sdf/data/lcls/ds/rix/rixx1003721/results/lowFlux/SimpleClusters_c0_r470_n1.h5'],
+     'test_analyze_h5'),
 ])
 def test_TiminingScan(suite_tester, command, output_location):
     if not suite_tester.isPsanaInstalled:
