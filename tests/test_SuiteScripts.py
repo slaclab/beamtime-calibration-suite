@@ -130,7 +130,9 @@ def suite_tester():
     
     # teardown
     for dir in tester.expected_outcome_dirs:
-        shutil.rmtree(dir)
+        # the folders won't exist if passing b/c of missing dependencies
+        if os.path.exists(dir):
+            shutil.rmtree(dir)
 
 
 @pytest.mark.parametrize("command, output_location", [
