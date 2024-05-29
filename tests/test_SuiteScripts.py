@@ -73,7 +73,7 @@ class SuiteTester:
             self.expected_outcome_dirs[i] = git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
         
         for dir in self.expected_outcome_dirs:
-            os.makedirs(git_repo_root + "/suite_scripts/" + dir, exist_ok=True)
+            os.makedirs(dir, exist_ok=True)
     
     def psana_installed(self):
         try:
@@ -113,8 +113,6 @@ class SuiteTester:
                 real_file_path = real_output_location + "/" + file
                 expected_file_path = expected_output_location + "/" + file
 
-                print("real: ", real_file_path)
-                print("expected: ", expected_file_path)
                 # Check if files are PNGs
                 if real_file_path.endswith('.png') and expected_file_path.endswith('.png'):
                     assert self.are_images_same(real_file_path, expected_file_path), f"PNG files {real_file_path} and {expected_file_path} are different"
