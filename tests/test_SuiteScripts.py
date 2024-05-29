@@ -4,7 +4,7 @@ import shutil
 import filecmp
 import pytest
 import subprocess
-from PIL import Image, ImageChops
+
 
 '''
 Tests the following commands:
@@ -78,6 +78,7 @@ class SuiteTester:
     def psana_installed(self):
         try:
             import psana
+            from PIL import Image, ImageChops
             return True
         except ImportError:
             return False
