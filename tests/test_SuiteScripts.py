@@ -29,21 +29,21 @@ python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h
 
 Now test the remaining scripts in /suite_scripts:
 
-python EventScanParallelSlice.py -r 120 --maxNevents 250 -p \test_event_scan_parallel_slice
-python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p \test_event_scan_parallel_slice
+python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice
+python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p /test_event_scan_parallel_slice
 
-python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p \test_find_min_switch_value
+python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value
 
-python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_histogram_flux_etc
+python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc
 
-python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check
+python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
 
-python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check
+python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
 
-python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi
-python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
 
-python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_search_for_non_switching
+python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching
 '''
 
 class SuiteTester:
@@ -56,22 +56,24 @@ class SuiteTester:
         "export SUITE_CONFIG=" + git_repo_root + "/tests/testingSuiteConfig.py" + " && cd ../suite_scripts")
         
         self.expected_outcome_dirs = [
-            git_repo_root + "/suite_scripts/test_linearity_scan",
-            git_repo_root + "/suite_scripts/test_noise_1",
-            git_repo_root + "/suite_scripts/test_noise_2",
-            git_repo_root + "/suite_scripts/test_noise_3",
-            git_repo_root + "/suite_scripts/test_single_photon",
-            git_repo_root + "/suite_scripts/test_time_scan_parallel_slice",
-            git_repo_root + "/suite_scripts/test_event_scan_parallel_slice",
-            git_repo_root + "/suite_scripts/test_find_min_switch_value",
-            git_repo_root + "/suite_scripts/test_histogram_flux_etc",
-            git_repo_root + "/suite_scripts/test_roi",
-            git_repo_root + "/suite_scripts/test_search_for_non_switching",
+            "test_linearity_scan",
+            "test_noise_1",
+            "test_noise_2",
+            "test_noise_3",
+            "test_single_photon",
+            "test_time_scan_parallel_slice",
+            "test_event_scan_parallel_slice",
+            "test_find_min_switch_value",
+            "test_histogram_flux_etc",
+            "test_roi",
+            "test_search_for_non_switching",
         ]
 
+        for i in range(len(self.expected_outcome_dirs)):
+            self.expected_outcome_dirs[i] = git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
+        
         for dir in self.expected_outcome_dirs:
-            print (dir)
-            os.makedirs(dir, exist_ok=True)
+            os.makedirs(git_repo_root + "/suite_scripts/" + dir, exist_ok=True)
     
     def psana_installed(self):
         try:
@@ -202,7 +204,7 @@ def test_LinerarityScans(suite_tester, command, output_location):
 
 '''
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p \test_find_min_switch_value'],
+    (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value'],
      'test_find_min_switch_value'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
@@ -214,7 +216,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_location):
 
 '''
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_histogram_flux_etc'],
+    (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
@@ -226,9 +228,9 @@ def test_FindMinSwitchValue(suite_tester, command, output_location):
 
 '''
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check'],
+    (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
-    (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_persistence_check],
+    (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check],
      'test_persistence_check'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
@@ -240,9 +242,9 @@ def test_FindMinSwitchValue(suite_tester, command, output_location):
 
 '''
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi'],
+    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
      'test_roi'),
-    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p \test_roi'],
+    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
      'test_roi'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
@@ -254,7 +256,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_location):
 
 '''
 @pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p \test_search_for_non_switching'],
+    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
      'test_roi'),
 ])
 def test_FindMinSwitchValue(suite_tester, command, output_location):
