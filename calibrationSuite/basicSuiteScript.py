@@ -38,15 +38,13 @@ class BasicSuiteScript(PsanaBase):
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
 
-        ##mymodule = importlib.import_module(full_module_name)
-
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
-        ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
+
         self.outputDir = "/%s/" % (analysisType)
         logging.info("output dir: " + self.outputDir)
-        ##self.outputDir = '/tmp'
+        print("output dir: " + self.outputDir)
 
         self.detectorInfo = DetectorInfo(self.experimentHash['detectorType'])
         

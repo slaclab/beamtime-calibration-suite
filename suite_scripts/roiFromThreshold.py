@@ -61,4 +61,7 @@ if __name__ == "__main__":
     label = "raw"
     if rft.detObj == "calib":
         label = "calib"
-    np.save("roiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.run, rft.camera, label), aboveThresholdPixels)
+
+    fileName = "%sroiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.outputDir, rft.run, rft.camera, label)
+    print(fileName)
+    np.save(fileName, aboveThresholdPixels)
