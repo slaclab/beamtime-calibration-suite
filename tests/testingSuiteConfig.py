@@ -10,8 +10,8 @@
 import numpy as np
 
 singlePixelArray = []
-for i in range(1,3):
-    singlePixelArray.append([i, 10, 10])    
+for i in range(1, 3):
+    singlePixelArray.append([i, 10, 10])
     singlePixelArray.append([i, 10, 100])
     singlePixelArray.append([i, 100, 10])
     singlePixelArray.append([i, 100, 100])
@@ -19,18 +19,22 @@ for i in range(1,3):
     singlePixelArray.append([i, 80, 20])
 
 singlePixelArray.append([2, 178, 367])
-    
+
 experimentHash = {
     "detectorType": "epixm",
     "exp": "rixx1005922",
     "location": "RixEndstation",
-    "analyzedModules":[1,2],
-    "seedCut":40,
-    "neighborCut":10, 
+    "analyzedModules": [1, 2],
+    "seedCut": 40,
+    "neighborCut": 10,
     "fluxSource": "MfxDg2BmMon",
-    'fluxChannels':[15],
+    "fluxChannels": [15],
     "fluxSign": 1,
     "singlePixels": singlePixelArray,
-    "ROIs": ["../data/cometPinhole.npy", "../data/smallRegionFourAsics.npy", "../data/smallRegionTwoAsicsForBhavna.npy"],
-    "regionSlice": np.s_[0:4, 0:192:, 0:384],## small region near Kaz rec
+    "ROIs": [
+        "../data/cometPinhole.npy",
+        "../data/smallRegionFourAsics.npy",
+        "../data/smallRegionTwoAsicsForBhavna.npy",
+    ],
+    "regionSlice": np.s_[0:4, 0:192:, 0:384],  ## small region near Kaz rec
 }

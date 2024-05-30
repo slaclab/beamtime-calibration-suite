@@ -1,15 +1,16 @@
 import os
 import re
 
+
 def test_environment_setup():
     # so we can run from project root or 'tests' folder
     curr_dir = os.getcwd()
-    setup_script_path = "" 
+    setup_script_path = ""
     if "tests" in curr_dir:
         setup_script_path = "../setup.sh"
     else:
         setup_script_path = "setup.sh"
-    
+
     # Read the script to extract expected values
     expected_values = {}
     with open(setup_script_path, "r") as f:
