@@ -4,6 +4,8 @@ import shutil
 import filecmp
 import pytest
 import subprocess
+# diffing .pngs is a bit tricky without PIL
+from PIL import Image, ImageChops
 
 
 '''
@@ -22,9 +24,9 @@ python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity
 python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
 
-python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons
-python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons
-python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon
+python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon
+python AnalyzeH5.py -r 102 -f ./test_single_photon/SimpleClusters__c0_r102_n1.h5 -p /test_single_photon
 
 
 Now test the remaining scripts in /suite_scripts:
@@ -48,13 +50,22 @@ python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_s
 
 class SuiteTester:
     def __init__(self):
-        self.isPsanaInstalled = self.psana_installed()
+        # tests can only run if the following are true (skip if not):
+        # 1) pasna library is avaliable (i.e running on S3DF)
+        # 2) tests/test-data submodule is installed
+        self.canTestsRun = self.can_tests_run()
 
-        # annoyingly complicated way to get root of current git repo
-        git_repo_root = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8') 
-        self.setup_commands = ("export PYTHONPATH=$PYTHONPATH:" + git_repo_root + " && export OUTPUT_ROOT=. && "
-        "export SUITE_CONFIG=" + git_repo_root + "/tests/testingSuiteConfig.py" + " && cd ../suite_scripts")
-        
+        # annoyingly complicated way to get root of current git repo,
+        # do this so test can be run from tests/ dir or root of project
+        git_repo_root = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
+        suite_scripts_root = git_repo_root + "/suite_scripts/"
+        tests_root = git_repo_root + "/tests/"
+        self.setup_commands = ("export PYTHONPATH=$PYTHONPATH:" + git_repo_root +
+        " && export OUTPUT_ROOT=" + suite_scripts_root +
+        " && export SUITE_CONFIG=" + tests_root + "testingSuiteConfig.py"+
+        " && cd " + suite_scripts_root)
+
+        # we need to mkdir these, so scipts we test can output to them
         self.expected_outcome_dirs = [
             "test_linearity_scan",
             "test_noise_1",
@@ -74,11 +85,11 @@ class SuiteTester:
         
         for dir in self.expected_outcome_dirs:
             os.makedirs(dir, exist_ok=True)
-    
-    def psana_installed(self):
+
+    # we skip tests if they can't be ran, so remaining tests can run (locally or github-actions)
+    def can_tests_run(self):
         try:
             import psana
-            from PIL import Image, ImageChops
             return True
         except ImportError:
             return False
@@ -100,8 +111,6 @@ class SuiteTester:
     def test_command(self, command, output_location):
         command[2] = self.setup_commands + " && " + command[2]
         result = self.run_command(command)
-        print(result.stdout)
-        print (command[2])
         assert result.returncode == 0, f"Script failed with error: {result.stderr}"
 
         real_output_location = "../suite_scripts/" + output_location
@@ -133,7 +142,7 @@ def suite_tester():
             shutil.rmtree(dir)
 
 
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1'],
      'test_noise_1'),
     (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2'],
@@ -141,41 +150,41 @@ def suite_tester():
     #(['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
      #'test_noise_3'),
 ])
-def test_Noise(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_Noise(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
      'test_time_scan_parallel_slice'),
     (['bash', '-c', 'python MapCompEnOn.py -f /test_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice'],
      'test_time_scan_parallel_slice'),
 ])
-def test_TiminingScan(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_TiminingScan(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
 
 
-@pytest.mark.parametrize("command, output_location", [
-    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photons'],
-     'test_single_photons'),
-    (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photons'],
-     'test_single_photons'),
-    #(['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photons/SimpleClusters__c0_r102_n1.h5 -p /test_single_photons'],
-     #'test_single_photons'),
+@pytest.mark.parametrize("command, output_dir_name", [
+    (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon'],
+     'test_single_photon'),
+    (['bash', '-c', 'python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon'],
+     'test_single_photon'),
+    #(['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photon/SimpleClusters__c0_r102_n1.h5 -p /test_single_photon'],
+     #'test_single_photon'),
 ])
-def test_SinglePhoton(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_SinglePhoton(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'],
      'test_linearity_scan'),
     (['bash', '-c', 'python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar'],
@@ -185,83 +194,83 @@ def test_SinglePhoton(suite_tester, command, output_location):
     (['bash', '-c', 'python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice'],
      'test_linearity_scan'),
 ])
-def test_LinerarityScans(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_LinerarityScans(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 
     
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice'],
      'test_event_scan_parallel_slice'),
     (['bash', '-c', 'python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p /test_event_scan_parallel_slice'],
      'test_event_scan_parallel_slice'),
 ])
-def test_LinerarityScans(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_LinerarityScans(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value'],
      'test_find_min_switch_value'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
     (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check],
      'test_persistence_check'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
      'test_roi'),
     (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
      'test_roi'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
 
 
 '''
-@pytest.mark.parametrize("command, output_location", [
+@pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
      'test_roi'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_location):
-    if not suite_tester.isPsanaInstalled:
+def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_location)
+    suite_tester.test_command(command, output_dir_name)
 '''
