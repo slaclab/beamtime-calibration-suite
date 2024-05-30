@@ -1,14 +1,15 @@
 import pytest
-import sys
-import os
+
 
 @pytest.fixture()
 def psana_installed():
     try:
-        import psana
+        import psana # noqa: F401
+
         return True
     except ImportError:
         return False
+
 
 def test_example(psana_installed):
     # only run these tests when running locally on S3DF
@@ -16,7 +17,7 @@ def test_example(psana_installed):
         pass
     else:
         assert 1 == 1
-        '''
+        """
         from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
         #assert os.environ["PS_SMD_N_EVENTS"] == "50" 
@@ -31,10 +32,9 @@ def test_example(psana_installed):
         print("have built a BasicSuiteScript")
         bSS.setupPsana()
         evt = bSS.getEvt()
-        '''
+        """
 
-
-        '''    
+        """    
         base = PsanaBase()
     
         assert base.psanaType == 2
@@ -71,4 +71,4 @@ def test_example(psana_installed):
         assert base.experimentHash == expected_experimentHash
 
         base.setupPsana()
-        '''
+        """
