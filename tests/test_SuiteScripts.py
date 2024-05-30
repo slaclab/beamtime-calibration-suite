@@ -4,9 +4,6 @@ import shutil
 import filecmp
 import pytest
 
-# diffing .pngs is a bit tricky without PIL
-from PIL import Image, ImageChops
-
 
 """
 Tests the following commands:
@@ -103,6 +100,8 @@ class SuiteTester:
     def can_tests_run(self):
         try:
             import psana # noqa: F401
+            # diffing .pngs is a bit tricky without PIL
+            from PIL import Image, ImageChops
 
             return True
         except ImportError:
