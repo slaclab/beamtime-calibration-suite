@@ -101,6 +101,64 @@ def fitNorm(data):
     return mean, std
 
 
+def fitLinearUnSaturatedData(x, y, saturated=False):  ##, gainMode, label):
+    if saturated:
+        ##f = saturatedLinear
+        ##p0 = [1, 0, x.mean(), y.max()]
+        f = linear
+        p0 = [0, y.mean()]
+        popt, pcov = curve_fit(f, x, y, p0=p0)
+        f = saturatedLinearB
+        p0 = [popt[0], popt[1], y.max()]
+    else:
+        f = linear
+        ##m = y.mean(axis=-1)
+        ##print("m.shape", m.shape, x.shape, y.shape)
+        ##p0 = [m*0, m]
+        p0 = [0, y.mean()]
+    popt, pcov = curve_fit(f, x, y, p0=p0)
+    y_fit = f(x, *popt)
+    r2 = calculateFitR2(y, y_fit)
+
+    ##condition = np.linalg.cond(pcov)
+    return popt, pcov, y_fit, r2
+
+
+def fitMatrixOfLinearFits(x, y):
+    if len(x.shape) != 1:
+        print("y data shape is %dd, not 1d" %(len(s)))
+        raise Exception
+    yShape = y.shape
+    if len(yShape) != 4:
+        print("y data shape is %dd, not 4d" %(len(yShape)))
+        raise Exception
+    slopesAndIntercepts = [fitLinearUnSaturatedData(a, ds[m, r, c, :])[0] for m in range(yShape[0]) for r in range(yShape[1]) for c in range(yShape[2])]
+    return np.array(slopesAndIntercepts)
+
+
+def linearFitTest():
+    a = np.linspace(0, 9, 10)
+    d0 = np.random.normal(1, 1, [3,5])
+    d = np.array([d0 + i for i in range(10)])
+    ds = np.stack(d, axis=-1)
+    print("single pixel fit:")
+    print(np.ravel(fitLinearUnSaturatedData(a, ds[2,2,:])[0]))
+
+    print("array fit:")
+    dss = ds.shape
+    ## print(fitLinearUnSaturatedData(a, ds.reshape(np.prod(dss[0:-1]), dss[-1])))
+    ## curve_fit wants a 1-d y array, can't see how to pass a matrix
+    fitArray = [fitLinearUnSaturatedData(a, ds[i, j, :])[0][0] for i in range(dss[0]) for j in range(dss[1])]
+    print(fitArray)
+
+    print("array fit, all popt:")
+    fitArray = [np.ravel(fitLinearUnSaturatedData(a, ds[i, j, :])[0]) for i in range(dss[0]) for j in range(dss[1])]
+    fitArray = np.array(fitArray)
+    print(fitArray)
+
+    ##print("matrix call:")
+    ##print(fitMatrixOfLinearFits(a, ds))
+    
 def twoGaussSilvermanModeTest(x0, x1):
     a = np.random.normal(0, 1, 1000)
     b = np.random.normal(x0, 1, 500)
