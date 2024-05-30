@@ -275,7 +275,7 @@ def test_LinerarityScans(suite_tester, command, output_dir_name):
         ),
     ],
 )
-def test_LinerarityScans(suite_tester, command, output_dir_name):
+def test_EventScans(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -298,7 +298,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -312,7 +312,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check],
      'test_persistence_check'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+def test_PersistenceCheck(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -326,7 +326,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
      'test_roi'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+def test_RoiFromSwitched(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -338,7 +338,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
      'test_roi'),
 ])
-def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
+def test_SearchNonSwitching(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
