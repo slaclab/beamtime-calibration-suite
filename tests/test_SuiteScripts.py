@@ -3,7 +3,6 @@ import os
 import shutil
 import filecmp
 import pytest
-import subprocess
 
 # diffing .pngs is a bit tricky without PIL
 from PIL import Image, ImageChops
@@ -103,7 +102,7 @@ class SuiteTester:
     # we skip tests if they can't be ran, so remaining tests can run (locally or github-actions)
     def can_tests_run(self):
         try:
-            import psana
+            import psana # noqa: F401
 
             return True
         except ImportError:

@@ -1,12 +1,10 @@
 import pytest
-import sys
-import os
 
 
 @pytest.fixture()
 def psana_installed():
     try:
-        import psana
+        import psana # noqa: F401
 
         return True
     except ImportError:

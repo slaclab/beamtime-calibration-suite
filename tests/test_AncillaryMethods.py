@@ -2,8 +2,6 @@ import numpy as np
 import pytest
 from calibrationSuite.ancillaryMethods import (
     makeProfile,
-    plotProfile,
-    selectedClusters,
     getEnergeticClusters,
     getSmallSquareClusters,
     getSmallClusters,
