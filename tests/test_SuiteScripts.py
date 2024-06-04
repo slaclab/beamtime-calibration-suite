@@ -3,7 +3,8 @@ import os
 import shutil
 import filecmp
 import pytest
-
+# diffing .pngs is a bit tricky without PIL
+from PIL import Image, ImageChops
 
 """
 Tests the following commands:
@@ -14,35 +15,32 @@ python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --m
 python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3
 
 python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice
-python MapCompEnOn.py -f /test_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice
 
 python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan'
 python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar
-python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
 
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon
 python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon
-python AnalyzeH5.py -r 102 -f ./test_single_photon/SimpleClusters__c0_r102_n1.h5 -p /test_single_photon
 
-
-Now test the remaining scripts in /suite_scripts:
 
 python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice
 python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p /test_event_scan_parallel_slice
 
 python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value
 
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
+python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
+
+
+## these tests are disabled atm, the cmnds dont work fully ...
+python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching
+
 python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc
 
 python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
 
 python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
-
-python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
-python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
-
-python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching
 """
 
 
@@ -100,9 +98,6 @@ class SuiteTester:
     def can_tests_run(self):
         try:
             import psana # noqa: F401
-            # diffing .pngs is a bit tricky without PIL
-            from PIL import Image, ImageChops
-
             return True
         except ImportError:
             return False
@@ -171,8 +166,8 @@ def suite_tester():
             ],
             "test_noise_2",
         ),
-        # (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
-        #'test_noise_3'),
+        (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
+        'test_noise_3'),
     ],
 )
 def test_Noise(suite_tester, command, output_dir_name):
@@ -181,18 +176,17 @@ def test_Noise(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-"""
 @pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
-     'test_time_scan_parallel_slice'),
-    (['bash', '-c', 'python MapCompEnOn.py -f /test_time_scan_parallel_slice_1/TimeScanParallel_c0_r102_n1.h5 -p /test_time_scan_parallel_slice'],
+    # for this script we expect run 102 to fail, the run has issues returning step_values
+    #(['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
+    # 'test_time_scan_parallel_slice'),
+    (['bash', '-c', 'python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice'],
      'test_time_scan_parallel_slice'),
 ])
 def test_TiminingScan(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
 
 
 @pytest.mark.parametrize(
@@ -210,8 +204,6 @@ def test_TiminingScan(suite_tester, command, output_dir_name):
             ],
             "test_single_photon",
         ),
-        # (['bash', '-c', 'python AnalyzeH5.py -r 102 -f ./test_single_photon/SimpleClusters__c0_r102_n1.h5 -p /test_single_photon'],
-        #'test_single_photon'),
     ],
 )
 def test_SinglePhoton(suite_tester, command, output_dir_name):
@@ -235,8 +227,6 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
             ],
             "test_linearity_scan",
         ),
-        # (['bash', '-c', 'python analyze_npy.py test_linearity_scan/LinearityPlotsParallel_r102_sliceFits_fooBar_raw.npy'],
-        #'test_linearity_scan'),
         (
             [
                 "bash",
@@ -280,7 +270,6 @@ def test_EventScans(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value'],
      'test_find_min_switch_value'),
@@ -289,10 +278,34 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
 
 
-"""
+@pytest.mark.parametrize("command, output_dir_name", [
+    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
+     'test_roi'),
+    (['bash', '-c', 'python roiFromThreshold.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
+     'test_roi'),
+])
+def test_RoiFromSwitched(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_dir_name)
+
+
+# not-working commands...
+'''
+@pytest.mark.parametrize("command, output_dir_name", [
+    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
+     'test_roi'),
+])
+def test_SearchNonSwitching(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
+        pytest.skip("Can only test with psana library on S3DF!")
+    suite_tester.test_command(command, output_dir_name)
+'''
+
+
+'''
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
@@ -301,10 +314,10 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
+'''
 
 
-"""
+'''
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
@@ -315,30 +328,4 @@ def test_PersistenceCheck(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
-
-
-"""
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
-     'test_roi'),
-    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
-     'test_roi'),
-])
-def test_RoiFromSwitched(suite_tester, command, output_dir_name):
-    if not suite_tester.canTestsRun:
-        pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_dir_name)
-"""
-
-
-"""
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
-     'test_roi'),
-])
-def test_SearchNonSwitching(suite_tester, command, output_dir_name):
-    if not suite_tester.canTestsRun:
-        pytest.skip("Can only test with psana library on S3DF!")
-    suite_tester.test_command(command, output_dir_name)
-"""
+'''
