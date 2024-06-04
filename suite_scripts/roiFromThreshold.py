@@ -41,7 +41,7 @@ if __name__ == "__main__":
         if not rft.detObj == "calib":
             thresholded = rawFrames >= rft.threshold
         else:
-            frames = rft.det.calib(evt)
+            frames = rft.det.raw.calib(evt)
             thresholded = frames >= rft.threshold
 
         try:
@@ -62,6 +62,6 @@ if __name__ == "__main__":
     if rft.detObj == "calib":
         label = "calib"
 
-    fileName = "%sroiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.outputDir, rft.run, rft.camera, label)
+    fileName = "%s/roiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.outputDir, rft.run, rft.camera, label)
     print(fileName)
     np.save(fileName, aboveThresholdPixels)

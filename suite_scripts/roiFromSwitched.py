@@ -57,7 +57,7 @@ if __name__ == "__main__":
         if nGoodEvents > rfs.maxNevents:
             break
 
-    fileName = "%sroiFromSwitched_r%d_c%d.npy" % (rfs.outputDir, rfs.run, rfs.camera)
+    fileName = "%s/roiFromSwitched_r%d_c%d.npy" % (rfs.outputDir, rfs.run, rfs.camera)
     np.save(fileName, switchedPixels)
     logger.info("Wrote file: ", fileName)
 

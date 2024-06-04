@@ -18,7 +18,7 @@ class FindMinSwitchValue(BasicSuiteScript):
         plt.hist(data.flatten(), 100)
         plt.xlabel("Min switched value (ADU in low)")
         ##        plt.ylabel('Step Mean (keV)')
-        plt.savefig("%s_r%d_%s.png" % (self.__class__.__name__, self.run, label))
+        plt.savefig("%s/%s_r%d_%s.png" % (self.outputDir, self.__class__.__name__, self.run, label))
         plt.clf()
 
 
@@ -57,5 +57,5 @@ if __name__ == "__main__":
 
     minRaw = minRaw.astype("int") & fmsv.gainBitsMask
 
-    np.save("minRaw_e%d_r%s.npy" % (fmsv.run, fmsv.exp), minRaw)
+    np.save("%s/minRaw_e%d_r%s.npy" % (fmsv.outputDir, fmsv.run, fmsv.exp), minRaw)
     fmsv.plotData(minRaw, fmsv.getImage(evt, minRaw), "foo")
