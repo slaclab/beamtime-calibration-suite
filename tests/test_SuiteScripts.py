@@ -292,7 +292,8 @@ def test_RoiFromSwitched(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-# not-working commands...
+# non-working commands...
+
 '''
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],

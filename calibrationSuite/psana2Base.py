@@ -95,16 +95,11 @@ class PsanaBase(object):
             self.ds = self.get_ds()
 
         self.myrun = next(self.ds.runs())
-        print("my run: ", self.myrun)
         try:
-            print("!!A1")
             self.step_value = self.myrun.Detector("step_value")
-            print("!!A2")
             self.step_docstring = self.myrun.Detector("step_docstring")
-            print("!!A3")
             ##print('foo', self.step_value, self.step_docstring)
         except:
-            print("!!B")
             self.step_value = self.step_docstring = None
 
         ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
