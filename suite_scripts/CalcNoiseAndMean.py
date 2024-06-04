@@ -94,7 +94,7 @@ if __name__ == "__main__":
                     frames = frames - bss.fakePedestal
                     frames = bss.colCommonModeCorrection3d(frames, 2.0)
                 elif "regionCommonMode" in bss.special:
-                    frames = bss.regionCommonModeCorrection(frames[0], bss.regionSlice, commonModeCut)
+                    frames = bss.regionCommonModeCorrection(frames, bss.regionSlice, commonModeCut)
             
             else:
                 frames = bss.getRawData(evt, gainBitsMasked=True)

@@ -315,7 +315,7 @@ class PsanaBase(object):
         return frames
 
     def getImage(self, evt, data=None):
-        return self.raw.image(evt, data)
+        return self.det.raw.image(evt, data)
 
     def getTimestamp(self, evt):
         return evt.timestamp
