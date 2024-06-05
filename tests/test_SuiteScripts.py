@@ -5,7 +5,6 @@ import filecmp
 import pytest
 # diffing .pngs is a bit tricky without PIL
 from PIL import Image, ImageChops
-print("Hello!!")
 
 """
 This file tests the following commands:
@@ -42,6 +41,39 @@ python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histog
 python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
 
 python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check
+"""
+
+
+"""
+How these tests work:
+
+To verify the scripts, we execute the scripts as we would during a beamtime.
+The chosen run-numbers are chosen as runs where the data can be accessed with no issues.
+
+We verify the result files of the script by diffing them against golden-values in the tests/test_data dir.
+This dir is a git submodule found here: https://github.com/slaclab/beamtime-calibration-suite-test-data
+
+To setup the submodule (only need to do if running this test-file), from the projet root run:
+ git submodule init
+ git submodule update
+
+And you can optionally undo this (if no longer using tests and want to free up space) with:
+ git submodule deinit tests/test_data
+
+More test data can be added to the tests/test_data submodule by doing 'cd tests/test_data',
+then copying the new data into the folder, and then commiting the data as usual into git.
+Git will save the data to the submodule's repo if you are inside the 'test_data' dir when executing the commands.
+Then 'cd' back outside the 'test_data' dir and 'git add test_data', to have the main-repo track the new submodule commit. 
+
+
+Adding New Tests:
+
+You can copy an existing test-case (ex: test_FindMinSwitchValue),
+and change the test-case name and parametirized arguments (the part with '@pytest.mark.parametrize...')
+Each paramtirized argument contains a tuple of the cmd the be tested, and then the cmds output folder. 
+
+You also need to add the cmds output folder name to the 'expected_outcome_dirs' array in the SuiteTester class,
+so the output folder can be created and later deleted at end of the test.
 """
 
 
@@ -94,13 +126,14 @@ class SuiteTester:
             "test_search_for_non_switching",
         ]
 
+        # lets have the 'real output' folders just be in /suite_scripts
         for i in range(len(self.expected_outcome_dirs)):
             self.expected_outcome_dirs[i] = self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
 
         for dir in self.expected_outcome_dirs:
             os.makedirs(dir, exist_ok=True)
 
-    # we skip tests if they can't be ran, so remaining tests can run (locally or github-actions)
+    # we skip tests if they can't be ran, so remaining tests can still go (such as locally or in github-actions)
     def can_tests_run(self):
         try:
             import psana  # noqa: F401
@@ -111,7 +144,7 @@ class SuiteTester:
         data_path = self.git_repo_root + "/tests/test_data"
         if not os.path.exists(data_path):
             return False
-        # check for expected folder to be sure submodule initalized 
+        # check for some expected folder to be sure submodule initalized 
         if not os.path.exists(data_path + "/test_roi"):
             return False
         return True 
