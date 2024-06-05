@@ -9,6 +9,7 @@
 ##############################################################################
 import numpy as np
 from scipy.stats import binned_statistic
+import matplotlib.pyplot as plt
 import logging
 
 logger = logging.getLogger(__name__)

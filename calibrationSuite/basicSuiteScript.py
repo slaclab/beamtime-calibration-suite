@@ -7,18 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import argparse
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import sys
-import h5py
-from scipy.optimize import curve_fit  ## here?
 from calibrationSuite.fitFunctions import *
 from calibrationSuite.ancillaryMethods import *
-from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "1":
     print("psana1")
@@ -43,7 +38,7 @@ class BasicSuiteScript(PsanaBase):
         self.camera = 0
 
         self.outputDir = "/%s/" % (analysisType)
-        logging.info("output dir: " + self.outputDir)
+        logger.info("output dir: " + self.outputDir)
         print("output dir: " + self.outputDir)
 
         self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
@@ -52,11 +47,11 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.location = self.experimentHash["location"]
-        except:
+        except Exception:
             pass
         try:
             self.exp = self.experimentHash["exp"]
-        except:
+        except Exception:
             pass
         self.ROIfileNames = None
         ##try:
@@ -67,7 +62,7 @@ class BasicSuiteScript(PsanaBase):
                 self.ROIs.append(np.load(f))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
-            except:
+            except Exception:
                 pass
         if False:
             ##except:
@@ -79,11 +74,11 @@ class BasicSuiteScript(PsanaBase):
             self.ROIs = []
         try:
             self.singlePixels = self.experimentHash["singlePixels"]
-        except:
+        except Exception:
             self.singlePixels = None
         try:
             self.regionSlice = self.experimentHash["regionSlice"]
-        except:
+        except Exception:
             self.regionSlice = None
         if self.regionSlice is not None:
             ## n.b. assumes 3d slice now
@@ -98,13 +93,13 @@ class BasicSuiteScript(PsanaBase):
             self.fluxSource = self.experimentHash["fluxSource"]
             try:
                 self.fluxChannels = self.experimentHash["fluxChannels"]
-            except:
+            except Exception:
                 self.fluxChannels = range(8, 16)  ## wave8
             try:
                 self.fluxSign = self.experimentHash["fluxSign"]
-            except:
+            except Exception:
                 self.fluxSign = 1
-        except:
+        except Exception:
             self.fluxSource = None
 
         self.special = self.args.special
@@ -174,7 +169,7 @@ class BasicSuiteScript(PsanaBase):
             self.fluxCut = self.args.fluxCut
         try:
             self.runRange = eval(self.args.runRange)  ## in case needed
-        except:
+        except Exception:
             self.runRange = None
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
@@ -216,7 +211,7 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.analyzedModules = self.experimentHash["analyzedModules"]
-        except:
+        except Exception:
             self.analyzedModules = range(self.detectorInfo.nModules)
 
         self.g0cut = self.detectorInfo.g0cut
@@ -286,7 +281,7 @@ class BasicSuiteScript(PsanaBase):
                         ]
                     )
                     frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
-                except:
+                except Exception:
                     rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
@@ -309,7 +304,7 @@ class BasicSuiteScript(PsanaBase):
                         ]
                     )
                     frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
-                except:
+                except Exception:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")

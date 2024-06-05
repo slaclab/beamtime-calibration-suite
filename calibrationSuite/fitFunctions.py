@@ -61,7 +61,7 @@ def calculateFitR2(y, fit):
 
     try:
         r2 = 1 - (ss_res / ss_tot)
-    except:
+    except Exception:
         r2 = 1  ## I guess
 
     return r2
