@@ -7,28 +7,31 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
-from calibrationSuite.argumentParser import ArgumentParser
+#from psana import *
 import importlib.util
-
-##from PSCalib.NDArrIO import load_txt
-
+import logging
 ## for parallelism
 import os
 import sys
+
+import psana
+## standard
+from mpi4py import MPI
+
+from calibrationSuite.argumentParser import ArgumentParser
+
+##from PSCalib.NDArrIO import load_txt
+
 
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"
 ## psana2 only
 
-## standard
-from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +67,9 @@ class PsanaBase(object):
             print("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
-        if self.experimentHash['detectorType'] not in knownTypes:
-            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+        knownTypes = ["epixhr", "epixM", "rixsCCD"]
+        if self.experimentHash["detectorType"] not in knownTypes:
+            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
             return -1
         ##self.setupPsana()
 
@@ -83,7 +86,9 @@ class PsanaBase(object):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
-        ds = DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
+        ds = psana.DataSource(
+            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+        )  ##, dir=tmpDir)
         return ds
 
     def setupPsana(self):
@@ -99,13 +104,13 @@ class PsanaBase(object):
             self.step_value = self.myrun.Detector("step_value")
             self.step_docstring = self.myrun.Detector("step_docstring")
             ##print('foo', self.step_value, self.step_docstring)
-        except:
+        except Exception:
             self.step_value = self.step_docstring = None
 
         ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
         ## make this less dumb to accomodate epixM etc.
         ## use a dict etc.
-        self.det = self.myrun.Detector(self.experimentHash['detectorType'])
+        self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
             print("no det object for epixhr, what?  Pretend it's ok.")
             ##raise Exception
@@ -116,13 +121,13 @@ class PsanaBase(object):
 
         try:
             self.mfxDg1 = self.myrun.Detector("MfxDg1BmMon")
-        except:
+        except Exception:
             self.mfxDg1 = None
             print("No flux source found")  ## if self.verbose?
             logger.exception("No flux source found")
         try:
             self.mfxDg2 = self.myrun.Detector("MfxDg2BmMon")
-        except:
+        except Exception:
             self.mfxDg2 = None
         ## fix hardcoding in the fullness of time
         self.detEvts = 0
@@ -130,13 +135,13 @@ class PsanaBase(object):
 
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except:
+            self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
+        except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData")
-        except:
+            self.controlData = psana.Detector("ControlData")
+        except Exception:
             self.controlData = None
 
     ##        if self.mfxDg1 is None:
@@ -170,7 +175,7 @@ class PsanaBase(object):
         for nevt, evt in enumerate(gen):
             try:
                 self.flux = self._getFlux(evt)
-            except:
+            except Exception:
                 pass
             if self.det.raw.raw(evt) is None:
                 continue
@@ -201,13 +206,13 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except:
+            except Exception:
                 continue
 
     def getEvtFromRuns(self):
         try:  ## can't get yield to work
             evt = next(self.ds.events())
-            return(evt)
+            return evt
         except StopIteration:
             i = self.runRange.index(self.run)
             try:
@@ -215,7 +220,7 @@ class PsanaBase(object):
                 print("switching to run %d" % (self.run))
                 logger.info("switching to run %d" % (self.run))
                 self.ds = self.get_ds(self.run)
-            except:
+            except Exception:
                 print("have run out of new runs")
                 logger.exception("have run out of new runs")
                 return None
@@ -228,7 +233,7 @@ class PsanaBase(object):
             return None
         try:
             return self.mfxDg1.raw.peakAmplitude(evt)
-        except:
+        except Exception:
             return None
 
     def _getFlux(self, evt):
@@ -239,13 +244,13 @@ class PsanaBase(object):
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
             ##print(f)
-        except Exception as e:
+        except Exception:
             # print(e)
             return None
         try:
             if f < self.fluxCut:
                 return None
-        except:
+        except Exception:
             pass
         return f
 
@@ -259,7 +264,7 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == psana.EvrData.ConfigV7:
                 self.evrs.append(key.src())
 
     def getEventCodes(self, evt):
@@ -309,7 +314,7 @@ class PsanaBase(object):
 
     def plainGetRawData(self, evt):
         return self.det.raw.raw(evt)
-    
+
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames
@@ -327,10 +332,11 @@ class PsanaBase(object):
         ##print("delta:", delta)
         return delta > 0
 
-
+'''
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+'''

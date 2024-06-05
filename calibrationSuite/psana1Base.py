@@ -7,12 +7,16 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
-from PSCalib.NDArrIO import load_txt
+#from psana import *
+import importlib
 import logging
-import sys
 import os
+import sys
+
+import psana
+
 from calibrationSuite.argumentParser import ArgumentParser
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,9 +49,9 @@ class PsanaBase(object):
             print("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
-        if self.experimentHash['detectorType'] not in knownTypes:
-            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+        knownTypes = ["epixhr", "epixM", "rixsCCD"]
+        if self.experimentHash["detectorType"] not in knownTypes:
+            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
             return -1
 
     ## self.setupPsana()
@@ -64,7 +68,7 @@ class PsanaBase(object):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
     def setupPsana(self):
         logger.info("have built basic script class, exp %s run %d" % (self.exp, self.run))
@@ -75,16 +79,16 @@ class PsanaBase(object):
             self.run = self.runRange[0]
             self.ds = self.get_ds()
 
-        self.det = Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
+        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env())
-        except:
+            self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
+        except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData")
-        except:
+            self.controlData = psana.Detector("ControlData")
+        except Exception:
             self.controlData = None
 
     def getFivePedestalRunInfo(self):
@@ -117,7 +121,7 @@ class PsanaBase(object):
             try:
                 evt = next(self.ds.events())
                 yield evt
-            except:
+            except Exception:
                 continue
 
     def getEvtFromRuns(self):
@@ -131,7 +135,7 @@ class PsanaBase(object):
                 print("switching to run %d" % (self.run))
                 logger.info("switching to run %d" % (self.run))
                 self.ds = self.get_ds(self.run)
-            except:
+            except Exception:
                 print("have run out of new runs")
                 logger.exception("have run out of new runs")
                 return None
@@ -150,9 +154,9 @@ class PsanaBase(object):
             try:
                 if f < self.fluxCut:
                     return None
-            except:
+            except Exception:
                 pass
-        except:
+        except Exception:
             return None
         return f
 
@@ -162,15 +166,15 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == psana.EvrData.ConfigV7:
                 self.evrs.append(key.src())
 
     def isKicked(self, evt):
         try:
-            evr = evt.get(EvrData.DataV4, self.evrs[0])
-        except:
+            evr = evt.get(psana.EvrData.DataV4, self.evrs[0])
+        except Exception:
             self.get_evrs()
-            evr = evt.get(EvrData.DataV4, self.evrs[0])
+            evr = evt.get(psana.EvrData.DataV4, self.evrs[0])
 
         ##        kicked = False
         ##        try:
@@ -182,7 +186,7 @@ class PsanaBase(object):
             for ec in evr.fifoEvents():
                 if ec.eventCode() == 137:
                     kicked = False
-        except:
+        except Exception:
             pass
         return kicked
 
@@ -206,13 +210,14 @@ class PsanaBase(object):
     def getCalibData(self, evt):
         return self.det.calib(evt)
 
-    def getImage(evt, data=None):
+    def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
 
-
+'''
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+'''

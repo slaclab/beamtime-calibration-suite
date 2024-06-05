@@ -26,6 +26,7 @@ jobs:
         pip install scipy
         pip install statsmodels
         pip install pillow
+        pip install matplotlib
 
     - name: Run tests
       run: |

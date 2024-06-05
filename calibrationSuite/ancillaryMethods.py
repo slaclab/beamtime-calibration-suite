@@ -7,9 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import binned_statistic
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -52,28 +54,33 @@ def plotProfile(x, y, yErr):
 def selectedClusters(clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=4, isSquare=1):
     pass
 
+
 def getEnergeticClusters(clusters):
     ## expects [events, maxClusters, nClusterElements]
     ## returns [nEnergeticClusters, nClusterElements]
-    return clusters[clusters[:,:,0]>0]
+    return clusters[clusters[:, :, 0] > 0]
+
 
 def getSmallSquareClusters(clusters, nPixelCut=4):
     smallClusters = getSmallClusters(clusters, nPixelCut=4)
     return getSquareClusters(smallClusters)
 
+
 def getSmallClusters(clusters, nPixelCut=4):
-    return clusters[clusters[:,4] < nPixelCut]
+    return clusters[clusters[:, 4] < nPixelCut]
+
 
 def getSquareClusters(clusters):
-    return clusters[clusters[:,5]==1]
+    return clusters[clusters[:, 5] == 1]
+
 
 def getMatchedClusters(clusters, dimension, n):
-    if dimension == 'column':
-        return clusters[(clusters[:,3]==n)]
-    if dimension == 'row':
-        return clusters[(clusters[:,2]==n)]
-    if dimension == 'module':
-        return clusters[(clusters[:,1]==n)]
+    if dimension == "column":
+        return clusters[(clusters[:, 3] == n)]
+    if dimension == "row":
+        return clusters[(clusters[:, 2] == n)]
+    if dimension == "module":
+        return clusters[(clusters[:, 1] == n)]
     return None
 
 
@@ -81,9 +88,10 @@ def getMatchedClusters(clusters, dimension, n):
 ##    matched = np.bitwise_and.reduce([(clusters[:,1]==m), (clusters[:,2]==row), clusters[:,3]==col])
 ##    return clusters[matched]
 
+
 def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     ## this is too slow
-    mCut = clusters[:,:,1] == module
+    mCut = clusters[:, :, 1] == module
     pixelRowCol = np.bitwise_and((clusters[:, :, 2] == row), (clusters[:, :, 3] == col))
     if isSquare is None:
         small = clusters[:, :, 4] < nPixelCut
@@ -93,6 +101,7 @@ def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     ##print(c.shape)
     ##print(c)
     return c
+
 
 def getClusterEnergies(clusters):
     ##print(clusters)
