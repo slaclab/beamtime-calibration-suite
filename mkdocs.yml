@@ -4,6 +4,7 @@ repo_url: https://github.com/slaclab/beamtime-calibration-suite
 nav:
   - Home: index.md
   - Setup: setup.md
+  - Testing: testing.md
   - Environment: environment.md
   - Learning Git: learning_git.md
   - Git Workflow: workflow.md
