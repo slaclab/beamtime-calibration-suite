@@ -30,7 +30,9 @@ class ArgumentParser:
         self.parser.add_argument("-c", "--camera", type=int, help="camera.n")
         self.parser.add_argument("-p", "--path", type=str, help="the base path to the output directory")
         self.parser.add_argument("-n", "--nModules", type=int, help="nModules")
-        self.parser.add_argument("--mode", type=str, help="detector mode (1d, 2d, ...?") ## might be discoverable otherwise
+        self.parser.add_argument(
+            "--mode", type=str, help="detector mode (1d, 2d, ...?"
+        )  ## might be discoverable otherwise
         self.parser.add_argument(
             "-d", "--detType", type=str, default="", help="Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ..."
         )

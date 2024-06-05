@@ -35,7 +35,7 @@ class Stats(object):
         rms = self.rms()
         if rms.any() == None:
             return None
-        
+
         rmsPosDef = rms.clip(0.000001, rms.max())
 
         if (self._n * ySigma * rmsPosDef).any() == 0:

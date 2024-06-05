@@ -13,6 +13,7 @@ import logging
 import sys
 import os
 from calibrationSuite.argumentParser import ArgumentParser
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,9 +46,9 @@ class PsanaBase(object):
             print("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
-        if self.experimentHash['detectorType'] not in knownTypes:
-            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+        knownTypes = ["epixhr", "epixM", "rixsCCD"]
+        if self.experimentHash["detectorType"] not in knownTypes:
+            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
             return -1
 
     ## self.setupPsana()

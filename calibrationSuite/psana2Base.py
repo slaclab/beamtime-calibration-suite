@@ -64,9 +64,9 @@ class PsanaBase(object):
             print("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
-        knownTypes = ['epixhr', 'epixM', 'rixsCCD']
-        if self.experimentHash['detectorType'] not in knownTypes:
-            print ("type %s not in known types" %(self.experimentHash['detectorType']), knownTypes)
+        knownTypes = ["epixhr", "epixM", "rixsCCD"]
+        if self.experimentHash["detectorType"] not in knownTypes:
+            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
             return -1
         ##self.setupPsana()
 
@@ -83,7 +83,9 @@ class PsanaBase(object):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
-        ds = DataSource(exp=self.exp, run=run, intg_det=self.experimentHash['detectorType'], max_events=self.maxNevents)##, dir=tmpDir)
+        ds = DataSource(
+            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+        )  ##, dir=tmpDir)
         return ds
 
     def setupPsana(self):
@@ -105,7 +107,7 @@ class PsanaBase(object):
         ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
         ## make this less dumb to accomodate epixM etc.
         ## use a dict etc.
-        self.det = self.myrun.Detector(self.experimentHash['detectorType'])
+        self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
             print("no det object for epixhr, what?  Pretend it's ok.")
             ##raise Exception
@@ -207,7 +209,7 @@ class PsanaBase(object):
     def getEvtFromRuns(self):
         try:  ## can't get yield to work
             evt = next(self.ds.events())
-            return(evt)
+            return evt
         except StopIteration:
             i = self.runRange.index(self.run)
             try:
@@ -309,7 +311,7 @@ class PsanaBase(object):
 
     def plainGetRawData(self, evt):
         return self.det.raw.raw(evt)
-    
+
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames

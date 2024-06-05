@@ -35,19 +35,19 @@ class DetectorInfo:
 
         self.detectorType = detType
         self.choosenCameraType = None
-        self.dimension = 3 ## suite attempts not to know
+        self.dimension = 3  ## suite attempts not to know
 
-        knownTypes = ['epixhr', 'epixm', 'archon']
+        knownTypes = ["epixhr", "epixm", "archon"]
         if detType not in knownTypes:
             raise Exception("type %s not in known types" % (detType, knownTypes))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
 
-        if detType == 'epixhr':
+        if detType == "epixhr":
             self.setup_epixhr()
-        elif detType == 'epixm':
+        elif detType == "epixm":
             self.setup_epixM()
-        elif detType == 'archon':
+        elif detType == "archon":
             self.setup_rixsCCD()
 
     def setNModules(self, n):
@@ -64,12 +64,12 @@ class DetectorInfo:
         self.nBanksRow = int(self.nCols / self.nColsPerBank)
         self.nBanksCol = 2
         self.nRowsPerBank = int(self.nRows / self.nBanksCol)
-        #need to still implement getGainMode()
-        #self.gainMode = self.getGainMode()
-        self.preferredCommonMode = 'regionCommonMode'
-        self.clusterShape = [3,3]
-        self.seedCut = 4 ## maybe the minimum sensible
-        self.neighborCut = 0.5 ## probably too low given the noise
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "regionCommonMode"
+        self.clusterShape = [3, 3]
+        self.seedCut = 4  ## maybe the minimum sensible
+        self.neighborCut = 0.5  ## probably too low given the noise
 
     def setup_epixM(self, version=0):
         self.g0cut = 1 << 15
@@ -77,27 +77,26 @@ class DetectorInfo:
         ## per module (aka asic)
         self.nRows = 192
         self.nBanksRow = 4
-        self.nRowsPerBank = int(self.nRows/self.nBanksRow)
+        self.nRowsPerBank = int(self.nRows / self.nBanksRow)
         self.nCols = 384
         self.nBanksCol = 6
-        self.nColsPerBank = int(self.nCols/self.nBanksCol)
-        self.preferredCommonMode = 'rowCommonMode'## guess
-        self.clusterShape = [3,3]
-        self.gainMode = None ## may want to know about default, softHigh, softLow
+        self.nColsPerBank = int(self.nCols / self.nBanksCol)
+        self.preferredCommonMode = "rowCommonMode"  ## guess
+        self.clusterShape = [3, 3]
+        self.gainMode = None  ## may want to know about default, softHigh, softLow
         self.negativeGain = True
         self.aduPerKeV = 666
         self.seedCut = 2
-        self.neighborCut = 0.25 ## ditto
-        
-    def setup_rixsCCD(self, mode='1d', version=0):
+        self.neighborCut = 0.25  ## ditto
+
+    def setup_rixsCCD(self, mode="1d", version=0):
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
-        self.nCols = 4800 - self.nBanks*self.nTestPixelsPerBank
-        self.preferredCommonMode = 'rixsCCDTestPixelSubtraction'
-        if mode == '1d':
+        self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank
+        self.preferredCommonMode = "rixsCCDTestPixelSubtraction"
+        if mode == "1d":
             self.nRows = 1
-            self.clusterShape = [1,5] ## might be [1,3]
+            self.clusterShape = [1, 5]  ## might be [1,3]
         else:
             self.nRows = 1200
-            self.clusterShape = [3,5] ## maybe
-            
+            self.clusterShape = [3, 5]  ## maybe
