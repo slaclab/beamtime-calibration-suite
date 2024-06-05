@@ -7,11 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
-import calibrationSuite.loggingSetup as ls
 import logging
 import os
 
+import calibrationSuite.loggingSetup as ls
+import numpy as np
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file

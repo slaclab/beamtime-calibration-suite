@@ -5,10 +5,11 @@ import filecmp
 import pytest
 # diffing .pngs is a bit tricky without PIL
 from PIL import Image, ImageChops
+print("Hello!!")
 
 """
-Tests the following commands:
-(based on scripts usage described here: https://confluence.slac.stanford.edu/display/LCLSDET/Feb+2024+beamtime+analysis+instructions)
+This file tests the following commands:
+(based on script usage described here: https://confluence.slac.stanford.edu/display/LCLSDET/Feb+2024+beamtime+analysis+instructions)
 
 python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1
 python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2
@@ -46,24 +47,29 @@ python persistenceCheckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /tes
 
 class SuiteTester:
     def __init__(self):
-        # tests can only run if the following are true (skip if not):
-        # 1) pasna library is avaliable (i.e running on S3DF)
-        # 2) tests/test-data submodule is installed
-        self.canTestsRun = self.can_tests_run()
-
+        
         # annoyingly complicated way to get root of current git repo,
         # do this so test can be run from tests/ dir or root of project
-        git_repo_root = (
+        self.git_repo_root = (
             subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE)
             .communicate()[0]
             .rstrip()
             .decode("utf-8")
         )
-        suite_scripts_root = git_repo_root + "/suite_scripts/"
-        tests_root = git_repo_root + "/tests/"
+
+        # tests can only run if the following are true (skip if not):
+        # 1) pasna library is avaliable (i.e running on S3DF)
+        # 2) tests/test-data submodule is installed
+        self.canTestsRun = self.can_tests_run()
+
+
+        suite_scripts_root = self.git_repo_root + "/suite_scripts/"
+        tests_root = self.git_repo_root + "/tests/"
+
+        # setup environment and then move to suite_scripts dir so we can run scripts
         self.setup_commands = (
             "export PYTHONPATH=$PYTHONPATH:"
-            + git_repo_root
+            + self.git_repo_root
             + " && export OUTPUT_ROOT="
             + suite_scripts_root
             + " && export SUITE_CONFIG="
@@ -89,7 +95,7 @@ class SuiteTester:
         ]
 
         for i in range(len(self.expected_outcome_dirs)):
-            self.expected_outcome_dirs[i] = git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
+            self.expected_outcome_dirs[i] = self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
 
         for dir in self.expected_outcome_dirs:
             os.makedirs(dir, exist_ok=True)
@@ -97,11 +103,19 @@ class SuiteTester:
     # we skip tests if they can't be ran, so remaining tests can run (locally or github-actions)
     def can_tests_run(self):
         try:
-            import psana # noqa: F401
-            return True
+            import psana  # noqa: F401
         except ImportError:
             return False
 
+        # check for submodule
+        data_path = self.git_repo_root + "/tests/test_data"
+        if not os.path.exists(data_path):
+            return False
+        # check for expected folder to be sure submodule initalized 
+        if not os.path.exists(data_path + "/test_roi"):
+            return False
+        return True 
+    
     def run_command(self, command):
         result = subprocess.run(command, capture_output=True, text=True)
         return result
@@ -119,7 +133,8 @@ class SuiteTester:
     def test_command(self, command, output_location):
         command[2] = self.setup_commands + " && " + command[2]
         result = self.run_command(command)
-        assert result.returncode == 0, f"Script failed with error: {result.stderr}"
+        if result.returncode != 0:
+            assert False, f"Script failed with error: {result.stderr}"
 
         real_output_location = "../suite_scripts/" + output_location
         expected_output_location = "./test_data/" + output_location
@@ -132,14 +147,12 @@ class SuiteTester:
 
                 # Check if files are PNGs
                 if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
-                    assert self.are_images_same(
-                        real_file_path, expected_file_path
-                    ), f"PNG files {real_file_path} and {expected_file_path} are different"
+                    if self.are_images_same(real_file_path, expected_file_path) == 0: 
+                        assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
                 else:
                     # For non-PNG files, perform directory comparison
-                    assert filecmp.cmp(
-                        real_file_path, expected_file_path
-                    ), f"files {real_file_path} and {expected_file_path} are different"
+                    if filecmp.cmp(real_file_path, expected_file_path) == 0:
+                        assert False, f"files {real_file_path} and {expected_file_path} are different"
 
 
 @pytest.fixture(scope="module")
@@ -157,17 +170,23 @@ def suite_tester():
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
-        (["bash", "-c", "python CalcNoiseAndMean.py -r 102 --maxNevents 250 -p /test_noise_1"], "test_noise_1"),
+        (["bash", "-c", "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1"], "test_noise_1"),
         (
             [
                 "bash",
                 "-c",
-                "python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice --label calib --maxNevents 250 -p /test_noise_2",
+                "python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice,testRun --label calib --maxNevents 250 -p /test_noise_2",
             ],
             "test_noise_2",
         ),
-        (['bash', '-c', 'python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice --label common --maxNevents 250 -p /test_noise_3'],
-        'test_noise_3'),
+        (
+            [
+                "bash",
+                "-c",
+                "python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice,testRun --label common --maxNevents 250 -p /test_noise_3",
+            ],
+            "test_noise_3",
+        ),
     ],
 )
 def test_Noise(suite_tester, command, output_dir_name):
@@ -176,14 +195,19 @@ def test_Noise(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_dir_name", [
-    # for this script we expect run 102 to fail, the run has issues returning step_values
-    #(['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
-    # 'test_time_scan_parallel_slice'),
-    (['bash', '-c', 'python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice'],
-     'test_time_scan_parallel_slice'),
-])
-def test_TiminingScan(suite_tester, command, output_dir_name):
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        # for this script we expect run 102 to fail, the run has issues returning step_values
+        # (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
+        # 'test_time_scan_parallel_slice'),
+        (
+            ["bash", "-c", "python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice"],
+            "test_time_scan_parallel_slice",
+        ),
+    ],
+)
+def test_TimingScan(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -197,10 +221,10 @@ def test_TiminingScan(suite_tester, command, output_dir_name):
             "test_single_photon",
         ),
         (
-            [
-                "bash",
-                "-c",
-                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
+           [
+               "bash",
+               "-c",
+               "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
             ],
             "test_single_photon",
         ),
@@ -223,12 +247,12 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar",
+                "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n666.h5 --label fooBar",
             ],
             "test_linearity_scan",
         ),
         (
-            [
+           [
                 "bash",
                 "-c",
                 "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice",
@@ -237,7 +261,7 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
         ),
     ],
 )
-def test_LinerarityScans(suite_tester, command, output_dir_name):
+def test_LinearityScans(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -258,7 +282,7 @@ def test_LinerarityScans(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n1.h5 --maxNevents 120 -p /test_event_scan_parallel_slice",
+                "python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_parallel_slice/EventScanParallel_c0_r120__n666.h5 --maxNevents 120 -p /test_event_scan_parallel_slice",
             ],
             "test_event_scan_parallel_slice",
         ),
@@ -270,22 +294,46 @@ def test_EventScans(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value'],
-     'test_find_min_switch_value'),
-])
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        (
+            [
+                "bash",
+                "-c",
+                "python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value",
+            ],
+            "test_find_min_switch_value",
+        ),
+    ],
+)
 def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
-     'test_roi'),
-    (['bash', '-c', 'python roiFromThreshold.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi'],
-     'test_roi'),
-])
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        (
+            [
+                "bash",
+                "-c",
+                "python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi",
+            ],
+            "test_roi",
+        ),
+        (
+            [
+                "bash",
+                "-c",
+                "python roiFromThreshold.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi",
+            ],
+            "test_roi",
+        ),
+    ],
+)
 def test_RoiFromSwitched(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
@@ -294,7 +342,7 @@ def test_RoiFromSwitched(suite_tester, command, output_dir_name):
 
 # non-working commands...
 
-'''
+"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
      'test_roi'),
@@ -303,10 +351,10 @@ def test_SearchNonSwitching(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-'''
+"""
 
 
-'''
+"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
@@ -315,10 +363,10 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-'''
+"""
 
 
-'''
+"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
@@ -329,4 +377,4 @@ def test_PersistenceCheck(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-'''
+"""

@@ -7,7 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import sys
+
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class RoiFromThreshold(BasicSuiteScript):
@@ -46,7 +49,7 @@ if __name__ == "__main__":
 
         try:
             aboveThresholdPixels = np.bitwise_or(thresholded, aboveThresholdPixels)
-        except:
+        except Exception:
             ##print("first time hopefully")
             aboveThresholdPixels = thresholded  ##copy?
 
