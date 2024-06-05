@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Environment - Calibration Suite Docs</title>
+    <title>Script Usage - Calibration Suite Docs</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Environment";
-        var mkdocs_page_input_path = "environment.md";
+        var mkdocs_page_name = "Script Usage";
+        var mkdocs_page_input_path = "usage.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -51,14 +51,8 @@
                 <li class="toctree-l1"><a class="reference internal" href="../testing/">Testing</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Environment</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#specifying-output-root">Specifying Output Root</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#point-to-config-file">Point to Config File</a>
-    </li>
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../environment/">Environment</a>
                 </li>
               </ul>
               <ul>
@@ -77,8 +71,10 @@
                 <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../usage/">Script Usage</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Script Usage</a>
+    <ul class="current">
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -103,9 +99,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Environment</li>
+      <li class="breadcrumb-item active">Script Usage</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/environment.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/slaclab/beamtime-calibration-suite/edit/master/docs/usage.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -113,40 +109,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="setup-environment">Setup Environment</h1>
-<p>When running on S3DF, you will first need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
-<pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
-</code></pre>
-<p>Then you can execute the following to setup some project-specific things (must be ran from <em>beamtime-calibration-suite</em> folder):</p>
-<pre><code>source setup.sh
-</code></pre>
-<p><em>(must be ran in each new terminal session)</em></p>
-<p>This script simplifies setting up the terminal environment and should be all most users will need to do</p>
-<p>This script does the following:<br />
-  * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
-  * sets the library's output-root to the shared /rix dir used for the current experiment
-  * sets the config file to the currently used <code>rixSuiteConfig.py</code> file  </p>
-<p>The rest of the page has more detail on configuring the scripts.</p>
-<h3 id="specifying-output-root">Specifying Output Root</h3>
-<p>The output-root determines where the library will look for an output folder</p>
-<p>For example, if the root is set to the default value <code>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</code>, the library will look for an output dir <code>../scan</code> in the location <code>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</code></p>
-<p>The output-directory can be set using the <code>-p &lt;dir_name&gt;</code> cmdline arg</p>
-<p>Setting the var to nothing (<em>export OUTPUT_ROOT=</em> ) will have the library look for an output folder relative to the location of the current script being ran  </p>
-<h3 id="point-to-config-file">Point to Config File</h3>
-<p>Specify which config file for the library to use by setting the <code>SUITE_CONFIG</code> environment variable:</p>
-<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
-</code></pre>
-<p><em>(relative or full paths should work)</em></p>
-<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
-<em>(note: if set, the environment variable will always override this cmd-line option)</em></p>
-<p>If neither of the above are set, the suite will try to use a default file named <code>suiteConfig.py</code></p>
-<p>If no config file can be found and read, the library will fail-out early</p>
+                <h1 id="script-usage">Script Usage</h1>
+<p>Currently, script usage is documented across a few confluence pages <em>(TODO: document this better and in one place)</em></p>
+<p>General Info:
+* <a href="https://confluence.slac.stanford.edu/display/LCLSDET/Feb+2024+beamtime+analysis+instructions">https://confluence.slac.stanford.edu/display/LCLSDET/Feb+2024+beamtime+analysis+instructions</a></p>
+<p>Also:
+* <a href="https://confluence.slac.stanford.edu/display/LCLSDET/Current+%28Feb+2024%29+single+photon+analysis">https://confluence.slac.stanford.edu/display/LCLSDET/Current+%28Feb+2024%29+single+photon+analysis</a>
+* <a href="https://confluence.slac.stanford.edu/display/LCLSDET/Running+analysis+and+plotting+results+in+psana2+parallel+scripts">https://confluence.slac.stanford.edu/display/LCLSDET/Running+analysis+and+plotting+results+in+psana2+parallel+scripts</a>
+* <a href="https://confluence.slac.stanford.edu/display/LCLSDET/Procedure+for+cluster-based+gain+analysis+while+the+calib+db+is+down+or+pedestals+are+badand">https://confluence.slac.stanford.edu/display/LCLSDET/Procedure+for+cluster-based+gain+analysis+while+the+calib+db+is+down+or+pedestals+are+badand</a></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../testing/" class="btn btn-neutral float-left" title="Testing"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../learning_git/" class="btn btn-neutral float-right" title="Learning Git">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../logging/" class="btn btn-neutral float-left" title="Logging"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../suite_scripts/" class="btn btn-neutral float-right" title="Suite Scripts">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -173,10 +149,10 @@
         </span>
     
     
-      <span><a href="../testing/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../logging/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../learning_git/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../suite_scripts/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
