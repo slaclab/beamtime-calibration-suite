@@ -10,6 +10,7 @@ nav:
   - Git Workflow: workflow.md
   - Useful Git Commands: commands.md
   - Logging: logging.md
+  - Script Usage: usage.md
   - Suite Scripts: suite_scripts.md
   - Standalone Scripts: standalone_scripts.md
 theme:
