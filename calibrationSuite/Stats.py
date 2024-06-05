@@ -7,8 +7,9 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy
 import logging
+
+import numpy
 
 logger = logging.getLogger(__name__)
 

@@ -8,18 +8,20 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 #from psana import *
-import psana
-from calibrationSuite.argumentParser import ArgumentParser
 import importlib.util
-
-## standard
-from mpi4py import MPI
-##from PSCalib.NDArrIO import load_txt
-
+import logging
 ## for parallelism
 import os
 import sys
-import logging
+
+import psana
+## standard
+from mpi4py import MPI
+
+from calibrationSuite.argumentParser import ArgumentParser
+
+##from PSCalib.NDArrIO import load_txt
+
 
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"

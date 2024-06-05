@@ -7,11 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
+
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
-import logging
 
 logger = logging.getLogger(__name__)
 

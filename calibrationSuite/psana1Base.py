@@ -8,11 +8,13 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 #from psana import *
-import psana
-import logging
-import sys
-import os
 import importlib
+import logging
+import os
+import sys
+
+import psana
+
 from calibrationSuite.argumentParser import ArgumentParser
 
 logger = logging.getLogger(__name__)

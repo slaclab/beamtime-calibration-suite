@@ -7,10 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
-from calibrationSuite.detectorInfo import DetectorInfo
-import os
 import logging
+import os
+
+import numpy as np
+
+from calibrationSuite.detectorInfo import DetectorInfo
 
 logger = logging.getLogger(__name__)
 
