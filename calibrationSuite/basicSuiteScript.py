@@ -8,19 +8,18 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import numpy as np
-from calibrationSuite.fitFunctions import *
-from calibrationSuite.ancillaryMethods import *
 from calibrationSuite.detectorInfo import DetectorInfo
 import os
 import logging
+
 logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "1":
     print("psana1")
-    from calibrationSuite.psana1Base import *
+    from calibrationSuite.psana1Base import PsanaBase
 else:
     print("psana2")
-    from calibrationSuite.psana2Base import *
+    from calibrationSuite.psana2Base import PsanaBase
 
 
 def sortArrayByList(a, data):
@@ -371,7 +370,7 @@ class BasicSuiteScript(PsanaBase):
         fakes[occ > occupancy] = 0
         return frames + fakes, (fakes > 0).sum()
 
-
+'''
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
@@ -380,3 +379,4 @@ if __name__ == "__main__":
     evt = bSS.getEvt()
     print(dir(evt))
     logger.info(dir(evt))
+'''

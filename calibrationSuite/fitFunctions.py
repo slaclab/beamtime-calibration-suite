@@ -85,7 +85,7 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     if x0 is not None:
         x, y = getRestrictedHistogram(x, y, x0, x1)
 
-    a, mean, std = estimateGaussianParameters(zip(x, y))
+    a, mean, std = estimateGaussianParametersFromXY(x, y)
     popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]

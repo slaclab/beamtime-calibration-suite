@@ -33,7 +33,7 @@ class Stats(object):
     def corr(self, yMean, ySigma):
         ## return (self._xy -self._x*yMean)/self._n
         rms = self.rms()
-        if rms.any() == None:
+        if rms.any() is None:
             return None
 
         rmsPosDef = rms.clip(0.000001, rms.max())

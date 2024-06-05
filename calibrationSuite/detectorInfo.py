@@ -39,7 +39,7 @@ class DetectorInfo:
 
         knownTypes = ["epixhr", "epixm", "archon"]
         if detType not in knownTypes:
-            raise Exception("type %s not in known types" % (detType, knownTypes))
+            raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
 

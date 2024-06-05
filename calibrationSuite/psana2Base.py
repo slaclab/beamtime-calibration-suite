@@ -7,10 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
+#from psana import *
+import psana
 from calibrationSuite.argumentParser import ArgumentParser
 import importlib.util
 
+## standard
+from mpi4py import MPI
 ##from PSCalib.NDArrIO import load_txt
 
 ## for parallelism
@@ -22,8 +25,6 @@ os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"
 ## psana2 only
 
-## standard
-from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -83,7 +84,7 @@ class PsanaBase(object):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
-        ds = DataSource(
+        ds = psana.DataSource(
             exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
         )  ##, dir=tmpDir)
         return ds
@@ -132,12 +133,12 @@ class PsanaBase(object):
 
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env())
+            self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
         except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData")
+            self.controlData = psana.Detector("ControlData")
         except Exception:
             self.controlData = None
 
@@ -261,7 +262,7 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == psana.EvrData.ConfigV7:
                 self.evrs.append(key.src())
 
     def getEventCodes(self, evt):
@@ -329,10 +330,11 @@ class PsanaBase(object):
         ##print("delta:", delta)
         return delta > 0
 
-
+'''
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+'''

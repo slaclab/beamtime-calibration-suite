@@ -62,7 +62,7 @@ class ArgumentParser:
         )
 
     def parse_args(self, testing_args=None):
-        if testing_args == None:
+        if testing_args is None:
             return self.parser.parse_args()
         else:
             return self.parser.parse_args(testing_args)

@@ -7,10 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from psana import *
+#from psana import *
+import psana
 import logging
 import sys
 import os
+import importlib
 from calibrationSuite.argumentParser import ArgumentParser
 
 logger = logging.getLogger(__name__)
@@ -64,7 +66,7 @@ class PsanaBase(object):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
     def setupPsana(self):
         logger.info("have built basic script class, exp %s run %d" % (self.exp, self.run))
@@ -75,15 +77,15 @@ class PsanaBase(object):
             self.run = self.runRange[0]
             self.ds = self.get_ds()
 
-        self.det = Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
+        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
         self.evrs = None
         try:
-            self.wave8 = Detector(self.fluxSource, self.ds.env())
+            self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
         except Exception:
             self.wave8 = None
         self.config = None
         try:
-            self.controlData = Detector("ControlData")
+            self.controlData = psana.Detector("ControlData")
         except Exception:
             self.controlData = None
 
@@ -162,15 +164,15 @@ class PsanaBase(object):
 
         self.evrs = []
         for key in list(self.config.keys()):
-            if key.type() == EvrData.ConfigV7:
+            if key.type() == psana.EvrData.ConfigV7:
                 self.evrs.append(key.src())
 
     def isKicked(self, evt):
         try:
-            evr = evt.get(EvrData.DataV4, self.evrs[0])
+            evr = evt.get(psana.EvrData.DataV4, self.evrs[0])
         except Exception:
             self.get_evrs()
-            evr = evt.get(EvrData.DataV4, self.evrs[0])
+            evr = evt.get(psana.EvrData.DataV4, self.evrs[0])
 
         ##        kicked = False
         ##        try:
@@ -206,13 +208,14 @@ class PsanaBase(object):
     def getCalibData(self, evt):
         return self.det.calib(evt)
 
-    def getImage(evt, data=None):
+    def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
 
-
+'''
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
+'''
