@@ -7,8 +7,14 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
-from calibrationSuite.cluster import Cluster, BuildClusters
+import sys
+
+import calibrationSuite.fitFunctions as fitFunctions
+import matplotlib.pyplot as plt
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
+from calibrationSuite.cluster import BuildClusters
+from scipy.optimize import curve_fit
 
 
 class SimpleClusters(BasicSuiteScript):
@@ -18,7 +24,7 @@ class SimpleClusters(BasicSuiteScript):
     def plotData(self, clusters, label):
         ax = plt.subplot()
         energy = clusters[:, :, 0]  ##.flatten()
-        foo = ax.hist(energy[energy > 0], 100)
+        ## foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         plt.savefig("%s/%s_r%d_c%d_%s_E.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label))
@@ -32,7 +38,9 @@ class SimpleClusters(BasicSuiteScript):
                 pixel = np.bitwise_and((clusters[:, :, 1] == i), (clusters[:, :, 2] == j))
                 small = np.bitwise_and((clusters[:, :, 3] < 4), (clusters[:, :, 4] == 1))
                 smallPixel = np.bitwise_and(small, pixel)
-                pixelEcut0 = np.bitwise_and(smallPixel, energy > sic.seedCut*0.8)  ## adjusted due to gains not making sense
+                pixelEcut0 = np.bitwise_and(
+                    smallPixel, energy > sic.seedCut * 0.8
+                )  ## adjusted due to gains not making sense
                 pixelEcut = np.bitwise_and(
                     pixelEcut0, energy < 20
                 )  ## would be good to get rid of these entirely when things make sense
@@ -53,7 +61,7 @@ class SimpleClusters(BasicSuiteScript):
                         fitInfo[i, j] = (mean, std, popt[1], popt[2])
                         fittedFunc = fitFunctions.gaussian(bins, *popt)
                         ax.plot(bins, fittedFunc, color="b")
-                    except:
+                    except Exception:
                         pass
                     ax.set_xlabel("energy (keV)")
                     ax.set_title("pixel %d,%d in slice, small cluster cuts" % (i, j))
@@ -86,8 +94,8 @@ class SimpleClusters(BasicSuiteScript):
         import h5py
 
         data = h5py.File(dataFile)
-        simpleClusters = data["clusterData"][()]
-        ##self.plotData(simpleClusters, label)
+        ## simpleClusters = data["clusterData"][()]
+        ## self.plotData(simpleClusters, label)
         energyHist = data["energyHistogram"][()]
         _, bins = np.histogram(energyHist, 250, [-5, 45])
         plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
@@ -125,20 +133,23 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
-    smd = sic.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size))
+    size = 666
+    smd = sic.ds.smalldata(
+        filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    )
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
-    maxClusters = 10000##int(50 * 50 / 3 / 3 * 0.1 * 2)
+    maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
     if sic.seedCut is not None:
         seedCut = sic.seedCut
     else:
         try:
             seedCut = sic.detectorInfo.seedCut
-        except:
+        except Exception:
             seedCut = 4
     try:
         neighborCut = sic.detectorInfo.neighborCut
-    except:
+    except Exception:
         neighborCut = 0.5
 
     print("using seed, neighbor cuts", seedCut, neighborCut)
@@ -146,9 +157,9 @@ if __name__ == "__main__":
     sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
     nClusterElements = len(sic.clusterElements)
 
-    ##sic.slices = [np.s_[0:100, 0:100], np.s_[200:300, 200:300]] ## fix this
-    ##sic.slices = [np.s_[0:288, 0:384]]
-    ##sic.slices = [np.s_[270:288, 59:107]]
+    ## sic.slices = [np.s_[0:100, 0:100], np.s_[200:300, 200:300]] ## fix this
+    ## sic.slices = [np.s_[0:288, 0:384]]
+    ## sic.slices = [np.s_[270:288, 59:107]]
 
     sic.useFlux = False
 
@@ -162,7 +173,7 @@ if __name__ == "__main__":
     nComplaints = 0
     try:
         gain = sic.detectorInfo.aduPerKeV
-    except:
+    except Exception:
         gain = None
     if sic.special is not None:  ## and 'fakePedestal' in sic.special:
         if "FH" in sic.special:
@@ -171,7 +182,6 @@ if __name__ == "__main__":
             gain = 6.66  # 20/3
         print("using gain correction", gain)
 
-        ##if True:  ## turn on when db works
         try:
             if "FH" in sic.special:
                 gainMode = sic.gainModes["FH"]
@@ -182,48 +192,49 @@ if __name__ == "__main__":
             if gain is None:
                 gain = sic.det.calibconst["pedestals"][0][gainMode]
                 ## something wrong with the overall logic here
-        except:
+        except Exception:
             print("May not have a detector object in this data stream...")
             print("sic.det:", sic.det)
             pass
 
-
     zeroLowGain = False
-    if sic.special and 'zeroLowGain' in sic.special:
+    if sic.special and "zeroLowGain" in sic.special:
         zeroLowGain = True
-        
+
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
         if not sic.fakeBeamCode and not sic.isBeamEvent(evt):
             continue
-        
+
         if zeroLowGain:
             rawFrames = sic.getRawData(evt, gainBitsMasked=False)
         else:
             rawFrames = sic.getRawData(evt)
 
-
         if rawFrames is None:
             continue
-        if zeroLowGain: g1 = rawFrames>=sic.g0cut
+        if zeroLowGain:
+            g1 = rawFrames >= sic.g0cut
 
         frames = None
         if sic.fakePedestal is not None:
             frames = rawFrames.astype("float") - sic.fakePedestal
-            if zeroLowGain: frames[g1] = 0
+            if zeroLowGain:
+                frames[g1] = 0
         elif pedestal is not None:
             frames = rawFrames.astype("float") - pedestal
-            if zeroLowGain: frames[g1] = 0
+            if zeroLowGain:
+                frames[g1] = 0
         ##else:
-            ##print("something is probably wrong, need a pedestal to cluster")
-            ##sys.exit(0)
-            
+        ##print("something is probably wrong, need a pedestal to cluster")
+        ##sys.exit(0)
+
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
-                frames, nAdded = sic.addFakePhotons(frames, 0.01, 666*10, 10)
-                print("added %d fake photons" %(nAdded))
+                frames, nAdded = sic.addFakePhotons(frames, 0.01, 666 * 10, 10)
+                print("added %d fake photons" % (nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
             frame = sic.getCalibData(evt)[0]
@@ -256,7 +267,7 @@ if __name__ == "__main__":
         h, _ = np.histogram(frames[sic.regionSlice], 250, [-5, 45])
         try:
             hSum += h
-        except:
+        except Exception:
             hSum = np.array(h)  ##.astype(np.uint32)
 
         nClusters = 0
@@ -264,14 +275,16 @@ if __name__ == "__main__":
         for module in sic.analyzedModules:
             if nClusters == maxClusters:
                 continue
-            if sic.special is not None and 'slice' in sic.special:
+            if sic.special is not None and "slice" in sic.special:
                 bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
             else:
                 bc = BuildClusters(frames[module], seedCut, neighborCut)
 
             fc = bc.findClusters()
             if False:
-                print("found %d prospective clusters" %(len(fc)), bc.frame.max(), frames[sic.regionSlice][module].max())
+                print(
+                    "found %d prospective clusters" % (len(fc)), bc.frame.max(), frames[sic.regionSlice][module].max()
+                )
 
             for c in fc:
                 ##print(c.goodCluster, c.nPixels, c.eTotal)
@@ -297,9 +310,9 @@ if __name__ == "__main__":
                 np.median(f[f < 2]),
             )
 
-    ##    np.save("%s/means_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(roiMeans))
-    ##    np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
-    ##    sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
+    ## np.save("%s/means_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(roiMeans))
+    ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
+    ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
     if smd.summary:
         sumhSum = smd.sum(hSum)

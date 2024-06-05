@@ -191,7 +191,6 @@ def suite_tester():
 )
 def test_Noise(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
-        assert False
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 

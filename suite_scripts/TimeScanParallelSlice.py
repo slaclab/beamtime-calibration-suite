@@ -7,16 +7,24 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
-
-##from fitFineScan import *
+import logging
+import os
+import sys
 
 import calibrationSuite.loggingSetup as ls
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
+from matplotlib.ticker import AutoMinorLocator
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
 
 
 class TimeScanParallel(BasicSuiteScript):
@@ -25,12 +33,10 @@ class TimeScanParallel(BasicSuiteScript):
         try:
             print("positive events:", "positive" in self.special)
             logger.info("positive events:" + (["positive" in self.special]))
-        except:
+        except Exception:
             pass
 
     def plotData(self, rois, pixels, delays, label):
-##        print(type(delays))
-##        print('delays here:', delays)
         for i, roi in enumerate(self.ROIs):
             ax = plt.subplot()
             ax.plot(delays, rois[i], label=self.ROIfileNames[i])
@@ -46,7 +52,14 @@ class TimeScanParallel(BasicSuiteScript):
             ax.xaxis.set_minor_locator(minor_locator)
             plt.grid(which="minor", linewidth=0.5)
 
-            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_ROI%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info("Wrote file: " + figFileName)
             plt.clf()
@@ -65,7 +78,14 @@ class TimeScanParallel(BasicSuiteScript):
             plt.legend(loc="upper right")
 
         if self.ROIs != []:
-            figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_All%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info("Wrote file: " + figFileName)
             plt.close()
@@ -81,7 +101,14 @@ class TimeScanParallel(BasicSuiteScript):
             plt.xlabel("Delay (Ticks/1000)")
             plt.ylabel("Pixel ADU")
 
-            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_pixel%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             logger.info(figFileName)
             plt.close()
@@ -100,10 +127,19 @@ class TimeScanParallel(BasicSuiteScript):
             plt.xlabel("Delay (Ticks)")
             plt.ylabel("Pixel ADU")
 
-            figFileName = "%s/%s_r%d_c%d_%s_slicePixel%d.png" % (self.outputDir, self.__class__.__name__, self.run, self.camera, label, i)
+            figFileName = "%s/%s_r%d_c%d_%s_slicePixel%d.png" % (
+                self.outputDir,
+                self.__class__.__name__,
+                self.run,
+                self.camera,
+                label,
+                i,
+            )
             plt.savefig(figFileName)
             plt.close()
 
+    # unused and broken (estimateFineScanPars not implemented anywhere??)
+    """
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -115,25 +151,25 @@ class TimeScanParallel(BasicSuiteScript):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    """
 
     def analyze_h5(self, dataFile, norm, label):
-        import h5py
 
         a = h5py.File(dataFile)[norm]
         delays = np.array([int(eval(k)) for k in a.keys()])
-        print('delays:', delays)
+        print("delays:", delays)
         ##delays = delays.astype('float').astype("int")
         ##delays = delays.astype('float').astype("int")
         delays.sort()
         d = np.array([a[str(k)] for k in delays])
         delays = np.array([d for d in delays])
-        delays = [d/1000. for d in delays]
+        delays = [d / 1000.0 for d in delays]
         ##delays /= 1000.
-        print('scaled delays', delays)
+        print("scaled delays", delays)
 
         runString = "_r%d" % (self.run)
         if norm != "slice":
-            print("doing %s analysis" %(norm))
+            print("doing %s analysis" % (norm))
             offset = len(self.ROIs)
             rois = d[:, 0:offset]
             pixels = d[:, offset:]
@@ -144,15 +180,15 @@ class TimeScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     tsp = TimeScanParallel()
-    print("have built a", tsp.className, "class")
-    logger.info("have built a" + tsp.className + "class")
+    print("have built a ", tsp.className, "class")
+    logger.info("have built a " + tsp.className + "class")
     fileMadeByScript = False
     if tsp.file is not None:
-        print('tsp.file', tsp.file)
-        fileMadeByScript = tsp.file.split('/')[-1].startswith(tsp.className)
-    if fileMadeByScript:##and tsp.psanaType != 0: ## added type for rogue
-        tsp.analyze_h5(tsp.file, 'means', tsp.label)
-        ##        tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
+        print("tsp.file", tsp.file)
+        fileMadeByScript = tsp.file.split("/")[-1].startswith(tsp.className)
+    if fileMadeByScript:  ##and tsp.psanaType != 0: ## added type for rogue
+        tsp.analyze_h5(tsp.file, "means", tsp.label)
+        ##tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
         print("done with standalone analysis of %s, exiting" % (tsp.file))
         logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
@@ -160,17 +196,16 @@ if __name__ == "__main__":
 
     tsp.setupPsana()
     tsp.use_281_for_old_data = False
-    ## this is a hack
-    if tsp.exp == 'foo' and tsp.run < 500: ## guess
+    ##this is a hack
+    if tsp.exp == "foo" and tsp.run < 500:  ## guess
         tsp.use_281_for_old_data = True
         print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
 
-    if 'size' in dir(): ## check for rogue
-        print("size is", size)
-    else:
-        size = 666
-        
+    size = 666
+    if "size" in dir():  ## check for rogue
+        print("size is ", dir("size"))
+
     h5FileName = "%s/%s_%s_c%d_r%d_n%d.h5" % (tsp.outputDir, tsp.className, tsp.label, tsp.camera, tsp.run, size)
     smd = tsp.ds.smalldata(filename=h5FileName)
 
@@ -193,29 +228,31 @@ if __name__ == "__main__":
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
 
         nGoodInStep = 0
-        stepSliceSum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[tsp.regionSlice].astype("float32")
+        stepSliceSum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[
+            tsp.regionSlice
+        ].astype("float32")
         stepSliceSum = None
         for nevt, evt in enumerate(step.events()):
             if evt is None:
                 continue
-        ##if not tsp.isBeamEvent(evt):
+            ##if not tsp.isBeamEvent(evt):
             ##continue
 
             doFast = [True, False][0]
-            fakeFlux = [True, False][0] ## 0 for ASC lab, FEE
+            fakeFlux = [True, False][0]  ## 0 for ASC lab, FEE
             if doFast:
                 ec = tsp.getEventCodes(evt)
 
                 ##tsp.isBeamEvent(evt):
-                if tsp.detectorInfo.detectorType == 'epixm' or tsp.isBeamEvent(evt):##FEE hack
-                    frames = tsp.getRawData(evt)##, gainBitsMasked=True)
+                if tsp.detectorInfo.detectorType == "epixm" or tsp.isBeamEvent(evt):  ##FEE hack
+                    frames = tsp.getRawData(evt)  ##, gainBitsMasked=True)
                     ##print("real beam on event", nstep, nevt)
                     ##logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
                 elif tsp.use_281_for_old_data and ec[281]:
-                    frames = tsp.getRawData(evt)##, gainBitsMasked=True)
+                    frames = tsp.getRawData(evt)  ##, gainBitsMasked=True)
                     print("281 only...")
                 elif ec[137]:
-                    tsp.flux = tsp._getFlux(evt) ## fix this
+                    tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
                 else:
                     print("not beam event, not frame event, not bld...")
@@ -223,7 +260,7 @@ if __name__ == "__main__":
                     continue
             else:
                 tsp.flux = tsp._getFlux(evt)  ## fix this
-                frames = tsp.getRawData(evt)##, gainBitsMasked=True)
+                frames = tsp.getRawData(evt)  ##, gainBitsMasked=True)
 
             if frames is None:
                 ##print("no frame")
@@ -247,7 +284,7 @@ if __name__ == "__main__":
             try:
                 stepSliceSum += frames[tsp.regionSlice]
                 ##stepEvents += 1
-            except:
+            except Exception:
                 stepSliceSum = frames[tsp.regionSlice].astype(np.float32)
                 ##stepEvents = 1
 
@@ -266,7 +303,7 @@ if __name__ == "__main__":
             if tsp.nGoodEvents % 100 == 0:
                 print("n good events analyzed: %d" % (tsp.nGoodEvents))
                 logger.info("n good events analyzed: %d" % (tsp.nGoodEvents))
-                ##                  print("switched pixels: %d" %((switchedPixels>0).sum()))
+                ##print("switched pixels: %d" %((switchedPixels>0).sum()))
 
             if tsp.nGoodEvents > tsp.maxNevents:
                 break
@@ -282,11 +319,13 @@ if __name__ == "__main__":
         step_nsum = smd.sum(nGoodInStep)
         try:
             step_slice_sum = smd.sum(stepSliceSum)
-        except:
+        except Exception:
             print(tsp.nGoodEvents)
             print(stepSliceSum.shape)
             ##print(stepSliceSum)
-            step_slice_sum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[tsp.regionSlice].astype("float32")
+            step_slice_sum = np.zeros([tsp.detectorInfo.nModules, tsp.detectorInfo.nRows, tsp.detectorInfo.nCols])[
+                tsp.regionSlice
+            ].astype("float32")
 
         if roiAndPixelSums is not None:
             step_sums = smd.sum(roiAndPixelSums)
@@ -301,6 +340,7 @@ if __name__ == "__main__":
         smd.save_summary(stepMeans)
     smd.done()
 
+    """
     if False:
         meansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
         np.save(meansFileName, np.array(roiMeans))
@@ -308,7 +348,7 @@ if __name__ == "__main__":
         fluxesFileName = "%s/fluxes_%s_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.run, tsp.exp)
         np.save(fluxesFileNAme, np.array(fluxes))
         logger.info("Wrote file: " + fluxesFileName)
-        ##    np.save("%s/ratios_c%d_r%d_%s.npy" %(tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(ratios))
+        ##np.save("%s/ratios_c%d_r%d_%s.npy" %(tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(ratios))
         delaysFileName = "%s/delays_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
         np.save(delaysFileName, np.array(delays))
         logger.info("Wrote file: " + delaysFileName)
@@ -317,3 +357,4 @@ if __name__ == "__main__":
         tsp.plotData(roiMeans, delays, "signal")
 
         tsp.dumpEventCodeStatistics()
+    """
