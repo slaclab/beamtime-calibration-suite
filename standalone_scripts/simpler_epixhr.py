@@ -8,7 +8,6 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from psana import DataSource
-from psmon import publish
 from cfg_utils import *
 
 import sys
@@ -22,6 +21,7 @@ det = myrun.Detector("epixhr")
 det = myrun.Detector("epixm")
 
 
+from psmon import publish
 
 publish.local = True
 publish.plot_opts.aspect = 1
@@ -32,7 +32,7 @@ tim = myrun.Detector("timing")
 try:
     scan = myrun.Detector("scan")
     print(vars(scan))
-except Exception:
+except:
     pass
 
 
@@ -61,6 +61,7 @@ ppid = 0
 detName = "epixhr"
 
 for nstep, step in enumerate(myrun.steps()):
+
     for nevt, evt in enumerate(step.events()):
         if nevt == 0:
             print(f"step {nstep}")

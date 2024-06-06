@@ -22,7 +22,7 @@ def dumpvars(prefix, c):
         else:
             try:
                 dumpvars(name, val)
-            except Exception:
+            except:
                 print("Error dumping {:} {:}".format(name, type(val)))
 
 

@@ -11,7 +11,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
-from calibrationSuite.basicSuiteScript import BasicSuiteScript
+from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
 
 
 class EventScanParallel(BasicSuiteScript):
@@ -93,6 +93,8 @@ class EventScanParallel(BasicSuiteScript):
                 )
                 plt.close()
 
+    # unused and not working atm
+    '''
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -104,6 +106,7 @@ class EventScanParallel(BasicSuiteScript):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
+    ''' 
 
     def analyze_h5(self, dataFile, label):
         import h5py
@@ -148,7 +151,7 @@ if __name__ == "__main__":
 
     esp.setupPsana()
 
-    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, size))
+    smd = esp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.size))
 
     esp.fluxTS = 0
     esp.nGoodEvents = 0

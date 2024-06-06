@@ -182,16 +182,16 @@ def onclick(event):
     y_new = f(Xinterp)
     y_new_2ndpart = f(Xinterp[Xinterp > (np.mean(timeVec))])
     thediff = np.diff(y_new)
-    # thediff_2ndpart = np.diff(y_new_2ndpart)
+    thediff_2ndpart = np.diff(y_new_2ndpart)
     window_size = 150
     polynomial_order = 1
 
     # Apply Savitzky-Golay filtering
     smoothed_data = savgol_filter(thediff, window_size, polynomial_order)
-    # differencialfiltered = np.array(smoothed_data)
+    differencialfiltered = np.array(smoothed_data)
 
-    # smoothed_data_2ndpart = savgol_filter(thediff_2ndpart, window_size, polynomial_order)
-    # differencialfiltered_2ndpart = np.array(smoothed_data_2ndpart)
+    smoothed_data_2ndpart = savgol_filter(thediff_2ndpart, window_size, polynomial_order)
+    differencialfiltered_2ndpart = np.array(smoothed_data_2ndpart)
     X = Xinterp[0:-1]
     Y = smoothed_data
     X1[ir, ic] = Xinterp[np.argmax(smoothed_data)]

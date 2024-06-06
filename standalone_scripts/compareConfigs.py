@@ -22,7 +22,7 @@ for l0 in lines0:
         break
     try:
         r0, v0 = l0.split()
-    except Exception:
+    except:
         ##        print(l0)
         continue
 
@@ -33,7 +33,7 @@ for l0 in lines0:
             break
         try:
             r1, v1 = l1.split()
-        except Exception:
+        except:
             continue
         if r1 == r0 and v1 != v0:
             print("%s: %s -> %s" % (r0, v0, v1))

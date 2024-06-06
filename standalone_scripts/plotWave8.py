@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 data = np.load(sys.argv[1])
 if True:
+
     ######plot amplitude vs time
 
     yscale = data.max()

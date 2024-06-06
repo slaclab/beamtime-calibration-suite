@@ -80,7 +80,7 @@ class AnalyzeH5(object):
         ## makes memory violation a bit less likely too
 
         try:
-            energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
+            energyHist = np.concatenate(energyHist, [h5["energyHistogram"][()] for h5 in self.h5Files])
         except Exception:
             pass
 
@@ -149,7 +149,7 @@ class AnalyzeH5(object):
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
-        foo = ax.hist(energy[energy > 0], 100)
+        # foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
         plt.title = "All pixels"
         figFileName = "%s/%s_r%d_c%d_%s_E.png" % (
@@ -163,7 +163,7 @@ class AnalyzeH5(object):
         logger.info("Wrote file: " + figFileName)
         plt.close()
 
-        verbose = False
+        # verbose = False
         fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
@@ -243,8 +243,8 @@ class AnalyzeH5(object):
         a, mean, std = fitFunctions.estimateGaussianParametersFromUnbinnedArray(energies)
         try:
             popt, pcov = fitFunctions.curve_fit(fitFunctions.gaussian, bins, y, [a, mean, std])
-            mu = popt[1]
-            sigma = popt[2]
+            # mu = popt[1]
+            # sigma = popt[2]
             fittedFunc = fitFunctions.gaussian(bins, *popt)
             ax.plot(bins, fittedFunc, color="b")
             return popt

@@ -43,7 +43,7 @@ class PersistenceCheckParallel(BasicSuiteScript):
         rois = d[:, 0:offset]
         pixels = d[:, offset:]
         runString = "_r%d" % (self.run)
-        self.plotData(rois.T, pixels.T, delays, norm + label + runString)
+        self.plotData(rois.T, pixels.T, delays, label + runString)
 
 
 if __name__ == "__main__":

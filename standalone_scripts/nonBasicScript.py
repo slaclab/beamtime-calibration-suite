@@ -15,7 +15,7 @@ exp = sys.argv[1]
 run = eval(sys.argv[2])
 try:
     special = sys.argv[3]
-except Exception:
+except:
     special = ""
 
 ds = DataSource(exp=exp, run=run, intg_det="epixhr")
@@ -25,7 +25,7 @@ det = myrun.Detector("epixhr")
 try:
     digIn = myrun.Detector("ePixHR_Dig_in")
     anaIn = myrun.Detector("ePixHR_Ana_in")
-except Exception:
+except:
     digIn = anaIn = None
 
 while True:
@@ -43,7 +43,7 @@ while True:
     print("Max, min cal:", cal.max(), cal.min())
     try:
         print("Max, min status:", status.max(), status.min())
-    except Exception:
+    except:
         pass
 
     try:
@@ -55,18 +55,18 @@ while True:
         if "pedestal" in special:
             np.save("pedestals_%d.npy" % (run), pedestals)
 
-    except Exception:
+    except:
         print("no pedestal")
 
     try:
         gains = det.calibconst["pixel_gain"][0]
         print(gains.mean(axis=(1, 2, 3)))
-    except Exception:
+    except:
         print("no gain: pain")
     try:
         print("dig:", digIn(evt))
         print("ana:", anaIn(evt))
-    except Exception:
+    except:
         print("no PV")
 
     break

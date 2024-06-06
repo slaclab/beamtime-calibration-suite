@@ -1,0 +1,3 @@
+[tool.ruff]
+# we dont test or format/lint these scripts atm
+exclude = ["standalone_scripts/*"]

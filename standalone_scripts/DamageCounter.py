@@ -10,7 +10,6 @@
 from psana import DataSource
 import os
 import numpy as np
-import h5py
 
 os.environ["PS_SMD_N_EVENTS"] = "50"
 os.environ["PS_SRV_NODES"] = "1"
@@ -39,6 +38,7 @@ for nevt, evt in enumerate(myrun.events()):
 ##    smd.save_summary(step_av) # this method accepts either a dictionary or kwargs
 smd.done()
 
+import h5py
 
 a = h5py.File("ts.h5")
 mona_ts = a["timestamp"][()]

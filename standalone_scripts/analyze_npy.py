@@ -14,17 +14,14 @@ import re
 import logging
 import os
 import calibrationSuite.loggingSetup as ls
-
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
-)  # change to logging.INFO for full logging output
+ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 
 
-runInfoDict = {"591": "AML 2500", "638": "AML 120"}
+runInfoDict = {'591':'AML 2500', '638':'AML 120'}
 
 
 class LinearityInfo(object):  ## describes the .npy array
@@ -92,7 +89,7 @@ class AnalyzeOneScan(object):
         ax[1].hist(d.clip(*tuple(g0Range)), 100)
         ax[1].set_title(stat0)
 
-        figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0)
+        figFileName = "%s_%s_map_and_histo.png" % (self.label, stat0, stat1)
         plt.savefig(figFileName)
         plt.close()
 
@@ -136,12 +133,12 @@ class AnalyzeOneScan(object):
         indexB = self.dataIndices[statB]
         fig, ax = plt.subplots(2, 1)
         d = self.data[:, :, indexA] / self.data[:, :, indexB]
-
+        
         print(statA, statB, "ratio median:", np.median(d))
         logger.info(str(statA) + " " + str(statB) + " ratio median: " + " " + str(np.median(d)))
 
         if clipRange is not None:
-            d = d.clip(*tuple(clipRange))  # ???
+            d = d.clip(*tuple(clipRange)) #???
         ##im = ax[0,0].imshow(d.clip(*tuple(g0Range)))
         im = ax[0].imshow(d)
         fig.colorbar(im)
@@ -198,7 +195,7 @@ class CompareMultipleScans(object):
         stats = "_".join(statList)
         print(stats)
         logger.info(stats)
-        figFileName = "%s_%s_overlay.png" % (self.label, stats)
+        figFileName ="%s_%s_overlay.png" % (self.label, stats)
         plt.savefig(figFileName)
         logger.info("Wrote file: " + figFileName)
         plt.close()
@@ -218,7 +215,7 @@ if __name__ == "__main__":
 
     try:
         statsArray = [sys.argv[2].split(",")]
-    except Exception:
+    except:
         pass
 
     label = f.split(".npy")[0]
@@ -233,12 +230,10 @@ if __name__ == "__main__":
             scanObj = LinearityInfo()
             if statsArray is None:
                 statsArray = [["g1min", "g1intercept"]]
-        '''
         elif "Foo" in f.split(",")[0]:  ##fake example
             scanObj = FooInfo()
             if statsArray is not None:
                 statsArray = [["g1min", "g1intercept"]]
-        '''
 
         a = CompareMultipleScans(scanObj, statsArray, dataArray, runList, label)
         a.analyze()
