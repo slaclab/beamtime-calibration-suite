@@ -84,11 +84,11 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../suite_scripts/">Suite Scripts</a>
+                <li class="toctree-l1"><a class="" href="../suite_scripts.md">Suite Scripts</a>
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../standalone_scripts/">Standalone Scripts</a>
+                <li class="toctree-l1"><a class="" href="../standalone_scripts.md">Standalone Scripts</a>
                 </li>
               </ul>
       </div>
@@ -116,7 +116,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
-<p>we should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
+<p>We should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
   * in our case the two important branches will be <code>main</code> and <code>development</code> <br />
   * in-between beamtimes, <code>development</code> is used for pushing work<br />
   * right before beamtimes, <code>development</code> is merged into <code>main</code><br />
@@ -126,7 +126,6 @@
 <h3 id="before-beamtime">Before Beamtime:</h3>
 <ul>
 <li>checkout <code>development</code> (or a earlier stable point of <code>development</code>) </li>
-<li>manually run and check the output of script planned for use on the beamtime, as a final sanity check</li>
 <li>use a pull request to merge <code>development</code>  into <code>main</code></li>
 <li>to do this follow the instructions in section <strong>F)</strong> of the doc page <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">Git Commands for Common Tasks</a></li>
 <li><code>main</code> is safeguarded and will require a +1 from another developer</li>
@@ -135,6 +134,16 @@
 <pre><code>git checkout -b main beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
+<ul>
+<li>Now run the tests with the following cmd:<br />
+<em>(assuming the tests have been setup already with setup_developers.sh)</em></li>
+</ul>
+<pre><code>pytest .
+</code></pre>
+<ul>
+<li>Then see that all tests are passing (unless there are any expected failures)</li>
+<li>If any new test-less scripts are planned to be used (or have too many expected test-failures), manually run any scripts we plan to use to verify they still work</li>
+</ul>
 <h3 id="during-beamtime">During Beamtime:</h3>
 <ul>
 <li>at start of beamtime, everyone needs to download the branch for this beamtime:</li>
