@@ -373,32 +373,27 @@ def test_RoiFromSwitched(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-# non-working commands...
-
-"""
 @pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python searchForNonSwitching.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_search_for_non_switching'],
+    (['bash', '-c', 'python searchForNonSwitching.py -r 102 --special testing --maxNevents 250 -p /test_search_for_non_switching | grep gain > test_search_for_non_switching/out.txt'],
      'test_roi'),
 ])
 def test_SearchNonSwitching(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
 
 
-"""
 @pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python histogramFluxEtc.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_histogram_flux_etc'],
+    (['bash', '-c', 'python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc'],
      'test_histogram_flux_etc'),
 ])
 def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-"""
 
 
+# non-working commands...
 """
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
