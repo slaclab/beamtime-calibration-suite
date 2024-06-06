@@ -11,7 +11,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.signal import find_peaks, peak_prominences
 from scipy.signal import savgol_filter
 import sys
 import os

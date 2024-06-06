@@ -7,7 +7,6 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
 
 ##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 ##experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
@@ -15,7 +14,7 @@ experimentHash = {
     "detectorType": "archon",
     "exp": "rixc00121",
     "location": "RixEndstation",
-    "seedCut":30,##from old scripts
+    "seedCut": 30,  ##from old scripts
     ##"fluxSource": "MfxDg1BmMon",
     ##                  'fluxChannels':[9, 10, 11, 12],
     ##"fluxChannels": [15],

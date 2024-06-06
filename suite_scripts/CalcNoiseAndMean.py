@@ -45,7 +45,6 @@ if __name__ == "__main__":
     inner_max = 50
 
     for nstep, step in enumerate(stepGen):
-
         # for testing
         outer_count += 1
 

@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-#from psana import *
+# from psana import *
 import importlib
 import logging
 import os
@@ -213,11 +213,12 @@ class PsanaBase(object):
     def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
 
-'''
+
+"""
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
-'''
+"""

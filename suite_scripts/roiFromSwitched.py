@@ -23,7 +23,6 @@ ls.setupScriptLogging(
 )  # change to logging.INFO for full logging output
 
 if __name__ == "__main__":
-
     rfs = BasicSuiteScript("test2")
     print("have built an RFS")
     logger.info("have built an RFS")

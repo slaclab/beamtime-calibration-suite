@@ -177,7 +177,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
         return popt, pcov, y_fit, r2
 
     def analyze_h5(self, dataFile, label):
-        
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
         print(fluxes)
@@ -508,7 +507,7 @@ if __name__ == "__main__":
         np.save(fileName, g1Fluxes)
         logger.info("Wrote file: " + fileName)
 
-    '''
+    """
     if False:
         print("this is broken")
         label = "rawInTimeDot"
@@ -518,7 +517,7 @@ if __name__ == "__main__":
         lpp.plotAutorangingData(g0s, g1s, g0Fluxes, g1Fluxes, label)
         lpp.plotAutorangingData(g0s, g1s, g0Fluxes, g1Fluxes, label + "_yClip_xClip")
         lpp.plotDataROIs(roiMeans, fluxes, "roiTest")
-    '''
+    """
 
     smd.done()
 

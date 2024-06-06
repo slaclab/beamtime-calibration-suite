@@ -29,7 +29,7 @@ class Stats(object):
     def rms(self):
         if self._n == 0:
             return None
-        return ((self._xx / self._n - (self._x / self._n) ** 2)).clip(0) ** 0.5
+        return (self._xx / self._n - (self._x / self._n) ** 2).clip(0) ** 0.5
 
     def corr(self, yMean, ySigma):
         ## return (self._xy -self._x*yMean)/self._n
