@@ -7,7 +7,9 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import matplotlib.pyplot as plt
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class HistogramFluxEtc(BasicSuiteScript):
@@ -67,7 +69,11 @@ if __name__ == "__main__":
         if allFluxes is not None:
             allFluxesRun.append(allFluxes)
 
-        frames = hfe.getCalibData(evt)
+        if hfe.isBeamEvent(evt):
+            frames = hfe.getCalibData(evt)
+        else:
+            continue
+
         if frames is None:
             continue
         try:
