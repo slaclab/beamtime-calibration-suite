@@ -9,7 +9,6 @@
 ##############################################################################
 class DetectorInfo:
     def __init__(self, detType):
-
         # declare all detector-specific info vars here in case any setup_X functions don't,
         # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
         self.nModules = -1

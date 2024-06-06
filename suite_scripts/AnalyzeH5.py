@@ -22,6 +22,7 @@ from calibrationSuite.argumentParser import ArgumentParser
 import logging
 import calibrationSuite.loggingSetup as ls
 import os
+
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
@@ -31,7 +32,6 @@ logger = logging.getLogger(__name__)
 
 class AnalyzeH5(object):
     def __init__(self):
-
         args = ArgumentParser().parse_args()
 
         self.run = args.run
@@ -54,7 +54,7 @@ class AnalyzeH5(object):
         try:
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-            print('slice coordinates:', self.sliceCoordinates)
+            print("slice coordinates:", self.sliceCoordinates)
         except:
             ## do something useful here, maybe
             self.analysisType = None
@@ -76,23 +76,21 @@ class AnalyzeH5(object):
     def clusterAnalysis(self):
         clusters = None
         energyHist = None
-        clusters = np.concatenate(
-            [ancillaryMethods.getEnergeticClusters(h5["clusterData"][()])
-            for h5 in self.h5Files])
+        clusters = np.concatenate([ancillaryMethods.getEnergeticClusters(h5["clusterData"][()]) for h5 in self.h5Files])
         ## getEnergeticClusters
         ## makes [events, maxClusters, nClusterElements] -> [m, n]
         ## makes memory violation a bit less likely too
-        
+
         try:
             energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
         except:
             pass
 
-        self.nBins = 200## for epixM with a lot of 2 photon events...
+        self.nBins = 200  ## for epixM with a lot of 2 photon events...
         if self.seedCut is None:
             self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         else:
-            self.lowEnergyCut = self.seedCut * 0.8 ## 0.8 is dumb here
+            self.lowEnergyCut = self.seedCut * 0.8  ## 0.8 is dumb here
         self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
@@ -134,20 +132,20 @@ class AnalyzeH5(object):
     def analyzeSimpleClusters(self, clusters):
         ## v. sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
         ## should make a dict for this info and use below instead of indices
-        
+
         ax = plt.subplot()
         energy = clusters[:, 0]  ##.flatten()
-        maximumModule = int(clusters[:,1].max())
-        analyzedModules = np.unique(clusters[:,1]).astype('int')
+        maximumModule = int(clusters[:, 1].max())
+        analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
 
         ##rows = self.sliceEdges[0]
         ##cols = self.sliceEdges[1]
         ## doesn't exist in h5 yet so calculate dumbly instead
-        rows = int(clusters[:,2].max())+1
-        cols = int(clusters[:,3].max())+1
-        print("appear to have a slice with %d rows, %d cols" %(rows, cols))
-        self.sliceCoordinates = [[0, rows], [0, cols]] ## temp - get from h5
+        rows = int(clusters[:, 2].max()) + 1
+        cols = int(clusters[:, 3].max()) + 1
+        print("appear to have a slice with %d rows, %d cols" % (rows, cols))
+        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
         self.sliceEdges = [rows, cols]
 
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
@@ -168,16 +166,16 @@ class AnalyzeH5(object):
         plt.close()
 
         verbose = False
-        fitInfo = np.zeros((maximumModule+1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
-            modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, 'module', m)
+            modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
             for i in range(rows):
-                rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, 'row', i)
+                rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, "row", i)
 
                 for j in range(cols):
                     detRow, detCol = self.sliceToDetector(i, j)
-                    currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, 'column', j)
+                    currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
                         print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                         logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
@@ -194,7 +192,7 @@ class AnalyzeH5(object):
                     a, mu, sigma = self.histogramAndFitGaussian(ax, energies, self.nBins)
                     area = fitFunctions.gaussianArea(a, sigma)
                     fitInfo[m, i, j] = mean, std, area, mu, sigma
-                    if i%13==1 and j%17==1:
+                    if i % 13 == 1 and j % 17 == 1:
                         ## don't save a zillion plots when analyzing full array
                         ## should add singlePixelArray here
                         ax.set_xlabel("energy (keV)")
@@ -215,7 +213,7 @@ class AnalyzeH5(object):
                         plt.savefig(figFileName)
                         logger.info("Wrote file: " + figFileName)
                     plt.close()
-                    
+
         npyFileName = "%s/%s_r%d_c%d_%s_fitInfo.npy" % (
             self.outputDir,
             self.__class__.__name__,

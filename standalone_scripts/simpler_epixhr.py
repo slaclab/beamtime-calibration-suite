@@ -64,7 +64,6 @@ ppid = 0
 detName = "epixhr"
 
 for nstep, step in enumerate(myrun.steps()):
-
     for nevt, evt in enumerate(step.events()):
         if nevt == 0:
             print(f"step {nstep}")

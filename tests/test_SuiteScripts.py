@@ -3,6 +3,7 @@ import os
 import shutil
 import filecmp
 import pytest
+
 # diffing .pngs is a bit tricky without PIL
 from PIL import Image, ImageChops
 
@@ -79,7 +80,6 @@ so the output folder can be created and later deleted at end of the test.
 
 class SuiteTester:
     def __init__(self):
-        
         # annoyingly complicated way to get root of current git repo,
         # do this so test can be run from tests/ dir or root of project
         self.git_repo_root = (
@@ -93,7 +93,6 @@ class SuiteTester:
         # 1) pasna library is avaliable (i.e running on S3DF)
         # 2) tests/test-data submodule is installed
         self.canTestsRun = self.can_tests_run()
-
 
         suite_scripts_root = self.git_repo_root + "/suite_scripts/"
         tests_root = self.git_repo_root + "/tests/"
@@ -144,11 +143,11 @@ class SuiteTester:
         data_path = self.git_repo_root + "/tests/test_data"
         if not os.path.exists(data_path):
             return False
-        # check for some expected folder to be sure submodule initalized 
+        # check for some expected folder to be sure submodule initalized
         if not os.path.exists(data_path + "/test_roi"):
             return False
-        return True 
-    
+        return True
+
     def run_command(self, command):
         result = subprocess.run(command, capture_output=True, text=True)
         return result
@@ -180,7 +179,7 @@ class SuiteTester:
 
                 # Check if files are PNGs
                 if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
-                    if self.are_images_same(real_file_path, expected_file_path) == 0: 
+                    if self.are_images_same(real_file_path, expected_file_path) == 0:
                         assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
                 else:
                     # For non-PNG files, perform directory comparison
@@ -203,7 +202,10 @@ def suite_tester():
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
-        (["bash", "-c", "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1"], "test_noise_1"),
+        (
+            ["bash", "-c", "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1"],
+            "test_noise_1",
+        ),
         (
             [
                 "bash",
@@ -254,10 +256,10 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             "test_single_photon",
         ),
         (
-           [
-               "bash",
-               "-c",
-               "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
+            [
+                "bash",
+                "-c",
+                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
             ],
             "test_single_photon",
         ),
@@ -285,7 +287,7 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
             "test_linearity_scan",
         ),
         (
-           [
+            [
                 "bash",
                 "-c",
                 "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice",
@@ -373,20 +375,34 @@ def test_RoiFromSwitched(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python searchForNonSwitching.py -r 102 --special testing --maxNevents 250 -p /test_search_for_non_switching | grep gain > test_search_for_non_switching/out.txt'],
-     'test_roi'),
-])
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        (
+            [
+                "bash",
+                "-c",
+                "python searchForNonSwitching.py -r 102 --special testing --maxNevents 250 -p /test_search_for_non_switching | grep gain > test_search_for_non_switching/out.txt",
+            ],
+            "test_roi",
+        ),
+    ],
+)
 def test_SearchNonSwitching(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
 
-@pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc'],
-     'test_histogram_flux_etc'),
-])
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        (
+            ["bash", "-c", "python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc"],
+            "test_histogram_flux_etc",
+        ),
+    ],
+)
 def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")

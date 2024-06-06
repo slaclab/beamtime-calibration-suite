@@ -51,7 +51,7 @@ if __name__ == "__main__":
         if evt is None:
             break
         nEvent += 1
-        
+
         if pc.isBeamEvent(evt):
             frames = pc.getCalibData(evt)
         else:

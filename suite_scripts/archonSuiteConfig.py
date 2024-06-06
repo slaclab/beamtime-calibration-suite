@@ -15,7 +15,7 @@ experimentHash = {
     "detectorType": "archon",
     "exp": "rixc00121",
     "location": "RixEndstation",
-    "seedCut":30,##from old scripts
+    "seedCut": 30,  ##from old scripts
     ##"fluxSource": "MfxDg1BmMon",
     ##                  'fluxChannels':[9, 10, 11, 12],
     ##"fluxChannels": [15],

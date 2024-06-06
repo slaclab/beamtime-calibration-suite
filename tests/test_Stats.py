@@ -46,7 +46,7 @@ def test_Stats_rms():
         expected_xx += d * d
 
     calculated_rms = s.rms()
-    expected_rms = ((expected_xx / expected_n - (expected_x / expected_n) ** 2)).clip(0) ** 0.5
+    expected_rms = (expected_xx / expected_n - (expected_x / expected_n) ** 2).clip(0) ** 0.5
 
     assert np.isclose(calculated_rms[0], expected_rms), "RMS calculation incorrect"
 

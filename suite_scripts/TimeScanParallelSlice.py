@@ -154,7 +154,6 @@ class TimeScanParallel(BasicSuiteScript):
     """
 
     def analyze_h5(self, dataFile, norm, label):
-
         a = h5py.File(dataFile)[norm]
         delays = np.array([int(eval(k)) for k in a.keys()])
         print("delays:", delays)

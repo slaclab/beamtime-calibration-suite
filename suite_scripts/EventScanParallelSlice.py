@@ -19,6 +19,7 @@ import h5py
 from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
 
 import calibrationSuite.loggingSetup as ls
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
@@ -135,7 +136,7 @@ class EventScanParallel(BasicSuiteScript):
                 plt.close()
 
     # not working or used atm...
-    '''
+    """
     def analyzeData(self, delays, data, label):
         edge = np.zeros(data.shape[0])
         for m in range(data.shape[1]):
@@ -147,7 +148,7 @@ class EventScanParallel(BasicSuiteScript):
                     coeff, var = curve_fit(f, delays, d, p0=p0)
                     edge[m, r, c] = coeff[1]
         return edge
-    '''
+    """
 
     def analyze_h5(self, dataFile, label):
         data = h5py.File(dataFile)

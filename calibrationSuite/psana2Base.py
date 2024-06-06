@@ -7,14 +7,16 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-#from psana import *
+# from psana import *
 import importlib.util
 import logging
+
 ## for parallelism
 import os
 import sys
 
 import psana
+
 ## standard
 from mpi4py import MPI
 
@@ -332,11 +334,12 @@ class PsanaBase(object):
         ##print("delta:", delta)
         return delta > 0
 
-'''
+
+"""
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
     bSS.setupPsana()
     evt = bSS.getEvt()
     print(dir(evt))
-'''
+"""
