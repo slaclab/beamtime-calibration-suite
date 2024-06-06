@@ -14,5 +14,5 @@ export OUTPUT_ROOT="/sdf/data/lcls/ds/rix/rixx1005922/results/"
 echo "OUTPUT_ROOT = $OUTPUT_ROOT"
 
 # point to which config file to use
-export SUITE_CONFIG="epixMSuiteConfig.py"
+export SUITE_CONFIG="$git_project_root_dir/config_files/epixMSuiteConfig.py"
 echo "SUITE_CONFIG = $SUITE_CONFIG"
