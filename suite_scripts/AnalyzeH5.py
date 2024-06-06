@@ -13,10 +13,8 @@ import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 
 ##import sys
-import argparse
 from calibrationSuite.argumentParser import ArgumentParser
 
 import logging
@@ -55,7 +53,7 @@ class AnalyzeH5(object):
             self.analysisType = self.h5Files[0]["analysisType"]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
             print("slice coordinates:", self.sliceCoordinates)
-        except:
+        except Exception:
             ## do something useful here, maybe
             self.analysisType = None
             ## but for now
@@ -83,7 +81,7 @@ class AnalyzeH5(object):
 
         try:
             energyHist = np.concatenate(energyHist, h5["energyHistogram"][()])
-        except:
+        except Exception:
             pass
 
         self.nBins = 200  ## for epixM with a lot of 2 photon events...
@@ -250,7 +248,7 @@ class AnalyzeH5(object):
             fittedFunc = fitFunctions.gaussian(bins, *popt)
             ax.plot(bins, fittedFunc, color="b")
             return popt
-        except:
+        except Exception:
             return 0, 0, 0
 
 

@@ -7,7 +7,6 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy as np
 
 ##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 ##experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',

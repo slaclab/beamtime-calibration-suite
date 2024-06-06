@@ -22,7 +22,7 @@ def dumpvars(prefix, c):
         else:
             try:
                 dumpvars(name, val)
-            except:
+            except Exception:
                 print("Error dumping {:} {:}".format(name, type(val)))
 
 
@@ -33,7 +33,7 @@ def dump_seg(seg, cfg):
 
 def dump_det_config(det, name):
     for config in det._configs:
-        if not name in config.__dict__:
+        if name not in config.__dict__:
             print("Skipping config {:}".format(config.__dict__))
             continue
         scfg = getattr(config, name)

@@ -7,7 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import matplotlib.pyplot as plt
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class LinearityPlotsAutoranging(BasicSuiteScript):

@@ -7,7 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class EventScanParallel(BasicSuiteScript):
@@ -117,7 +121,7 @@ class EventScanParallel(BasicSuiteScript):
             np.save(
                 "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp), np.array(bitSlice)
             )
-        except:
+        except Exception:
             pass
 
         pulseIds.sort()
@@ -212,7 +216,7 @@ if __name__ == "__main__":
 
             try:
                 bitSliceSum += r
-            except:
+            except Exception:
                 bitSliceSum = r.astype(np.uint32)
 
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])

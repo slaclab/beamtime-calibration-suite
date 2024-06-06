@@ -8,8 +8,8 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 from psana import DataSource
+from psmon import publish
 from cfg_utils import *
-import numpy as np
 
 import sys
 
@@ -22,9 +22,6 @@ det = myrun.Detector("epixhr")
 det = myrun.Detector("epixm")
 
 
-from psmon import publish
-import psmon.plots as plots
-from psmon.plotting import Histogram, LinePlot, Image
 
 publish.local = True
 publish.plot_opts.aspect = 1
@@ -35,7 +32,7 @@ tim = myrun.Detector("timing")
 try:
     scan = myrun.Detector("scan")
     print(vars(scan))
-except:
+except Exception:
     pass
 
 

@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                     if evt is None:
                         break
                     nEvent += 1
-                except:
+                except Exception:
                     break
 
     unKickedMeans = np.array(unKickedMeans)

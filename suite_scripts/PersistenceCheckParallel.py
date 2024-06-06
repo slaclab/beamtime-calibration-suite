@@ -7,7 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
+import h5py
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,8 +31,6 @@ class PersistenceCheckParallel(BasicSuiteScript):
         plt.savefig("%s/%s_r%d_c%d%s.png" % (self.outputDir, self.className, self.run, self.camera, label))
 
     def analyze_h5(self, dataFile, label):
-        import h5py
-
         a = h5py.File(dataFile)
         delays = np.array([k for k in a.keys()])
         delays = delays.astype("int")
@@ -56,8 +55,8 @@ if __name__ == "__main__":
         print("done with standalone analysis of %s, exiting" % (pcp.file))
         sys.exit(0)
 
-    pc.setupPsana()
-    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, size))
+    pcp.setupPsana()
+    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pcp.size))
 
     nEvent = -1
     nGoodEvents = 0
