@@ -378,6 +378,9 @@ class BasicSuiteScript(PsanaBase):
         fakes[occ>occupancy] = 0
         return frames + fakes, (fakes>0).sum()
     
+    def getNswitchedPixels(self, data, region=None):
+        return (((data>=self.g0cut)*1).sum())
+
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")

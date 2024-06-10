@@ -14,13 +14,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def makeProfile(x, y, bins, range=None, spread=False):
+def makeProfile(x, y, bins, range=None, spread=False, myStatistic="mean"):
     ## NaN for empty bins are suppressed
     ## using mean root(N) for non-empty bins to calculate 0 var weights
     ##
     ## spread=True to return standard deviation instead of standard error
 
-    meansObj = binned_statistic(x, [y, y**2], bins=bins, range=range, statistic="mean")
+    meansObj = binned_statistic(x, [y, y**2], bins=bins, range=range, statistic=myStatistic)
     means, means2 = meansObj.statistic
     countsObj = binned_statistic(x, y, bins=bins, range=range, statistic="count")
     stdObj = binned_statistic(x, y, bins=bins, range=range, statistic="std")

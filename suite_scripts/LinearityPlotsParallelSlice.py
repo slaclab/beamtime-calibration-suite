@@ -49,7 +49,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 plt.scatter(g0Fluxes[i], g0s[i], c="r", marker=".", s=1)
             if len(g1s[i]) > 0:
                 plt.scatter(g1Fluxes[i], g1s[i], c="b", marker=".", s=1)
-            plt.xlabel("wave8 flux (ADU)")
+            plt.xlabel(self.fluxLabel)
             if "raw" in label:
                 plt.ylabel("Red medium, blue low (ADU)")
             else:
@@ -91,7 +91,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 ##except:
                     ##yMaxPlot = y.max()
                 sns.regplot(x=x, y=y, x_bins=40, marker=".", ax=ax, order=order, truncate=True)  ##add fit_reg=None for no plot
-            plt.xlabel("wave8 flux (ADU)")
+            plt.xlabel(self.fluxLabel)
             if "raw" in label:
                 plt.ylabel("Red medium, blue low (ADU)")
             else:
@@ -120,30 +120,11 @@ class LinearityPlotsParallel(BasicSuiteScript):
             ylabel = "keV"
         for i, roi in enumerate(self.ROIs):
             plt.scatter(flux, means[i], marker=".")
-            plt.xlabel("wave8 flux (ADU)")
+            plt.xlabel(self.fluxLabel)
             plt.ylabel("detector ROI mean (%s)" % (ylabel))
             figFileName = "%s/%s_roi%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, self.run, self.camera, label)
             plt.savefig(figFileName)
             plt.close()
-
-    def fitData(self, x, y, saturated=False):  ##, gainMode, label):
-        if saturated:
-            ##f = fitFunctions.saturatedLinear
-            ##p0 = [1, 0, x.mean(), y.max()]
-            f = fitFunctions.linear
-            p0 = [0, y.mean()]
-            popt, pcov = curve_fit(f, x, y, p0=p0)
-            f = fitFunctions.saturatedLinearB
-            p0 = [popt[0], popt[1], y.max()]
-        else:
-            f = fitFunctions.linear
-            p0 = [0, y.mean()]
-        popt, pcov = curve_fit(f, x, y, p0=p0)
-        y_fit = f(x, *popt)
-        r2 = fitFunctions.calculateFitR2(y, y_fit)
-
-        ##condition = np.linalg.cond(pcov)
-        return popt, pcov, y_fit, r2
 
     def analyze_h5(self, dataFile, label):
         import h5py
@@ -188,88 +169,91 @@ class LinearityPlotsParallel(BasicSuiteScript):
         if self.fitInfo is None:
             self.fitInfo = np.zeros((nModules, rows, cols, 13))  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
 
-        for i in range(rows):
-            for j in range(cols):
-                iDet, jDet = self.sliceToDetector(i, j)
-                if False:
-                    self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
-                    self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
-                    self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
-                    self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
-                    self.fitInfo[module, i, j, 12] = self.offset[module, iDet, jDet]
-                g0 = pixels[:, module, i, j] < lpp.g0cut
-                g1 = np.logical_not(g0)
-                if len(g0[g0]) > 2:
-                    y = np.bitwise_and(pixels[:, module, i, j][g0], lpp.gainBitsMask)
-                    y_g0_max = y.max()
-                    x = fluxes[g0]
-                    if self.profiles:
-                        x, y, err = ancillaryMethods.makeProfile(x, y, 50)
-                        if x is None:  ##empty plot if single points/bin apparently
-                            print("empty profile for %d, %d" % (i, j))
-                            logger.info("empty profile for %d, %d" % (i, j))
-                            continue
-                    if x is not None:
-                        fitPar, covar, fitFunc, r2 = self.fitData(x, y, saturated=self.saturated)
-                        print(i, j, fitPar, r2, 0)
-                        ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
-                        ##np.save("temp_r%dc%d_y.py" %(i,j), y)
-                        ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
-                        ##print(fitInfo.shape)
-                        ##print(fitPar)
-                        self.fitInfo[module, i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
-                        self.fitInfo[module, i, j, 2] = r2
-                        self.fitInfo[module, i, j, 6] = y_g0_max
-                        if i % 2 == 0 and i == j:
-                            plt.figure(1)
-                            plt.scatter(x, y, zorder=1, marker=".", s=1)
-                            if self.saturated:
-                                plt.scatter(x, fitFunc, color="k", zorder=2, s=1)
-                            else:
-                                plt.plot(x, fitFunc, color="k", zorder=2)
-                            if self.profiles:
-                                plt.errorbar(x, y, err)
-                            if self.residuals:
-                                plt.figure(2)
-                                plt.scatter(x, y - fitFunc, color="k", zorder=2, s=1)
+        for module in [1, 2]:
+            for i in range(rows):
+                for j in range(cols):
+                    iDet, jDet = self.sliceToDetector(i, j)
+                    if False:
+                        self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
+                        self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
+                        self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
+                        self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
+                        self.fitInfo[module, i, j, 12] = self.offset[module, iDet, jDet]
+                    g0 = pixels[:, module, i, j] < lpp.g0cut
+                    g1 = np.logical_not(g0)
+                    if len(g0[g0]) > 2:
+                        y = np.bitwise_and(pixels[:, module, i, j][g0], lpp.gainBitsMask)
+                        y_g0_max = y.max()
+                        x = fluxes[g0]
+                        if self.profiles:
+                            x, y, err = ancillaryMethods.makeProfile(x, y, 50)
+                            if x is None:  ##empty plot if single points/bin apparently
+                                print("empty profile for %d, %d" % (i, j))
+                                logger.info("empty profile for %d, %d" % (i, j))
+                                continue
+                        if x is not None:
+                            fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y, saturated=self.saturated)
+                            if True:
+                                if i%10==0 and j%10==0:
+                                    print(i, j, fitPar, r2, 0)
+                            ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
+                            ##np.save("temp_r%dc%d_y.py" %(i,j), y)
+                            ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
+                            ##print(fitInfo.shape)
+                            ##print(fitPar)
+                            self.fitInfo[module, i, j, 0:2] = fitPar[0:2]  ## indices for saturated case
+                            self.fitInfo[module, i, j, 2] = r2
+                            self.fitInfo[module, i, j, 6] = y_g0_max
+                            if i % 2 == 0 and i == j:
                                 plt.figure(1)
+                                plt.scatter(x, y, zorder=1, marker=".", s=1)
+                                if self.saturated:
+                                    plt.scatter(x, fitFunc, color="k", zorder=2, s=1)
+                                else:
+                                    plt.plot(x, fitFunc, color="k", zorder=2)
+                                if self.profiles:
+                                    plt.errorbar(x, y, err)
+                                if self.residuals:
+                                    plt.figure(2)
+                                    plt.scatter(x, y - fitFunc, color="k", zorder=2, s=1)
+                                    plt.figure(1)
 
-                if len(g1[g1]) > 2:
-                    y = np.bitwise_and(pixels[:, module, i, j][g1], lpp.gainBitsMask)
-                    y_g1_min = y.min()
-                    x = fluxes[g1]
-                    if self.profiles:
-                        x, y, err = ancillaryMethods.makeProfile(x, y, 50)
-                        if x is None:  ##empty plot if single points/bin apparently
-                            print("empty profile for %d, %d" % (i, j))
-                            logger.info("empty profile for %d, %d" % (i, j))
-                    if x is not None:
-                        fitPar, covar, fitFunc, r2 = self.fitData(x, y)
-                        print(i, j, fitPar, r2, 1)
-                        self.fitInfo[module, i, j, 3:5] = fitPar
-                        self.fitInfo[module, i, j, 5] = r2
-                        self.fitInfo[module, i, j, 7] = y_g1_min
-                        if i % 2 == 0 and i == j:
-                            plt.scatter(x, y, zorder=3, marker=".")
-                            plt.plot(x, fitFunc, color="k", zorder=4)
-                            if self.profiles:
-                                plt.errorbar(x, y, err)
-                            if self.residuals:
-                                plt.figure(2)
-                                plt.scatter(x, y - fitFunc, zorder=3, marker=".")
-                                plt.figure(1)
+                    if len(g1[g1]) > 2:
+                        y = np.bitwise_and(pixels[:, module, i, j][g1], lpp.gainBitsMask)
+                        y_g1_min = y.min()
+                        x = fluxes[g1]
+                        if self.profiles:
+                            x, y, err = ancillaryMethods.makeProfile(x, y, 50)
+                            if x is None:  ##empty plot if single points/bin apparently
+                                print("empty profile for %d, %d" % (i, j))
+                                logger.info("empty profile for %d, %d" % (i, j))
+                        if x is not None:
+                            fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
+                            print(i, j, fitPar, r2, 1)
+                            self.fitInfo[module, i, j, 3:5] = fitPar
+                            self.fitInfo[module, i, j, 5] = r2
+                            self.fitInfo[module, i, j, 7] = y_g1_min
+                            if i % 2 == 0 and i == j:
+                                plt.scatter(x, y, zorder=3, marker=".")
+                                plt.plot(x, fitFunc, color="k", zorder=4)
+                                if self.profiles:
+                                    plt.errorbar(x, y, err)
+                                if self.residuals:
+                                    plt.figure(2)
+                                    plt.scatter(x, y - fitFunc, zorder=3, marker=".")
+                                    plt.figure(1)
 
-                if i % 2 == 0 and i == j:
-                    figFileName = "%s/%s_slice_%d_%d_r%d_c%d_%s.png" % (self.outputDir, self.className, i, j, self.run, self.camera, label)
-                    plt.savefig(figFileName)
-                    logger.info("Wrote file: " + figFileName)
-                    plt.close()
-                    if self.residuals:
-                        plt.figure(2)
-                        figFileName = "%s/%s_slice_%d_%d_r%d_c%d_residuals_%s.png" % (self.outputDir, self.className, i, j, self.run, self.camera, label)
+                    if i % 2 == 0 and i == j:
+                        figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_%s.png" % (self.outputDir, self.className, module, i, j, self.run, self.camera, label)
                         plt.savefig(figFileName)
                         logger.info("Wrote file: " + figFileName)
                         plt.close()
+                        if self.residuals:
+                            plt.figure(2)
+                            figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_residuals_%s.png" % (self.outputDir, self.className, module, i, j, self.run, self.camera, label)
+                            plt.savefig(figFileName)
+                            logger.info("Wrote file: " + figFileName)
+                            plt.close()
 
         npyFileName = "%s/%s_r%d_sliceFits_%s.npy" % (self.outputDir, self.className, self.run, label)
         np.save(npyFileName, self.fitInfo) ## fix this to be called once
@@ -280,7 +264,14 @@ if __name__ == "__main__":
     lpp = LinearityPlotsParallel()
     print("have built an LPP")
     logger.info("have built an LPP")
+    lpp.useNswitchedAsFlux = False
+    lpp.fluxLabel = "wave8 flux (ADU)" 
+    if lpp.special is not None and 'useNswitchedAsFlux' in lpp.special:
+        lpp.useNswitchedAsFlux = True
+        lpp.fluxLabel = "number of low-gain pixels"
+        
     if lpp.file is not None:
+        print("using flux label:", lpp.fluxLabel)
         lpp.fitInfo = None
         lpp.analyze_h5(lpp.file, lpp.label + "_raw")
         lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
@@ -295,6 +286,7 @@ if __name__ == "__main__":
     else:
         print("not doing Kaz events")
         logger.info("not doing Kaz events")
+
 
     lpp.setupPsana()
     smd = lpp.ds.smalldata(filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size))
@@ -357,6 +349,9 @@ if __name__ == "__main__":
             logger.info("frame - bld timestamp delta too large:" + str(delta))
             continue
 
+        if useNswitchedAsFlux:
+            flux = lpp.getNswitchedPixels(rawFrames)
+        
         roiMeans = []
         for i, roi in enumerate(lpp.ROIs):
             ##m = np.multiply(roi, frames).mean()
@@ -376,12 +371,15 @@ if __name__ == "__main__":
         for j, p in enumerate(lpp.singlePixels):
             singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
 
+        eventDict = {'fluxes':flux,
+                     'rois':np.array(roiMeans),
+                     'pixels':np.array(singlePixelData),
+                     'slice':rawFrames[lpp.regionSlice]
+        }
+        
         smd.event(
             evt,
-            fluxes=flux,
-            rois=np.array(roiMeans),
-            pixels=np.array(singlePixelData),
-            slice=rawFrames[lpp.regionSlice]
+            eventDict
         )
 
         nGoodEvents += 1
