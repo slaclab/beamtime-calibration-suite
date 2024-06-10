@@ -7,25 +7,21 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import argparse
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-import sys
-import h5py
-from scipy.optimize import curve_fit  ## here?
-from calibrationSuite.fitFunctions import *
-from calibrationSuite.ancillaryMethods import *
-from calibrationSuite.argumentParser import ArgumentParser
-from calibrationSuite.detectorInfo import DetectorInfo
+import logging
 import os
+
+import numpy as np
+
+from calibrationSuite.detectorInfo import DetectorInfo
+
+logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "1":
     print("psana1")
-    from calibrationSuite.psana1Base import *
+    from calibrationSuite.psana1Base import PsanaBase
 else:
     print("psana2")
-    from calibrationSuite.psana2Base import *
+    from calibrationSuite.psana2Base import PsanaBase
 
 
 def sortArrayByList(a, data):
@@ -35,30 +31,28 @@ def sortArrayByList(a, data):
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
         super().__init__()
-        print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
-        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" %(self.psanaType))
-
-        ##mymodule = importlib.import_module(full_module_name)
+        print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
+        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
 
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
-        ##self.outputDir = '/sdf/data/lcls/ds/rix/rixx1003721/results/%s/' %(analysisType)
-        self.outputDir = "/%s/" % (analysisType)
-        logging.info("output dir: " + self.outputDir)
-        ##self.outputDir = '/tmp'
 
-        self.detectorInfo = DetectorInfo(self.experimentHash['detectorType'])
-        
+        self.outputDir = "/%s/" % (analysisType)
+        logger.info("output dir: " + self.outputDir)
+        print("output dir: " + self.outputDir)
+
+        self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
+
         self.className = self.__class__.__name__
 
         try:
             self.location = self.experimentHash["location"]
-        except:
+        except Exception:
             pass
         try:
             self.exp = self.experimentHash["exp"]
-        except:
+        except Exception:
             pass
         self.ROIfileNames = None
         ##try:
@@ -69,10 +63,10 @@ class BasicSuiteScript(PsanaBase):
                 self.ROIs.append(np.load(f))
             try:  ## dumb code for compatibility or expectation
                 self.ROI = self.ROIs[0]
-            except:
+            except Exception:
                 pass
         if False:
-        ##except:
+            ##except:
             if self.ROIfileNames is not None:
                 print("had trouble finding", self.ROIfileNames)
                 for currName in self.ROIfileNames:
@@ -81,11 +75,11 @@ class BasicSuiteScript(PsanaBase):
             self.ROIs = []
         try:
             self.singlePixels = self.experimentHash["singlePixels"]
-        except:
+        except Exception:
             self.singlePixels = None
         try:
             self.regionSlice = self.experimentHash["regionSlice"]
-        except:
+        except Exception:
             self.regionSlice = None
         if self.regionSlice is not None:
             ## n.b. assumes 3d slice now
@@ -100,13 +94,13 @@ class BasicSuiteScript(PsanaBase):
             self.fluxSource = self.experimentHash["fluxSource"]
             try:
                 self.fluxChannels = self.experimentHash["fluxChannels"]
-            except:
+            except Exception:
                 self.fluxChannels = range(8, 16)  ## wave8
             try:
                 self.fluxSign = self.experimentHash["fluxSign"]
-            except:
+            except Exception:
                 self.fluxSign = 1
-        except:
+        except Exception:
             self.fluxSource = None
 
         self.special = self.args.special
@@ -158,11 +152,11 @@ class BasicSuiteScript(PsanaBase):
             logger.info("please create this dir, exiting...")
             exit(1)
             # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
-            #print("so creating dir: " + self.outputDir)
-            #logger.info("creating dir: " + self.outputDir)
-            #os.makedirs(self.outputDir)
+            # print("so creating dir: " + self.outputDir)
+            # logger.info("creating dir: " + self.outputDir)
+            # os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
-            #os.chmod(self.outputDir, 0o777)
+            # os.chmod(self.outputDir, 0o777)
         self.detObj = self.args.detObj
         if self.args.threshold is not None:
             self.threshold = eval(self.args.threshold)
@@ -176,7 +170,7 @@ class BasicSuiteScript(PsanaBase):
             self.fluxCut = self.args.fluxCut
         try:
             self.runRange = eval(self.args.runRange)  ## in case needed
-        except:
+        except Exception:
             self.runRange = None
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
@@ -188,13 +182,13 @@ class BasicSuiteScript(PsanaBase):
         self.g0PedFile = self.args.g0PedFile
         if self.g0PedFile is not None:
             ##self.g0Ped = np.load(self.g0PedFile)
-            self.g0Ped = np.array([np.load(self.g0PedFile)])##temp hack
+            self.g0Ped = np.array([np.load(self.g0PedFile)])  ##temp hack
             print(self.g0Ped.shape)
-            
+
         self.g1PedFile = self.args.g0PedFile
         if self.g1PedFile is not None:
             ##self.g1Ped = np.load(self.g1PedFile)
-            self.g1Ped = np.array([np.load(self.g1PedFile)])##temp hack
+            self.g1Ped = np.array([np.load(self.g1PedFile)])  ##temp hack
 
         self.g0GainFile = self.args.g0GainFile
         if self.g0GainFile is not None:
@@ -218,17 +212,17 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.analyzedModules = self.experimentHash["analyzedModules"]
-        except:
+        except Exception:
             self.analyzedModules = range(self.detectorInfo.nModules)
 
         self.g0cut = self.detectorInfo.g0cut
         if self.g0cut is not None:
             self.gainBitsMask = self.g0cut - 1
         else:
-            self.gainBitsMask = 0xffff ## might be dumb.  for non-autoranging
+            self.gainBitsMask = 0xFFFF  ## might be dumb.  for non-autoranging
 
-        self.negativeGain = self.detectorInfo.negativeGain ## could just use the detector info in places it's defined
-        
+        self.negativeGain = self.detectorInfo.negativeGain  ## could just use the detector info in places it's defined
+
         ## done with configuration
 
         self.ds = None
@@ -250,9 +244,9 @@ class BasicSuiteScript(PsanaBase):
                 np.save(roiFile, roi)
         self.ROI = roi
 
-    def sliceToDetector(self, sliceRow, sliceCol):## cp from AnalyzeH5: import?
+    def sliceToDetector(self, sliceRow, sliceCol):  ## cp from AnalyzeH5: import?
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
-    
+
     def noCommonModeCorrection(self, frames):
         return frames
 
@@ -267,7 +261,7 @@ class BasicSuiteScript(PsanaBase):
         for module in self.analyzedModules:
             frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
         return frames
-    
+
     def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
         for module in self.analyzedModules:
             frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
@@ -280,7 +274,7 @@ class BasicSuiteScript(PsanaBase):
         for r in range(self.detectorInfo.nRows):
             colOffset = 0
             for b in range(0, self.detectorInfo.nBanksCol):
-            ##for b in range(0, 2):
+                ##for b in range(0, 2):
                 try:
                     rowCM = np.median(
                         frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank][
@@ -288,7 +282,7 @@ class BasicSuiteScript(PsanaBase):
                         ]
                     )
                     frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
-                except:
+                except Exception:
                     rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
@@ -311,7 +305,7 @@ class BasicSuiteScript(PsanaBase):
                         ]
                     )
                     frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
-                except:
+                except Exception:
                     colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
@@ -332,7 +326,7 @@ class BasicSuiteScript(PsanaBase):
             self.nBeamCodeEvents += 1
             return True
         ## for FEE, ASC, ...
-        return self.fakeBeamCode##False
+        return self.fakeBeamCode  ##False
 
     def dumpEventCodeStatistics(self):
         print(
@@ -348,21 +342,21 @@ class BasicSuiteScript(PsanaBase):
         frames = self.plainGetRawData(evt)
         if frames is None:
             return None
-        if False and self.special:## turned off for a tiny bit of speed
-            if 'thirteenBits' in self.special:
-                frames = (frames & 0xfffe)
+        if False and self.special:  ## turned off for a tiny bit of speed
+            if "thirteenBits" in self.special:
+                frames = frames & 0xFFFE
                 ##print("13bits")
-            elif 'twelveBits' in self.special:
-                frames = (frames & 0xfffc)
+            elif "twelveBits" in self.special:
+                frames = frames & 0xFFFC
                 ##print("12bits")
-            elif 'elevenBits' in self.special:
-                frames = (frames & 0xfff8)
+            elif "elevenBits" in self.special:
+                frames = frames & 0xFFF8
                 ##print("11bits")
-            elif 'tenBits' in self.special:
-                frames = (frames & 0xfff0)
+            elif "tenBits" in self.special:
+                frames = frames & 0xFFF0
                 ##print("10bits")
         if self.negativeGain or negativeGain:
-            zeroPixels = frames==0
+            zeroPixels = frames == 0
             maskedData = frames & self.gainBitsMask
             gainData = frames - maskedData
             frames = gainData + self.gainBitsMask - maskedData
@@ -381,6 +375,7 @@ class BasicSuiteScript(PsanaBase):
     def getNswitchedPixels(self, data, region=None):
         return (((data>=self.g0cut)*1).sum())
 
+
 if __name__ == "__main__":
     bSS = BasicSuiteScript()
     print("have built a BasicSuiteScript")
@@ -389,3 +384,4 @@ if __name__ == "__main__":
     evt = bSS.getEvt()
     print(dir(evt))
     logger.info(dir(evt))
+"""

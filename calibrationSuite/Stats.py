@@ -7,8 +7,9 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy
 import logging
+
+import numpy
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +29,14 @@ class Stats(object):
     def rms(self):
         if self._n == 0:
             return None
-        return ((self._xx / self._n - (self._x / self._n) ** 2)).clip(0) ** 0.5
+        return (self._xx / self._n - (self._x / self._n) ** 2).clip(0) ** 0.5
 
     def corr(self, yMean, ySigma):
         ## return (self._xy -self._x*yMean)/self._n
         rms = self.rms()
-        if rms.any() == None:
+        if rms.any() is None:
             return None
-        
+
         rmsPosDef = rms.clip(0.000001, rms.max())
 
         if (self._n * ySigma * rmsPosDef).any() == 0:

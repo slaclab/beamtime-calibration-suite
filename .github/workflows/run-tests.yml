@@ -19,12 +19,14 @@ jobs:
       with:
         python-version: 3.8
 
-    - name: Install dependencies
+    - name: Install test-script dependencies
       run: |
         pip install pytest
         pip install numpy
         pip install scipy
         pip install statsmodels
+        pip install pillow
+        pip install matplotlib
 
     - name: Run tests
       run: |

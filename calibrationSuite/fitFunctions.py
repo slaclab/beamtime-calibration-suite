@@ -7,11 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
+
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def calculateFitR2(y, fit):
 
     try:
         r2 = 1 - (ss_res / ss_tot)
-    except:
+    except Exception:
         r2 = 1  ## I guess
 
     return r2
@@ -85,7 +86,7 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     if x0 is not None:
         x, y = getRestrictedHistogram(x, y, x0, x1)
 
-    a, mean, std = estimateGaussianParameters(zip(x, y))
+    a, mean, std = estimateGaussianParametersFromXY(x, y)
     popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]

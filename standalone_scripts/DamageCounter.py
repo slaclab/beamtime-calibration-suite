@@ -38,7 +38,6 @@ for nevt, evt in enumerate(myrun.events()):
 ##    smd.save_summary(step_av) # this method accepts either a dictionary or kwargs
 smd.done()
 
-import matplotlib.pyplot as plt
 import h5py
 
 a = h5py.File("ts.h5")

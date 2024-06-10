@@ -7,7 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import sys
+
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class RoiFromThreshold(BasicSuiteScript):
@@ -41,12 +44,12 @@ if __name__ == "__main__":
         if not rft.detObj == "calib":
             thresholded = rawFrames >= rft.threshold
         else:
-            frames = rft.det.calib(evt)
+            frames = rft.det.raw.calib(evt)
             thresholded = frames >= rft.threshold
 
         try:
             aboveThresholdPixels = np.bitwise_or(thresholded, aboveThresholdPixels)
-        except:
+        except Exception:
             ##print("first time hopefully")
             aboveThresholdPixels = thresholded  ##copy?
 
@@ -61,4 +64,7 @@ if __name__ == "__main__":
     label = "raw"
     if rft.detObj == "calib":
         label = "calib"
-    np.save("roiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.run, rft.camera, label), aboveThresholdPixels)
+
+    fileName = "%s/roiFromAboveThreshold_r%d_c%d_%s.npy" % (rft.outputDir, rft.run, rft.camera, label)
+    print(fileName)
+    np.save(fileName, aboveThresholdPixels)

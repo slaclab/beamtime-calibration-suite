@@ -7,7 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import matplotlib.pyplot as plt
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class LinearityPlotsAutoranging(BasicSuiteScript):
@@ -149,8 +150,10 @@ if __name__ == "__main__":
                     break
                 continue
 
-        for x in range(288):
-            for y in range(284):
+        rows = 10 if (lpa.special and "testing" in lpa.special) else lpa.detectorInfo.nRows
+        cols = 10 if (lpa.special and "testing" in lpa.special) else lpa.detectorInfo.nCols
+        for x in range(rows):
+            for y in range(cols):
                 if "{}x{}".format(x, y) not in gains:
                     gains["{}x{}".format(x, y)] = [1 if rawFrames[0][x][y] > lpa.g0cut else 0]
                 else:
