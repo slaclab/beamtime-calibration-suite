@@ -31,7 +31,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
         print("using saturation fit =", self.saturated)
         logger.info("using saturation fit =" + str(self.saturated))
         self.residuals = [True, False][0]
-        self.profiles = [True, False][1]
+        self.profiles = [True, False][0]
         self.seabornProfiles = [True, False][0]
         try:
             print("positive events:", "positive" in self.special)
@@ -186,7 +186,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         y_g0_max = y.max()
                         x = fluxes[g0]
                         if self.profiles:
-                            x, y, err = ancillaryMethods.makeProfile(x, y, 50)
+                            x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
                                 print("empty profile for %d, %d" % (i, j))
                                 logger.info("empty profile for %d, %d" % (i, j))
@@ -269,7 +269,12 @@ if __name__ == "__main__":
     if lpp.special is not None and 'useNswitchedAsFlux' in lpp.special:
         lpp.useNswitchedAsFlux = True
         lpp.fluxLabel = "number of low-gain pixels"
-        
+
+    noSwitchedOnly = lpp.special is not None and 'noSwitchedOnly' in lpp.special
+
+    print("using switched pixels as flux? only events with no switch?",
+          lpp.useNswitchedAsFlux, noSwitchedOnly)
+    
     if lpp.file is not None:
         print("using flux label:", lpp.fluxLabel)
         lpp.fitInfo = None
@@ -349,9 +354,15 @@ if __name__ == "__main__":
             logger.info("frame - bld timestamp delta too large:" + str(delta))
             continue
 
-        if useNswitchedAsFlux:
+        if lpp.useNswitchedAsFlux:
             flux = lpp.getNswitchedPixels(rawFrames)
-        
+            ##print("nSwitched:", flux)
+        elif noSwitchedOnly:
+            nSwitched = lpp.getNswitchedPixels(rawFrames)
+            if nSwitched > 0:
+                ##print('nSwitched: %d' %(nSwitched))
+                continue
+            
         roiMeans = []
         for i, roi in enumerate(lpp.ROIs):
             ##m = np.multiply(roi, frames).mean()
