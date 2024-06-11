@@ -27,7 +27,7 @@ class DetectorInfo:
         self.preferredCommonMode = None
         self.clusterShape = None
 
-        self.g0_cut = None
+        self.g0cut = None
         self.seedCut = None
         self.neighborCut = None
         # end of detector-specific vars
@@ -99,3 +99,4 @@ class DetectorInfo:
         else:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
+        self.g0cut = 20 ## arbitrary

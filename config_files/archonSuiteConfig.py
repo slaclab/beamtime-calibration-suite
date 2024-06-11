@@ -12,7 +12,7 @@
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 experimentHash = {
     "detectorType": "archon",
-    "exp": "rixc00121",
+    "exp": "rixc00122",
     "location": "RixEndstation",
     "seedCut": 30,  ##from old scripts
     # "fluxSource": "MfxDg1BmMon",
@@ -26,6 +26,7 @@ experimentHash = {
         [0, 1000],
         [0, 2000],
     ],
+    "ignoreEventCodeCheck":True,
     # 'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']
     # 'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     # 'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']

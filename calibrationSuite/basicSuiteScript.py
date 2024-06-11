@@ -55,8 +55,8 @@ class BasicSuiteScript(PsanaBase):
         except Exception:
             pass
         self.ROIfileNames = None
-        ##try:
-        if True:
+        try:
+        ##if True:
             self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
@@ -65,8 +65,8 @@ class BasicSuiteScript(PsanaBase):
                 self.ROI = self.ROIs[0]
             except Exception:
                 pass
-        if False:
-            ##except:
+        ##if False:
+        except:
             if self.ROIfileNames is not None:
                 print("had trouble finding", self.ROIfileNames)
                 for currName in self.ROIfileNames:
@@ -103,6 +103,13 @@ class BasicSuiteScript(PsanaBase):
         except Exception:
             self.fluxSource = None
 
+        try:
+            self.ignoreEventCodeCheck = self.experimentHash["ignoreEventCodeCheck"]
+            self.fakeBeamCode = True ## just in case
+        except:
+            self.ignoreEventCodeCheck = False
+            self.fakeBeamCode = True ## just in case
+            
         self.special = self.args.special
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
@@ -112,9 +119,9 @@ class BasicSuiteScript(PsanaBase):
         self.daqCode = 281
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
-        self.fakeBeamCode = False
-        if self.special is not None:
-            self.fakeBeamCode = "fakeBeamCode" in self.special
+        if not self.fakeBeamCode: ## defined in ignoreEventCodeCheck
+            if self.special is not None:
+                self.fakeBeamCode = "fakeBeamCode" in self.special
 
         ##mymodule = importlib.import_module(full_module_name)
 
@@ -314,6 +321,7 @@ class BasicSuiteScript(PsanaBase):
         return frame
 
     def isBeamEvent(self, evt):
+        if self.ignoreEventCodeCheck: return True
         ec = self.getEventCodes(evt)
         ##print(ec[280], ec[281], ec[282], ec[283], ec[284], ec[285] )
         if ec[self.runCode]:
@@ -384,4 +392,3 @@ if __name__ == "__main__":
     evt = bSS.getEvt()
     print(dir(evt))
     logger.info(dir(evt))
-"""
