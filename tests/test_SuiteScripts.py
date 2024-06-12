@@ -282,7 +282,8 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n666.h5 --label fooBar",
+                # this cmd runs pretty long, so we use '--special testing' and '-maxNevents 2' to stop pixel-analysis early
+                "python LinearityPlotsParallelSlice.py -r 102 --special testing --maxNevents 2 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n666.h5 --label fooBar",
             ],
             "test_linearity_scan",
         ),
