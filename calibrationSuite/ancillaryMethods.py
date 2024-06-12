@@ -107,16 +107,14 @@ def getClusterEnergies(clusters):
     ##print(clusters)
     return clusters[:, 0]
 
+
 class Histogram_1d(object):
     def __init__(self, data=[], nBins=None, xRange=None):
         self.nBins = nBins
         self.xRange = xRange
         self.hist, edges = np.histogram(data, bins=self.nBins, range=self.xRange)
-        self.bins = (edges[:-1] + edges[1:]) / 2.
+        self.bins = (edges[:-1] + edges[1:]) / 2.0
 
     def fill(self, value):
         hist, _ = np.histogram([value], bins=self.nBins, range=self.xRange)
         self.hist += hist
-
-
-

@@ -99,6 +99,5 @@ class DetectorInfo:
         else:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
-        self.g0cut = 1<<16 
+        self.g0cut = 1 << 16
         self.dimension = 2
-        

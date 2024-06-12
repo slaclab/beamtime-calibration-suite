@@ -18,7 +18,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
-from scipy.optimize import curve_fit
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -101,7 +100,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 ##try:## using truncate instead
                 ##yMaxPlot = max(y.max(), yMaxPlot)
                 ##except:
-                    ##yMaxPlot = y.max()
+                ##yMaxPlot = y.max()
                 sns.regplot(
                     x=x, y=y, x_bins=40, marker=".", ax=ax, order=order, truncate=True
                 )  ##add fit_reg=None for no plot
@@ -207,12 +206,12 @@ class LinearityPlotsParallel(BasicSuiteScript):
         for module in [1, 2]:
             for i in range(rows):
                 # so we can end early on testing runs:
-                if self.special is not None and 'testing' in self.special and i >= self.maxNevents:
+                if self.special is not None and "testing" in self.special and i >= self.maxNevents:
                     break
 
                 for j in range(cols):
                     # so we can end early on testing runs:
-                    if self.special is not None and 'testing' in self.special and j >= self.maxNevents:
+                    if self.special is not None and "testing" in self.special and j >= self.maxNevents:
                         break
 
                     iDet, jDet = self.sliceToDetector(i, j)
@@ -235,9 +234,11 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                 logger.info("empty profile for %d, %d" % (i, j))
                                 continue
                         if x is not None:
-                            fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y, saturated=self.saturated)
+                            fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(
+                                x, y, saturated=self.saturated
+                            )
                             if True:
-                                if i%10==0 and j%10==0:
+                                if i % 10 == 0 and j % 10 == 0:
                                     print(i, j, fitPar, r2, 0)
                             ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                             ##np.save("temp_r%dc%d_y.py" %(i,j), y)
@@ -316,7 +317,16 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
                         if self.residuals:
                             plt.figure(2)
-                            figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_residuals_%s.png" % (self.outputDir, self.className, module, i, j, self.run, self.camera, label)
+                            figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_residuals_%s.png" % (
+                                self.outputDir,
+                                self.className,
+                                module,
+                                i,
+                                j,
+                                self.run,
+                                self.camera,
+                                label,
+                            )
                             plt.savefig(figFileName)
                             logger.info("Wrote file: " + figFileName)
                             plt.close()
@@ -332,16 +342,15 @@ if __name__ == "__main__":
     print("have built an LPP")
     logger.info("have built an LPP")
     lpp.useNswitchedAsFlux = False
-    lpp.fluxLabel = "wave8 flux (ADU)" 
-    if lpp.special is not None and 'useNswitchedAsFlux' in lpp.special:
+    lpp.fluxLabel = "wave8 flux (ADU)"
+    if lpp.special is not None and "useNswitchedAsFlux" in lpp.special:
         lpp.useNswitchedAsFlux = True
         lpp.fluxLabel = "number of low-gain pixels"
 
-    noSwitchedOnly = lpp.special is not None and 'noSwitchedOnly' in lpp.special
+    noSwitchedOnly = lpp.special is not None and "noSwitchedOnly" in lpp.special
 
-    print("using switched pixels as flux? only events with no switch?",
-          lpp.useNswitchedAsFlux, noSwitchedOnly)
-    
+    print("using switched pixels as flux? only events with no switch?", lpp.useNswitchedAsFlux, noSwitchedOnly)
+
     if lpp.file is not None:
         print("using flux label:", lpp.fluxLabel)
         lpp.fitInfo = None
@@ -358,7 +367,6 @@ if __name__ == "__main__":
     else:
         print("not doing Kaz events")
         logger.info("not doing Kaz events")
-
 
     lpp.setupPsana()
 
@@ -433,7 +441,7 @@ if __name__ == "__main__":
             if nSwitched > 0:
                 ##print('nSwitched: %d' %(nSwitched))
                 continue
-            
+
         roiMeans = []
         for i, roi in enumerate(lpp.ROIs):
             ##m = np.multiply(roi, frames).mean()
@@ -453,12 +461,13 @@ if __name__ == "__main__":
         for j, p in enumerate(lpp.singlePixels):
             singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
 
-        eventDict = {'fluxes':flux,
-                     'rois':np.array(roiMeans),
-                     'pixels':np.array(singlePixelData),
-                     'slice':rawFrames[lpp.regionSlice]
+        eventDict = {
+            "fluxes": flux,
+            "rois": np.array(roiMeans),
+            "pixels": np.array(singlePixelData),
+            "slice": rawFrames[lpp.regionSlice],
         }
-        
+
         smd.event(
             evt,
             eventDict,

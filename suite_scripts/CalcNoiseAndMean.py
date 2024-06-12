@@ -104,7 +104,7 @@ if __name__ == "__main__":
                     if bss.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in bss.special):
                         continue
                 ##print(frames)
-                
+
             if frames is None:
                 print("None frames on beam event, should not happen")
                 logger.info("None frames on beam event")

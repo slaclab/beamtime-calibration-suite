@@ -56,7 +56,9 @@ if __name__ == "__main__":
         sys.exit(0)
 
     pcp.setupPsana()
-    smd = pcp.ds.smalldata(filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pcp.size))
+    smd = pcp.ds.smalldata(
+        filename="%s/%s_c%d_r%d_n%d.h5" % (pcp.outputDir, pcp.className, pcp.camera, pcp.run, pcp.size)
+    )
 
     nEvent = -1
     nGoodEvents = 0

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     thresholded = None
     energyHistogramBins = 1000
     energyHistogram = np.zeros(energyHistogramBins)
-    energyHistogramRange = [-100,900]## should get this from somewhere
+    energyHistogramRange = [-100, 900]  ## should get this from somewhere
     gain = None
     if spc.fakePedestal is not None:
         if spc.detectorInfo is not None:
@@ -77,8 +77,8 @@ if __name__ == "__main__":
 
         if False and gain is not None:
             for e in frames.flatten():
-                energyHistogram[((e-energyHistogramRange[0])/energyHistogramBins).clip(0, energyHistogramBins)] += 1
-        
+                energyHistogram[((e - energyHistogramRange[0]) / energyHistogramBins).clip(0, energyHistogramBins)] += 1
+
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
             print("n good events analyzed: %d" % (nGoodEvents))
@@ -104,8 +104,14 @@ if __name__ == "__main__":
     logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
 
     if False:
-        spectrumFileName = "%s/%s_%s_r%d_c%d_%s_spectrum.npy" % (spc.outputDir, scriptType, spc.label, spc.run, spc.camera, spc.exp)
+        spectrumFileName = "%s/%s_%s_r%d_c%d_%s_spectrum.npy" % (
+            spc.outputDir,
+            scriptType,
+            spc.label,
+            spc.run,
+            spc.camera,
+            spc.exp,
+        )
         np.save(spectrumFileName, energyHistogram)
 
-    
     spc.dumpEventCodeStatistics()
