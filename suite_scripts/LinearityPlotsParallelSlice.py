@@ -168,7 +168,10 @@ class LinearityPlotsParallel(BasicSuiteScript):
         g0Fluxes = []
         g1s = []
         g1Fluxes = []
+
+        count = 0
         for s, _ in enumerate(self.singlePixels):
+            count += 1
             g0s.append(pixels[:, s, 1][pixels[:, s, 0] == 0])
             g0Fluxes.append(fluxes[pixels[:, s, 0] == 0])
             g1s.append(pixels[:, s, 1][pixels[:, s, 0] == 1])
@@ -203,7 +206,15 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
         for module in [1, 2]:
             for i in range(rows):
+                # so we can end early on testing runs:
+                if self.special is not None and 'testing' in self.special and i >= self.maxNevents:
+                    break
+
                 for j in range(cols):
+                    # so we can end early on testing runs:
+                    if self.special is not None and 'testing' in self.special and j >= self.maxNevents:
+                        break
+
                     iDet, jDet = self.sliceToDetector(i, j)
                     if False:
                         self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
@@ -275,10 +286,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                     plt.scatter(x, y - fitFunc, zorder=3, marker=".")
                                     plt.figure(1)
 
-<<<<<<< HEAD
-                    if i % 2 == 0 and i == j:
-                        figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_%s.png" % (self.outputDir, self.className, module, i, j, self.run, self.camera, label)
-=======
                 if i % 2 == 0 and i == j:
                     figFileName = "%s/%s_slice_%d_%d_r%d_c%d_%s.png" % (
                         self.outputDir,
@@ -303,10 +310,10 @@ class LinearityPlotsParallel(BasicSuiteScript):
                             self.camera,
                             label,
                         )
->>>>>>> 7227771506c6eb7fcf01086cf40746763a0c61c1
                         plt.savefig(figFileName)
                         logger.info("Wrote file: " + figFileName)
                         plt.close()
+
                         if self.residuals:
                             plt.figure(2)
                             figFileName = "%s/%s_slice_m%d_r%d_c%d_r%d_c%d_residuals_%s.png" % (self.outputDir, self.className, module, i, j, self.run, self.camera, label)
@@ -454,21 +461,18 @@ if __name__ == "__main__":
         
         smd.event(
             evt,
-<<<<<<< HEAD
-            eventDict
-=======
+            eventDict,
             fluxes=flux,
             rois=np.array(roiMeans),
             pixels=np.array(singlePixelData),
             slice=rawFrames[lpp.regionSlice],
->>>>>>> 7227771506c6eb7fcf01086cf40746763a0c61c1
         )
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
             print("n good events analyzed: %d" % (nGoodEvents))
             logger.info("n good events analyzed: %d" % (nGoodEvents))
-        ##            print("switched pixels: %d" %((switchedPixels>0).sum()))
+        ## print("switched pixels: %d" %((switchedPixels>0).sum()))
 
         if nGoodEvents > lpp.maxNevents:
             break
