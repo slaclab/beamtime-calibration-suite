@@ -123,7 +123,7 @@ To setup for running the tests, run the following cmd from the repo root dir:</p
 <p>These tests verify that the code in <em>/calibrationSuite</em> and <em>/suite_scripts</em> is currently working as expected.  </p>
 <p><em>test_SuiteScripts.py</em> runs the files in <em>/suite_script</em> and diffs their real output against expected output in <em>/tests/test_data</em>  </p>
 <p><em>/tests/test_data</em> stores data from this repo: <a href="https://github.com/slaclab/beamtime-calibration-suite-test-data">https://github.com/slaclab/beamtime-calibration-suite-test-data</a>
-The repo is added as a <a href="https://www.git-scm.com/book/en/v2/Git-Tools-Submodules">git submodule</a>, and should be setup by the <em>setup_developers.sh</em> script.<br />
+The repo is added as a <a href="https://gist.github.com/gitaarik/8735255">git submodule</a>, and should be setup by the <em>setup_developers.sh</em> script.<br />
 Since the test data is large, <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage">LFS</a> is used and needs to be installed. (LFS is installed already on <em>S3DF</em>)  </p>
 <p>Some more info on testing, such as adding now data to the <em>test_data</em> submodule or add a new test-case to_suite_scripts_ tests, can be found <a href="https://github.com/slaclab/beamtime-calibration-suite/blob/development/tests/test_SuiteScripts.py">in this file.</a></p>
               
