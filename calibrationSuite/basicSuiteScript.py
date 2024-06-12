@@ -113,8 +113,8 @@ class BasicSuiteScript(PsanaBase):
             self.fakeBeamCode = True ## just in case
         except:
             self.ignoreEventCodeCheck = False
-            self.fakeBeamCode = True ## just in case
-            
+            self.fakeBeamCode = False
+
         self.special = self.args.special
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
@@ -128,6 +128,9 @@ class BasicSuiteScript(PsanaBase):
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
+        print("ignoring event code check, faking beam code:",
+              self.ignoreEventCodeCheck, self.fakeBeamCode)
+        
         ##mymodule = importlib.import_module(full_module_name)
 
         ## for standalone analysis

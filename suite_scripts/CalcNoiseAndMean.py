@@ -128,8 +128,8 @@ if __name__ == "__main__":
         means = stats.mean()
         if bss.special is not None and "slice" in bss.special:
             noise = noise[bss.regionSlice]
-            print("mean, median noise: " + str(noise.mean()) + str(np.median(noise)))
-            logger.info("mean, median noise: " + str(noise.mean()) + str(np.median(noise)))
+            print("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
+            logger.info("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             means = means[bss.regionSlice]
 
         if bss.fakePedestal is not None:
