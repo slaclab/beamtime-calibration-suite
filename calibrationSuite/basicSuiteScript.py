@@ -397,3 +397,4 @@ if __name__ == "__main__":
     evt = bSS.getEvt()
     print(dir(evt))
     logger.info(dir(evt))
+"""
