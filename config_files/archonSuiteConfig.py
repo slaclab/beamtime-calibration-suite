@@ -27,12 +27,12 @@ experimentHash = {
         [0, 1000],
         [0, 2000],
     ],
-    "ignoreEventCodeCheck":True,
+    "ignoreEventCodeCheck": True,
     # 'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']
     # 'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     # 'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     # "ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
-    "regionSlice": np.s_[0:1,0:1, 0:4800] ##[1d]
+    "regionSlice": np.s_[0:1, 0:1, 0:4800],  ##[1d]
 }
 # more complex approach allowing run ranges
 # fluxHash = {1:['MFX-USR-DIO', 11]}

@@ -125,25 +125,33 @@ def fitLinearUnSaturatedData(x, y, saturated=False):  ##, gainMode, label):
     return popt, pcov, y_fit, r2
 
 
+# not in use atm, and a + ds not def'd
+"""
 def fitMatrixOfLinearFits(x, y):
     if len(x.shape) != 1:
-        print("y data shape is %dd, not 1d" %(len(s)))
+        print("y data shape is %dd, not 1d" % (len(s)))
         raise Exception
     yShape = y.shape
     if len(yShape) != 4:
-        print("y data shape is %dd, not 4d" %(len(yShape)))
+        print("y data shape is %dd, not 4d" % (len(yShape)))
         raise Exception
-    slopesAndIntercepts = [fitLinearUnSaturatedData(a, ds[m, r, c, :])[0] for m in range(yShape[0]) for r in range(yShape[1]) for c in range(yShape[2])]
+    slopesAndIntercepts = [
+        fitLinearUnSaturatedData(a, ds[m, r, c, :])[0]
+        for m in range(yShape[0])
+        for r in range(yShape[1])
+        for c in range(yShape[2])
+    ]
     return np.array(slopesAndIntercepts)
+"""
 
 
 def linearFitTest():
     a = np.linspace(0, 9, 10)
-    d0 = np.random.normal(1, 1, [3,5])
+    d0 = np.random.normal(1, 1, [3, 5])
     d = np.array([d0 + i for i in range(10)])
     ds = np.stack(d, axis=-1)
     print("single pixel fit:")
-    print(np.ravel(fitLinearUnSaturatedData(a, ds[2,2,:])[0]))
+    print(np.ravel(fitLinearUnSaturatedData(a, ds[2, 2, :])[0]))
 
     print("array fit:")
     dss = ds.shape
@@ -159,7 +167,8 @@ def linearFitTest():
 
     ##print("matrix call:")
     ##print(fitMatrixOfLinearFits(a, ds))
-    
+
+
 def twoGaussSilvermanModeTest(x0, x1):
     a = np.random.normal(0, 1, 1000)
     b = np.random.normal(x0, 1, 500)

@@ -56,7 +56,7 @@ class BasicSuiteScript(PsanaBase):
             pass
         self.ROIfileNames = None
         try:
-        ##if True:
+            ##if True:
             self.ROIfileNames = self.experimentHash["ROIs"]
             self.ROIs = []
             for f in self.ROIfileNames:
@@ -66,7 +66,7 @@ class BasicSuiteScript(PsanaBase):
             except Exception:
                 pass
         ##if False:
-        except:
+        except Exception:
             if self.ROIfileNames is not None:
                 print("had trouble finding", self.ROIfileNames)
                 for currName in self.ROIfileNames:
@@ -94,7 +94,7 @@ class BasicSuiteScript(PsanaBase):
         if self.detectorInfo.dimension == 2:
             self.regionSlice = self.regionSlice[0], self.regionSlice[2]
             print("remapping regionSlice to handle 1d case")
-            
+
         try:
             self.fluxSource = self.experimentHash["fluxSource"]
             try:
@@ -110,8 +110,8 @@ class BasicSuiteScript(PsanaBase):
 
         try:
             self.ignoreEventCodeCheck = self.experimentHash["ignoreEventCodeCheck"]
-            self.fakeBeamCode = True ## just in case
-        except:
+            self.fakeBeamCode = True  ## just in case
+        except Exception:
             self.ignoreEventCodeCheck = False
             self.fakeBeamCode = False
 
@@ -124,13 +124,12 @@ class BasicSuiteScript(PsanaBase):
         self.daqCode = 281
         self.beamCode = 283  ## per Matt
         ##self.beamCode = 281 ## don't see 283...
-        if not self.fakeBeamCode: ## defined in ignoreEventCodeCheck
+        if not self.fakeBeamCode:  ## defined in ignoreEventCodeCheck
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
-        print("ignoring event code check, faking beam code:",
-              self.ignoreEventCodeCheck, self.fakeBeamCode)
-        
+        print("ignoring event code check, faking beam code:", self.ignoreEventCodeCheck, self.fakeBeamCode)
+
         ##mymodule = importlib.import_module(full_module_name)
 
         ## for standalone analysis
@@ -329,7 +328,8 @@ class BasicSuiteScript(PsanaBase):
         return frame
 
     def isBeamEvent(self, evt):
-        if self.ignoreEventCodeCheck: return True
+        if self.ignoreEventCodeCheck:
+            return True
         ec = self.getEventCodes(evt)
         ##print(ec[280], ec[281], ec[282], ec[283], ec[284], ec[285] )
         if ec[self.runCode]:
@@ -385,11 +385,12 @@ class BasicSuiteScript(PsanaBase):
         shape = frames.shape
         occ = np.random.random(shape)
         fakes = np.random.normal(E, width, shape)
-        fakes[occ>occupancy] = 0
-        return frames + fakes, (fakes>0).sum()
-    
+        fakes[occ > occupancy] = 0
+        return frames + fakes, (fakes > 0).sum()
+
     def getNswitchedPixels(self, data, region=None):
-        return (((data>=self.g0cut)*1).sum())
+        return ((data >= self.g0cut) * 1).sum()
+
 
 """
 if __name__ == "__main__":
