@@ -7,6 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import numpy as np
 
 ##experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
@@ -31,7 +32,7 @@ experimentHash = {
     # 'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     # 'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     # "ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
-    # "regionSlice": np.s_[270:288],
+    "regionSlice": np.s_[0:1,0:1, 0:4800] ##[1d]
 }
 # more complex approach allowing run ranges
 # fluxHash = {1:['MFX-USR-DIO', 11]}

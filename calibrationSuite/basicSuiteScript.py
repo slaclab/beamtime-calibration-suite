@@ -90,6 +90,11 @@ class BasicSuiteScript(PsanaBase):
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
 
+        ## handle 1d rixs ccd data
+        if self.detectorInfo.dimension == 2:
+            self.regionSlice = self.regionSlice[0], self.regionSlice[2]
+            print("remapping regionSlice to handle 1d case")
+            
         try:
             self.fluxSource = self.experimentHash["fluxSource"]
             try:
