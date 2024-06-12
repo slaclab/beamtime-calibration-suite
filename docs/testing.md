@@ -32,7 +32,7 @@ These tests verify that the code in _/calibrationSuite_ and _/suite\_scripts_ is
 _test\_SuiteScripts.py_ runs the files in _/suite\_script_ and diffs their real output against expected output in _/tests/test\_data_  
 
 _/tests/test\_data_ stores data from this repo: <https://github.com/slaclab/beamtime-calibration-suite-test-data>
-The repo is added as a [git submodule](https://www.git-scm.com/book/en/v2/Git-Tools-Submodules), and should be setup by the _setup_developers.sh_ script.  
+The repo is added as a [git submodule](https://gist.github.com/gitaarik/8735255), and should be setup by the _setup_developers.sh_ script.  
 Since the test data is large, [LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) is used and needs to be installed. (LFS is installed already on _S3DF_)  
 
 
