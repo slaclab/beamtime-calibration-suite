@@ -5,7 +5,10 @@
 # only needs to be run once in each download of this repo
 # (as opposed to setup.sh which needs to be run each new terminal session)
 
-# dependencies
+# dependencies used in tests + formatting/linting script
+# (these might already be installed into the S3DF env, if so the following
+# cmds should simply do nothing)
+pip install pytest
 pip install pillow
 pip install ruff
 
