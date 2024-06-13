@@ -102,18 +102,35 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="testing">Testing</h1>
-<p>Tests are only need to be run by those actively developing the suite.<br />
-To setup for running the tests, run the following cmd from the repo root dir:</p>
+<p>Tests are only need to be run by those actively developing the suite, and should especially be run after 
+resolving merge-conflicts, adding in large features, refactoring.  </p>
+<p>Running on <em>S3DF</em> (to use psana library) is required to run the entire suite of the tests,<br />
+but a subset can still be run without (utilitiy-function tests, etc).
+This non-psana subset runs automatically on <a href="https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml">github</a></p>
+<p>In short, run the following to check the code: (after commiting current changes):</p>
+<pre><code>// cd prokject root
+source setup_developers.sh // only run once
+./lint_and_format.sh
+pytest .
+</code></pre>
+<h1 id="details">Details</h1>
+<p>To setup for running the tests, run the following cmd from the repo root dir:</p>
 <pre><code>source setup_developers.sh
 </code></pre>
-<p>This installs the 'pillow' python dependency (used for diffing .png files), and downloads the test_data submodule.<br />
+<p>This installs the 'pillow' python dependency (used for diffing .png files), the ruff formatter/linter, and downloads the test_data submodule. 
 <em>(note: only needs to be run once per-repo, unless you manually de-init'd the submodule and want it setup again)</em><br />
 <em>(note: this is unlike setup.sh, which needs to be run per-each terminal session (or added to ~/.bashrc))</em>  </p>
+<p>The code be checked with linting by running:</p>
+<pre><code>./lint_and_format.sh
+</code></pre>
+<p>This will [lint](https://en.wikipedia.org/wiki/Lint_(software) and attempt to auto-apply fixes, and then format the code.<br />
+The script may output linting-errors that need to be manually fixed. 
+<em>(note: this will modify your local files, so reccomended to commit changes first -&gt; run script -&gt; commit changes from running script)</em>
+<em>(note: running 'ruff --line-length 120' will lint the code without auto-fixing)</em></p>
 <p>You can run all the tests with the following:</p>
 <pre><code>pytest .
 </code></pre>
 <p><em>(note: this works from either the project root-dir and also the /tests dir)</em></p>
-<p>Running on <em>S3DF</em> (to use psana library) is required to run all of the tests, but a subset can still be run without.</p>
 <p>You can run an individual test-file by specifying the path:</p>
 <pre><code>pytest tests/test_SuiteScripts.py
 </code></pre>
