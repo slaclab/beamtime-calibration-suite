@@ -1,13 +1,40 @@
 # Testing
 
-Tests are only need to be run by those actively developing the suite.  
+Tests are only need to be run by those actively developing the suite, and should especially be run after 
+resolving merge-conflicts, adding in large features, refactoring.  
+
+Running on _S3DF_ (to use psana library) is required to run the entire suite of the tests,  
+but a subset can still be run without (utilitiy-function tests, etc).
+This non-psana subset runs automatically on [github](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
+
+In short, run the following to check the code: (after commiting current changes):
+```
+// cd prokject root
+source setup_developers.sh // only run once
+./lint_and_format.sh
+pytest .
+```
+
+# Details
+
 To setup for running the tests, run the following cmd from the repo root dir:
 ```
 source setup_developers.sh
 ```
-This installs the 'pillow' python dependency (used for diffing .png files), and downloads the test_data submodule.  
+This installs the 'pillow' python dependency (used for diffing .png files), the ruff formatter/linter, and downloads the test_data submodule. 
 _(note: only needs to be run once per-repo, unless you manually de-init'd the submodule and want it setup again)_  
 _(note: this is unlike setup.sh, which needs to be run per-each terminal session (or added to ~/.bashrc))_  
+
+
+The code be checked with linting by running:
+```
+./lint_and_format.sh
+```
+This will [lint](https://en.wikipedia.org/wiki/Lint_(software) and attempt to auto-apply fixes, and then format the code.  
+The script may output linting-errors that need to be manually fixed. 
+_(note: this will modify your local files, so reccomended to commit changes first -> run script -> commit changes from running script)_
+_(note: running 'ruff --line-length 120' will lint the code without auto-fixing)_
+
 
 You can run all the tests with the following:
 ```
@@ -15,7 +42,6 @@ pytest .
 ```
 _(note: this works from either the project root-dir and also the /tests dir)_
 
-Running on _S3DF_ (to use psana library) is required to run all of the tests, but a subset can still be run without.
 
 You can run an individual test-file by specifying the path:
 ```

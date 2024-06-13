@@ -42,6 +42,8 @@ means_c0_r102_rixx1005922.npy
 
 If you are new to git/github, start with [Learning Git](https://slaclab.github.io/beamtime-calibration-suite/learning_git/)
 
-An overview of the development process is found [here](https://slaclab.github.io/beamtime-calibration-suite/workflow/)
+An overview of the development process is found [here](https://slaclab.github.io/beamtime-calibration-suite/workflow/) 
+
+Info on testing can be found [here](https://slaclab.github.io/beamtime-calibration-suite/testing/)  
 
 For commit messages, we can try to follow the PyDM guidelines: https://slaclab.github.io/pydm/development/development.html#commit-guidelines
