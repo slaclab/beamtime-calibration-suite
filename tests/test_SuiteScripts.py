@@ -1,7 +1,8 @@
-import subprocess
+import filecmp
 import os
 import shutil
-import filecmp
+import subprocess
+
 import pytest
 
 # diffing .pngs is a bit tricky without PIL
@@ -83,7 +84,9 @@ class SuiteTester:
         # annoyingly complicated way to get root of current git repo,
         # do this so test can be run from tests/ dir or root of project
         self.git_repo_root = (
-            subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE)
+            subprocess.Popen(
+                ["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE
+            )
             .communicate()[0]
             .rstrip()
             .decode("utf-8")
@@ -127,7 +130,9 @@ class SuiteTester:
 
         # lets have the 'real output' folders just be in /suite_scripts
         for i in range(len(self.expected_outcome_dirs)):
-            self.expected_outcome_dirs[i] = self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
+            self.expected_outcome_dirs[i] = (
+                self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
+            )
 
         for dir in self.expected_outcome_dirs:
             os.makedirs(dir, exist_ok=True)
@@ -178,7 +183,9 @@ class SuiteTester:
                 expected_file_path = expected_output_location + "/" + file
 
                 # Check if files are PNGs
-                if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
+                if real_file_path.endswith(".png") and expected_file_path.endswith(
+                    ".png"
+                ):
                     if self.are_images_same(real_file_path, expected_file_path) == 0:
                         assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
                 else:
@@ -203,7 +210,11 @@ def suite_tester():
     "command, output_dir_name",
     [
         (
-            ["bash", "-c", "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1"],
+            [
+                "bash",
+                "-c",
+                "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1",
+            ],
             "test_noise_1",
         ),
         (
@@ -230,6 +241,30 @@ def test_Noise(suite_tester, command, output_dir_name):
     suite_tester.test_command(command, output_dir_name)
 
 
+# this is an example of testing for an expected failure, only one case like this atm.
+@pytest.mark.parametrize(
+    "command, output_dir_name",
+    [
+        # for this script we expect run 102 to fail assert, the run has issues returning step_values
+        # and should fail-out because of this.
+        (
+            [
+                "bash",
+                "-c",
+                "python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice",
+            ],
+            "test_time_scan_parallel_slice",
+        ),
+    ],
+)
+def test_TimingScanExpectedFail(suite_tester, command, output_dir_name):
+    if not suite_tester.canTestsRun:
+        pytest.skip("Can only test with psana library on S3DF!")
+
+    with pytest.raises(AssertionError):  # PASS if the script fails assert, FAIL if not
+        suite_tester.test_command(command, output_dir_name)
+
+
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
@@ -237,7 +272,11 @@ def test_Noise(suite_tester, command, output_dir_name):
         # (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
         # 'test_time_scan_parallel_slice'),
         (
-            ["bash", "-c", "python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice"],
+            [
+                "bash",
+                "-c",
+                "python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice",
+            ],
             "test_time_scan_parallel_slice",
         ),
     ],
@@ -252,7 +291,11 @@ def test_TimingScan(suite_tester, command, output_dir_name):
     "command, output_dir_name",
     [
         (
-            ["bash", "-c", "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon"],
+            [
+                "bash",
+                "-c",
+                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon",
+            ],
             "test_single_photon",
         ),
         (
@@ -275,7 +318,11 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
     "command, output_dir_name",
     [
         (
-            ["bash", "-c", "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan"],
+            [
+                "bash",
+                "-c",
+                "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan",
+            ],
             "test_linearity_scan",
         ),
         (
@@ -399,7 +446,11 @@ def test_SearchNonSwitching(suite_tester, command, output_dir_name):
     "command, output_dir_name",
     [
         (
-            ["bash", "-c", "python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc"],
+            [
+                "bash",
+                "-c",
+                "python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc",
+            ],
             "test_histogram_flux_etc",
         ),
     ],

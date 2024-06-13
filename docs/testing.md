@@ -7,10 +7,10 @@ Running on _S3DF_ (to use psana library) is required to run the entire suite of 
 but a subset can still be run without (utilitiy-function tests, etc).
 This non-psana subset runs automatically on [github](https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml)
 
-In short, run the following to check the code: (after commiting current changes):
+In short, running the following will check the code: (do so after commiting current changes):
 ```
-// cd prokject root
-source setup_developers.sh // only run once
+// cd to project root
+source setup_developers.sh // only need to run once
 ./lint_and_format.sh
 pytest .
 ```
