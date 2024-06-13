@@ -107,9 +107,9 @@ resolving merge-conflicts, adding in large features, refactoring.  </p>
 <p>Running on <em>S3DF</em> (to use psana library) is required to run the entire suite of the tests,<br />
 but a subset can still be run without (utilitiy-function tests, etc).
 This non-psana subset runs automatically on <a href="https://github.com/slaclab/beamtime-calibration-suite/actions/workflows/run-tests.yml">github</a></p>
-<p>In short, run the following to check the code: (after commiting current changes):</p>
-<pre><code>// cd prokject root
-source setup_developers.sh // only run once
+<p>In short, running the following will check the code: (do so after commiting current changes):</p>
+<pre><code>// cd to project root
+source setup_developers.sh // only need to run once
 ./lint_and_format.sh
 pytest .
 </code></pre>
