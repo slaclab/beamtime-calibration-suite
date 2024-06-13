@@ -28,7 +28,7 @@ For example, if the root is set to the default value `/sdf/data/lcls/ds/rix/rixx
 
 The output-directory can be set using the `-p <dir_name>` cmdline arg
 
-Setting the var to export OUTPUT_ROOT=. will have the library look for an output folder relative to the location of the current script being ran. ("." refers to current dir on linux)  
+Setting the var to export OUTPUT_ROOT=. will have the library look for an output folder relative to the location of the current script being ran. (. refers to current dir on linux)  
 
 
 ### Point to Config File
