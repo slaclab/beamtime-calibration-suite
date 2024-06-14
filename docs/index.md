@@ -18,9 +18,10 @@ from calibrationSuite.cluster import *
 ```
 _(documentation on the library functionality is still to come, but example usage is seen by scripts in the /suite_scripts folder)_
 
-* _/suite_scripts_: scripts that use the calibrationSuite library code ('high-level scripts')
-* _/standalone_scripts_: scripts that do not use the calibrationSuite library code ('high-level scripts')
-* _/tests_: tests files, can be ran with 'pytest .' from the root project directory (Currently only test for the fitFunctions library file is running, more tests are to be added)
+* _/suite_scripts_: scripts that use the calibrationSuite library code (these can be called 'high-level scripts')
+* _/config_files_: files that set values used by the calibrationSuite, which config-file to use is specified by env variable $SUITE_CONFIG
+* _/standalone_scripts_: scripts that do not use the calibrationSuite library code (also 'high-level scripts')
+* _/tests_: tests files, can be ran with 'pytest .' from the root project directory or from the _tests_ directory.
 * _/data_: example data-files used for running the scripts
 
 

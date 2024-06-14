@@ -7,7 +7,7 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -51,7 +51,12 @@ if __name__ == "__main__":
         if evt is None:
             break
         nEvent += 1
-        frames = pc.getCalibData(evt)
+
+        if pc.isBeamEvent(evt):
+            frames = pc.getCalibData(evt)
+        else:
+            continue
+
         ## could do raw - ped instead
         if frames is None:
             print("No contrib found")
@@ -65,10 +70,10 @@ if __name__ == "__main__":
         if pc.ROI is None:
             pc.ROI = (frames * 0) + 1
         pc.ROI = pc.ROIs[-1]
-        label = ""
+        pc.label = ""
         if False:
             pc.ROI = np.load("roiFromAboveThreshold_r671_c1_calib.npy")
-            label = "_intenseRegion"
+            pc.label = "_intenseRegion"
 
         rm = np.multiply(pc.ROI, frames).mean()
 
@@ -107,7 +112,7 @@ if __name__ == "__main__":
                     if evt is None:
                         break
                     nEvent += 1
-                except:
+                except Exception:
                     break
 
     unKickedMeans = np.array(unKickedMeans)
@@ -117,5 +122,5 @@ if __name__ == "__main__":
         np.save("kickedMeans_r%d.npy" % (pc.run), missingMeans)
 
     data = np.array(data)
-    np.save("%s/persistenceData_%s_r%d_c%d%s.npy" % (pc.outputDir, pc.exp, pc.run, pc.camera, label), data)
-    pc.plotData(data, label)
+    np.save("%s/persistenceData_%s_r%d_c%d%s.npy" % (pc.outputDir, pc.exp, pc.run, pc.camera, pc.label), data)
+    pc.plotData(data, pc.label)

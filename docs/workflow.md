@@ -1,6 +1,6 @@
 # Git/GitHub Workflow
 
-we should try to generally follow the branching and pull-request workflow described in this SLAC [presentation](https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7)  
+We should try to generally follow the branching and pull-request workflow described in this SLAC [presentation](https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7)  
   * in our case the two important branches will be `main` and `development`   
   * in-between beamtimes, `development` is used for pushing work  
   * right before beamtimes, `development` is merged into `main`  
@@ -10,7 +10,6 @@ we should try to generally follow the branching and pull-request workflow descri
 
 ### Before Beamtime:
 * checkout `development` (or a earlier stable point of `development`) 
-* manually run and check the output of script planned for use on the beamtime, as a final sanity check
 * use a pull request to merge `development`  into `main`
   * to do this follow the instructions in section **F)** of the doc page [Git Commands for Common Tasks](https://slaclab.github.io/beamtime-calibration-suite/commands/)
   * `main` is safeguarded and will require a +1 from another developer
@@ -19,6 +18,13 @@ we should try to generally follow the branching and pull-request workflow descri
 git checkout -b main beamtime_<month>_<day>_<year>
 git push origin beamtime_<month>_<day>_<year>
 ```
+* Now run the tests with the following cmd:  
+_(assuming the tests have been setup already with setup_developers.sh)_
+```
+pytest .
+```
+* Then see that all tests are passing (unless there are any expected failures)
+* If any new test-less scripts are planned to be used (or have too many expected test-failures), manually run any scripts we plan to use to verify they still work
 
 ### During Beamtime:
 * at start of beamtime, everyone needs to download the branch for this beamtime:

@@ -7,11 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
+
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 from statsmodels.nonparametric.bandwidths import bw_silverman
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def calculateFitR2(y, fit):
 
     try:
         r2 = 1 - (ss_res / ss_tot)
-    except:
+    except Exception:
         r2 = 1  ## I guess
 
     return r2
@@ -85,7 +86,7 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
     if x0 is not None:
         x, y = getRestrictedHistogram(x, y, x0, x1)
 
-    a, mean, std = estimateGaussianParameters(zip(x, y))
+    a, mean, std = estimateGaussianParametersFromXY(x, y)
     popt, pcov = curve_fit(gaussian, x, y, [3, mean, std])
     ##a = popt[0]
     ##mu = popt[1]
@@ -99,6 +100,73 @@ def getGaussianFitFromHistogram(binCenters, counts, x0=None, x1=None):
 def fitNorm(data):
     mean, std = norm.fit(data)
     return mean, std
+
+
+def fitLinearUnSaturatedData(x, y, saturated=False):  ##, gainMode, label):
+    if saturated:
+        ##f = saturatedLinear
+        ##p0 = [1, 0, x.mean(), y.max()]
+        f = linear
+        p0 = [0, y.mean()]
+        popt, pcov = curve_fit(f, x, y, p0=p0)
+        f = saturatedLinearB
+        p0 = [popt[0], popt[1], y.max()]
+    else:
+        f = linear
+        ##m = y.mean(axis=-1)
+        ##print("m.shape", m.shape, x.shape, y.shape)
+        ##p0 = [m*0, m]
+        p0 = [0, y.mean()]
+    popt, pcov = curve_fit(f, x, y, p0=p0)
+    y_fit = f(x, *popt)
+    r2 = calculateFitR2(y, y_fit)
+
+    ##condition = np.linalg.cond(pcov)
+    return popt, pcov, y_fit, r2
+
+
+# not in use atm, and a + ds not def'd
+"""
+def fitMatrixOfLinearFits(x, y):
+    if len(x.shape) != 1:
+        print("y data shape is %dd, not 1d" % (len(s)))
+        raise Exception
+    yShape = y.shape
+    if len(yShape) != 4:
+        print("y data shape is %dd, not 4d" % (len(yShape)))
+        raise Exception
+    slopesAndIntercepts = [
+        fitLinearUnSaturatedData(a, ds[m, r, c, :])[0]
+        for m in range(yShape[0])
+        for r in range(yShape[1])
+        for c in range(yShape[2])
+    ]
+    return np.array(slopesAndIntercepts)
+"""
+
+
+def linearFitTest():
+    a = np.linspace(0, 9, 10)
+    d0 = np.random.normal(1, 1, [3, 5])
+    d = np.array([d0 + i for i in range(10)])
+    ds = np.stack(d, axis=-1)
+    print("single pixel fit:")
+    print(np.ravel(fitLinearUnSaturatedData(a, ds[2, 2, :])[0]))
+
+    print("array fit:")
+    dss = ds.shape
+    ## print(fitLinearUnSaturatedData(a, ds.reshape(np.prod(dss[0:-1]), dss[-1])))
+    ## curve_fit wants a 1-d y array, can't see how to pass a matrix
+    fitArray = [fitLinearUnSaturatedData(a, ds[i, j, :])[0][0] for i in range(dss[0]) for j in range(dss[1])]
+    print(fitArray)
+
+    print("array fit, all popt:")
+    fitArray = [np.ravel(fitLinearUnSaturatedData(a, ds[i, j, :])[0]) for i in range(dss[0]) for j in range(dss[1])]
+    fitArray = np.array(fitArray)
+    print(fitArray)
+
+    ##print("matrix call:")
+    ##print(fitMatrixOfLinearFits(a, ds))
 
 
 def twoGaussSilvermanModeTest(x0, x1):

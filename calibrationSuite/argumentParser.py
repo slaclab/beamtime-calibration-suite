@@ -30,7 +30,9 @@ class ArgumentParser:
         self.parser.add_argument("-c", "--camera", type=int, help="camera.n")
         self.parser.add_argument("-p", "--path", type=str, help="the base path to the output directory")
         self.parser.add_argument("-n", "--nModules", type=int, help="nModules")
-        self.parser.add_argument("--mode", type=str, help="detector mode (1d, 2d, ...?") ## might be discoverable otherwise
+        self.parser.add_argument(
+            "--mode", type=str, help="detector mode (1d, 2d, ...?"
+        )  ## might be discoverable otherwise
         self.parser.add_argument(
             "-d", "--detType", type=str, default="", help="Epix100, Epix10ka, Epix10kaQuad, Epix10ka2M, ..."
         )
@@ -59,5 +61,8 @@ class ArgumentParser:
             help="comma-separated list of special behaviors - maybe this is too lazy.  E.g. positiveParity,doKazEvents,...",
         )
 
-    def parse_args(self):
-        return self.parser.parse_args()
+    def parse_args(self, testing_args=None):
+        if testing_args is None:
+            return self.parser.parse_args()
+        else:
+            return self.parser.parse_args(testing_args)

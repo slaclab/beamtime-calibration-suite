@@ -7,20 +7,22 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import binned_statistic
-import logging
 
 logger = logging.getLogger(__name__)
 
 
-def makeProfile(x, y, bins, range=None, spread=False):
+def makeProfile(x, y, bins, range=None, spread=False, myStatistic="mean"):
     ## NaN for empty bins are suppressed
     ## using mean root(N) for non-empty bins to calculate 0 var weights
     ##
     ## spread=True to return standard deviation instead of standard error
 
-    meansObj = binned_statistic(x, [y, y**2], bins=bins, range=range, statistic="mean")
+    meansObj = binned_statistic(x, [y, y**2], bins=bins, range=range, statistic=myStatistic)
     means, means2 = meansObj.statistic
     countsObj = binned_statistic(x, y, bins=bins, range=range, statistic="count")
     stdObj = binned_statistic(x, y, bins=bins, range=range, statistic="std")
@@ -52,28 +54,33 @@ def plotProfile(x, y, yErr):
 def selectedClusters(clusters, row, col, lowEnerygCut, highEnergyCut, nPixelCut=4, isSquare=1):
     pass
 
+
 def getEnergeticClusters(clusters):
     ## expects [events, maxClusters, nClusterElements]
     ## returns [nEnergeticClusters, nClusterElements]
-    return clusters[clusters[:,:,0]>0]
+    return clusters[clusters[:, :, 0] > 0]
+
 
 def getSmallSquareClusters(clusters, nPixelCut=4):
     smallClusters = getSmallClusters(clusters, nPixelCut=4)
     return getSquareClusters(smallClusters)
 
+
 def getSmallClusters(clusters, nPixelCut=4):
-    return clusters[clusters[:,4] < nPixelCut]
+    return clusters[clusters[:, 4] < nPixelCut]
+
 
 def getSquareClusters(clusters):
-    return clusters[clusters[:,5]==1]
+    return clusters[clusters[:, 5] == 1]
+
 
 def getMatchedClusters(clusters, dimension, n):
-    if dimension == 'column':
-        return clusters[(clusters[:,3]==n)]
-    if dimension == 'row':
-        return clusters[(clusters[:,2]==n)]
-    if dimension == 'module':
-        return clusters[(clusters[:,1]==n)]
+    if dimension == "column":
+        return clusters[(clusters[:, 3] == n)]
+    if dimension == "row":
+        return clusters[(clusters[:, 2] == n)]
+    if dimension == "module":
+        return clusters[(clusters[:, 1] == n)]
     return None
 
 
@@ -81,9 +88,10 @@ def getMatchedClusters(clusters, dimension, n):
 ##    matched = np.bitwise_and.reduce([(clusters[:,1]==m), (clusters[:,2]==row), clusters[:,3]==col])
 ##    return clusters[matched]
 
+
 def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     ## this is too slow
-    mCut = clusters[:,:,1] == module
+    mCut = clusters[:, :, 1] == module
     pixelRowCol = np.bitwise_and((clusters[:, :, 2] == row), (clusters[:, :, 3] == col))
     if isSquare is None:
         small = clusters[:, :, 4] < nPixelCut
@@ -94,6 +102,19 @@ def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     ##print(c)
     return c
 
+
 def getClusterEnergies(clusters):
     ##print(clusters)
     return clusters[:, 0]
+
+
+class Histogram_1d(object):
+    def __init__(self, data=[], nBins=None, xRange=None):
+        self.nBins = nBins
+        self.xRange = xRange
+        self.hist, edges = np.histogram(data, bins=self.nBins, range=self.xRange)
+        self.bins = (edges[:-1] + edges[1:]) / 2.0
+
+    def fill(self, value):
+        hist, _ = np.histogram([value], bins=self.nBins, range=self.xRange)
+        self.hist += hist

@@ -90,14 +90,22 @@ ls
 ```
 cd ~/repos/beamtime_calibtation_suite
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
-source setup.sh
-mkdir setup_test_output
+source setup.sh // must be run in each new terminal session (or added to ~/bashric)
 cd suite_scripts
-//'OUTPUT_ROOT=' sets the OUTPUT_ROOT environment var to an empty value,
-//which makes the script to look relative to the current directory for the output-folder
-OUTPUT_ROOT= python EventScanParallelSlice.py -r 457 -p ../setup_test_output
+mkdir setup_test_output
+//OUTPUT_ROOT=. makes the script to look relative to the current directory for the output-folder
+OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_outputi
 //let the script run to completion...
-ls -lt ../setup_test_output
+ls -lt setup_test_output
 //if ran correctly, should see these non-empty files:
-//EventScanParallel_c0_r349_n1.h5, eventNumbers_c0_r349_rixx1003721.npy, means_c0_r349_rixx1003721.npy
+eventNumbers_c0_r102_rixx1005922.npy  EventScanParallel_c0_r102__n666.h5  means_c0_r102_rixx1005922.npy
+```
+
+## 9: Run the tests (optional):
+* run the following terminal commands:
+```
+cd ~/repos/beamtime_calibtation_suite
+// setup the test dependencies and test_data submodule
+source setup_developers.sh
+pytest .
 ```

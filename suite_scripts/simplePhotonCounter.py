@@ -7,26 +7,32 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import *
+import logging
+import os
 
 import calibrationSuite.loggingSetup as ls
+import numpy as np
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
+
 # for logging from current file
 logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("../logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
-
-class SimplePhotonCounter(BasicSuiteScript):
-    def __init__(self):
-        super().__init__(analysisType="lowFlux")
+ls.setupScriptLogging(
+    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+)  # change to logging.INFO for full logging output
 
 
 if __name__ == "__main__":
-    spc = SimplePhotonCounter()
+    spc = BasicSuiteScript(analysisType="lowFlux")
+    scriptType = "SimplePhotonCounter"  # for naming output files
     spc.setupPsana()
 
     nGoodEvents = 0
     thresholded = None
+    energyHistogramBins = 1000
+    energyHistogram = np.zeros(energyHistogramBins)
+    energyHistogramRange = [-100, 900]  ## should get this from somewhere
     gain = None
     if spc.fakePedestal is not None:
         if spc.detectorInfo is not None:
@@ -39,13 +45,13 @@ if __name__ == "__main__":
             else:
                 raise Exception
         print("using gain correction", gain)
-    
+
     if spc.threshold is not None:
         spc.photonCut = spc.threshold
     else:
         spc.photonCut = 6.0
         print("using photon cut", spc.photonCut)
-        
+
     while True:
         evt = spc.getEvt()
         if evt is None:
@@ -57,7 +63,7 @@ if __name__ == "__main__":
         if spc.fakePedestal is not None:
             rawFrames = spc.getRawData(evt)
             frames = rawFrames.astype("float") - spc.fakePedestal
-            frames /= gain ## psana may not have the right default
+            frames /= gain  ## psana may not have the right default
         else:
             frames = spc.getCalibData(evt)
 
@@ -66,8 +72,12 @@ if __name__ == "__main__":
             continue
         try:
             thresholded += (frames > spc.photonCut) * 1.0
-        except:
+        except Exception:
             thresholded = (frames > spc.photonCut) * 1.0
+
+        if False and gain is not None:
+            for e in frames.flatten():
+                energyHistogram[((e - energyHistogramRange[0]) / energyHistogramBins).clip(0, energyHistogramBins)] += 1
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
@@ -79,7 +89,7 @@ if __name__ == "__main__":
     if spc.special is not None and "slice" in spc.special:
         thresholded = thresholded[spc.regionSlice]
 
-    npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, spc.className, spc.label, spc.run, spc.camera, spc.exp)
+    npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, scriptType, spc.label, spc.run, spc.camera, spc.exp)
     np.save(npyFileName, thresholded / nGoodEvents)
     logger.info("Wrote file: " + npyFileName)
     print(
@@ -92,5 +102,16 @@ if __name__ == "__main__":
     )
     print("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
     logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
+
+    if False:
+        spectrumFileName = "%s/%s_%s_r%d_c%d_%s_spectrum.npy" % (
+            spc.outputDir,
+            scriptType,
+            spc.label,
+            spc.run,
+            spc.camera,
+            spc.exp,
+        )
+        np.save(spectrumFileName, energyHistogram)
 
     spc.dumpEventCodeStatistics()

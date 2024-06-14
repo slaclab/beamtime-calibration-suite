@@ -7,8 +7,9 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import numpy
 import logging
+
+import numpy
 
 logger = logging.getLogger(__name__)
 
@@ -21,18 +22,26 @@ class Stats(object):
         self._xy = numpy.zeros(shape)  ##, dtype=double)
 
     def mean(self):
+        if self._n == 0:
+            return None
         return self._x / self._n
 
     def rms(self):
-        return ((self._xx / self._n - (self._x / self._n) ** 2)).clip(0) ** 0.5
+        if self._n == 0:
+            return None
+        return (self._xx / self._n - (self._x / self._n) ** 2).clip(0) ** 0.5
 
     def corr(self, yMean, ySigma):
-        ##        return (self._xy -self._x*yMean)/self._n
-        if ySigma > 0:
-            rmsPosDef = self.rms().clip(0.000001, self.rms().max())
-            return numpy.double((self._xy - self._x * yMean) / (self._n * ySigma * rmsPosDef))
-        else:
+        ## return (self._xy -self._x*yMean)/self._n
+        rms = self.rms()
+        if rms.any() is None:
             return None
+
+        rmsPosDef = rms.clip(0.000001, rms.max())
+
+        if (self._n * ySigma * rmsPosDef).any() == 0:
+            return None
+        return numpy.double((self._xy - self._x * yMean) / (self._n * ySigma * rmsPosDef))
 
     def accumulate(self, x, y=0):
         self._n += 1

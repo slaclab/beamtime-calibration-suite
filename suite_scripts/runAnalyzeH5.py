@@ -7,8 +7,8 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import sys, os, glob
-from subprocess import call
+import sys
+import glob
 
 basePath = sys.argv[1]
 baseRun = sys.argv[2]
@@ -16,17 +16,17 @@ analysisType = sys.argv[3]
 runs = sys.argv[4].split(",")
 try:
     label = "_" + sys.argv[5]
-except:
+except Exception:
     label = ""
 
 command = "python AnalyzeH5.py -r %s -f " % (baseRun)
 for r in runs:
     globString = "%s/%s*r%s*.h5" % (basePath, analysisType, r)
     f = glob.glob(globString)
-    f0 = [x for x in f if 'part' not in x]
+    f0 = [x for x in f if "part" not in x]
     try:
         command += f0[-1] + ","
-    except:
+    except Exception:
         print("could not find %s" % (globString))
 
 command = command[:-1]

@@ -7,10 +7,9 @@
 * First, follow steps **1** through **7**: [Github and Git Setup](https://slaclab.github.io/beamtime-calibration-suite/setup/)
 * Next, run the following commands in a terminal (linux or mac terminal should work):  
 &emsp;-_(note: lines starting with '//' are comments with explanation and don't need to be ran)_  
-&emsp;-_(note: in the 1st command: replace \<slac-username> with your slac linux-username)_  
 ```
 // ssh into the s3df machines
-ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
+ssh -Yt <slac-linux-username>@s3dflogin.slac.stanford.edu
 ssh psana
 
 // do setup for s3df environment
@@ -25,24 +24,26 @@ cd beamtime-calibration-suite
 source setup.sh
 
 // setup for running an example script
-mkdir setup_test_output
 cd suite_scripts
+mkdir setup_test_output
 
 // run an example script
-OUTPUT_ROOT= python EventScanParallelSlice.py -r 457 -p ../setup_test_output
+OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_output
 //let the script run to completion...
 
 // now check the example ran correctly
-ls ../setup_test_output
+ls setup_test_output
 //if things are working correctly, you should see these non-empty files:
-eventNumbers_c0_r457_rixx1003721.npy  means_c0_r457_rixx1003721.npy
-EventScanParallel_c0_r457_n1.h5
+eventNumbers_c0_r102_rixx1005922.npy  EventScanParallel_c0_r102__n666.h5
+means_c0_r102_rixx1005922.npy
 ```
  
 ## Developers:
 
 If you are new to git/github, start with [Learning Git](https://slaclab.github.io/beamtime-calibration-suite/learning_git/)
 
-An overview of the development process is found [here](https://slaclab.github.io/beamtime-calibration-suite/workflow/)
+An overview of the development process is found [here](https://slaclab.github.io/beamtime-calibration-suite/workflow/) 
+
+Info on testing can be found [here](https://slaclab.github.io/beamtime-calibration-suite/testing/)  
 
 For commit messages, we can try to follow the PyDM guidelines: https://slaclab.github.io/pydm/development/development.html#commit-guidelines
