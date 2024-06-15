@@ -180,8 +180,10 @@ class BasicSuiteScript(PsanaBase):
             self.seedCut = eval(self.args.seedCut)
         else:
             self.seedCut = None
-        if self.args.fluxCut is not None:
-            self.fluxCut = self.args.fluxCut
+        if self.args.fluxCutMin is not None:
+            self.fluxCutMin = self.args.fluxCutMin
+        if self.args.fluxCutMax is not None:
+            self.fluxCutMax = self.args.fluxCutMax
         try:
             self.runRange = eval(self.args.runRange)  ## in case needed
         except Exception:

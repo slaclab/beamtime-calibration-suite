@@ -53,7 +53,8 @@ class ArgumentParser:
         self.parser.add_argument("-cf", "--configFile", type=str, help="config file path, can be relative or full path")
         self.parser.add_argument("-L", "--label", type=str, help="analysis label")
         self.parser.add_argument("-t", "--threshold", help="threshold (ADU or keV or wave8) depending on --detObj")
-        self.parser.add_argument("--fluxCut", type=float, help="minimum flux to be included in analysis")
+        self.parser.add_argument("--fluxCutMin", type=float, help="minimum flux to be included in analysis")
+        self.parser.add_argument("--fluxCutMax", type=float, help="maximum flux to be included in analysis")
         self.parser.add_argument("--seedCut", help="seed cut for clustering")
         self.parser.add_argument(
             "--special",
