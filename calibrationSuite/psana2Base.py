@@ -250,7 +250,12 @@ class PsanaBase(object):
             # print(e)
             return None
         try:
-            if f < self.fluxCut:
+            if f < self.fluxCutMin:
+                return None
+        except Exception:
+            pass
+        try:
+            if f > self.fluxCutMax:
                 return None
         except Exception:
             pass

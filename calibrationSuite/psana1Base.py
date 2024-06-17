@@ -152,7 +152,12 @@ class PsanaBase(object):
                 return None
             f = fluxes[self.fluxChannels].mean() * self.fluxSign
             try:
-                if f < self.fluxCut:
+                if f < self.fluxCutMin:
+                    return None
+            except Exception:
+                pass
+            try:
+                if f > self.fluxCutMax:
                     return None
             except Exception:
                 pass
