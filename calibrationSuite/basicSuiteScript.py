@@ -31,6 +31,7 @@ def sortArrayByList(a, data):
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
         super().__init__()
+
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
 
@@ -38,51 +39,35 @@ class BasicSuiteScript(PsanaBase):
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.camera = 0
 
-        self.outputDir = "/%s/" % (analysisType)
-        logger.info("output dir: " + self.outputDir)
-        print("output dir: " + self.outputDir)
-
         try:
             self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"])
         except:
             self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
+    
         self.className = self.__class__.__name__
 
-        try:
-            self.location = self.experimentHash["location"]
-        except Exception:
-            pass
-        try:
-            self.exp = self.experimentHash["exp"]
-        except Exception:
-            pass
+        self.exp = self.experimentHash.get("exp", None)
         self.ROIfileNames = None
+
         try:
-            ##if True:
-            self.ROIfileNames = self.experimentHash["ROIs"]
+            self.ROIfileNames = self.experimentHash.get("ROIs", None)
             self.ROIs = []
             for f in self.ROIfileNames:
                 self.ROIs.append(np.load(f))
-            try:  ## dumb code for compatibility or expectation
-                self.ROI = self.ROIs[0]
-            except Exception:
-                pass
-        ##if False:
+            self.ROI = self.ROIs[0] if len(self.ROIs) >= 1 else None
         except Exception:
             if self.ROIfileNames is not None:
-                print("had trouble finding", self.ROIfileNames)
+                print("had trouble finding" + str(self.ROIfileNames))
+                logger.error("had trouble finding" + str(self.ROIfileNames))
                 for currName in self.ROIfileNames:
+                    print("had trouble finding" + currName)
                     logger.exception("had trouble finding" + currName)
-            self.ROI = None
-            self.ROIs = []
-        try:
-            self.singlePixels = self.experimentHash["singlePixels"]
-        except Exception:
-            self.singlePixels = None
-        try:
-            self.regionSlice = self.experimentHash["regionSlice"]
-        except Exception:
-            self.regionSlice = None
+            # exit to make clear to user things went wrong...
+            exit(1)
+
+        self.singlePixels = self.experimentHash.get("singlePixels", None)
+
+        self.regionSlice = self.experimentHash.get("regionSlice", None)
         if self.regionSlice is not None:
             ## n.b. assumes 3d slice now
             self.sliceCoordinates = [
@@ -96,28 +81,18 @@ class BasicSuiteScript(PsanaBase):
         if self.detectorInfo.dimension == 2:
             self.regionSlice = self.regionSlice[0], self.regionSlice[2]
             print("remapping regionSlice to handle 1d case")
+            logger.info("remapping regionSlice to handle 1d case")
 
-        try:
-            self.fluxSource = self.experimentHash["fluxSource"]
-            try:
-                self.fluxChannels = self.experimentHash["fluxChannels"]
-            except Exception:
-                self.fluxChannels = range(8, 16)  ## wave8
-            try:
-                self.fluxSign = self.experimentHash["fluxSign"]
-            except Exception:
-                self.fluxSign = 1
-        except Exception:
-            self.fluxSource = None
 
-        try:
-            self.ignoreEventCodeCheck = self.experimentHash["ignoreEventCodeCheck"]
-            self.fakeBeamCode = True  ## just in case
-        except Exception:
-            self.ignoreEventCodeCheck = False
-            self.fakeBeamCode = False
+        self.fluxSource = self.experimentHash.get("fluxSource", None)
+        self.fluxChannels = self.experimentHas.get("fluxChannels", range(8, 16)) ## wave8
+        self.fluxSign = self.experimentHash.get("fluxSign", 1)
+
+        self.ignoreEventCodeCheck = self.experimentHash("ignoreEventCodeCheck", None)
+        self.fakeBeamCode = True if self.ignoreEventCodeCheck is not None else False
 
         self.special = self.args.special
+
         ## for non-120 Hz running
         self.nRunCodeEvents = 0
         self.nDaqCodeEvents = 0
@@ -130,9 +105,8 @@ class BasicSuiteScript(PsanaBase):
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
-        print("ignoring event code check, faking beam code:", self.ignoreEventCodeCheck, self.fakeBeamCode)
-
-        ##mymodule = importlib.import_module(full_module_name)
+        print("ignoring event code check, faking beam code:" + str(self.ignoreEventCodeCheck) + " "  + str(self.fakeBeamCode))
+        logger.info("ignoring event code check, faking beam code:" + str(self.ignoreEventCodeCheck) + " "  + str(self.fakeBeamCode))
 
         ## for standalone analysis
         self.file = None
@@ -149,12 +123,16 @@ class BasicSuiteScript(PsanaBase):
             self.camera = self.args.camera
         if self.args.exp is not None:
             self.exp = self.args.exp
+
+        self.location = self.experimentHash.get("location", None)
         if self.args.location is not None:
             self.location = self.args.location
         if self.args.maxNevents is not None:
             self.maxNevents = self.args.maxNevents
         if self.args.skipNevents is not None:
             self.skipNevents = self.args.skipNevents
+
+        self.outputDir = "/%s/" % (analysisType)
         if self.args.path is not None:
             self.outputDir = self.args.path
         # if set, output folders will be relative to OUTPUT_ROOT
@@ -173,6 +151,10 @@ class BasicSuiteScript(PsanaBase):
             # os.makedirs(self.outputDir)
             # give dir read, write, execute permissions
             # os.chmod(self.outputDir, 0o777)
+        else:
+            print("output dir: " + self.outputDir)
+            logger.info("output dir: " + self.outputDir)
+
         self.detObj = self.args.detObj
         if self.args.threshold is not None:
             self.threshold = eval(self.args.threshold)
@@ -393,16 +375,4 @@ class BasicSuiteScript(PsanaBase):
         return frames + fakes, (fakes > 0).sum()
 
     def getNswitchedPixels(self, data, region=None):
-        return ((data >= self.g0cut) * 1).sum()
-
-
-"""
-if __name__ == "__main__":
-    bSS = BasicSuiteScript()
-    print("have built a BasicSuiteScript")
-    logger.info("have built a BasicSuiteScript")
-    bSS.setupPsana()
-    evt = bSS.getEvt()
-    print(dir(evt))
-    logger.info(dir(evt))
-"""
+        return ((data >= self.g0cut) * 1).sum() 
