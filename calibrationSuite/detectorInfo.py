@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 class DetectorInfo:
-    def __init__(self, detType, detSubtype=None):
+    def __init__(self, detType, detSubtype="1d"):
         # declare all detector-specific info vars here in case any setup_X functions don't,
         # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
         self.nModules = -1
@@ -88,7 +88,7 @@ class DetectorInfo:
         self.seedCut = 2
         self.neighborCut = 0.25  ## ditto
 
-    def setup_rixsCCD(self, mode="1d", version=0):
+    def setup_rixsCCD(self, mode, version=0):
         print("rixsCCD mode:", mode)
         self.nTestPixelsPerBank = 36
         self.nBanks = 16

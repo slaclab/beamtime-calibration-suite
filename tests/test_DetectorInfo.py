@@ -39,13 +39,27 @@ def test_epixm_setup():
     assert detector.neighborCut == 0.25
 
 
-def test_archon_setup():
+def test_archon_setup_1d():
     detector = DetectorInfo("archon")
 
     assert detector.detectorType == "archon"
+    assert detector.dimension == 2
     assert detector.nTestPixelsPerBank == 36
     assert detector.nBanks == 16
     assert detector.nCols == 4800 - detector.nBanks * detector.nTestPixelsPerBank
     assert detector.nRows == 1
     assert detector.preferredCommonMode == "rixsCCDTestPixelSubtraction"
     assert detector.clusterShape == [1, 5]
+
+
+def test_archon_setup_2d():
+    detector = DetectorInfo("archon", "2d")
+
+    assert detector.detectorType == "archon"
+    assert detector.dimension == 3
+    assert detector.nTestPixelsPerBank == 36
+    assert detector.nBanks == 16
+    assert detector.nCols == 4800 - detector.nBanks * detector.nTestPixelsPerBank
+    assert detector.nRows == 1200
+    assert detector.preferredCommonMode == "rixsCCDTestPixelSubtraction"
+    assert detector.clusterShape == [3, 5]
