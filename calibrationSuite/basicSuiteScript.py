@@ -42,8 +42,10 @@ class BasicSuiteScript(PsanaBase):
         logger.info("output dir: " + self.outputDir)
         print("output dir: " + self.outputDir)
 
-        self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
-
+        try:
+            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"])
+        except:
+            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
         self.className = self.__class__.__name__
 
         try:

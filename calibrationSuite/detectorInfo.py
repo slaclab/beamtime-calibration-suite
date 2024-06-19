@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 class DetectorInfo:
-    def __init__(self, detType):
+    def __init__(self, detType, detSubtype=None):
         # declare all detector-specific info vars here in case any setup_X functions don't,
         # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
         self.nModules = -1
@@ -47,7 +47,7 @@ class DetectorInfo:
         elif detType == "epixm":
             self.setup_epixM()
         elif detType == "archon":
-            self.setup_rixsCCD()
+            self.setup_rixsCCD(mode=detSubtype)
 
     def setNModules(self, n):
         self.choosenCameraType = self.ePix10kCameraTypes.get(n)
@@ -89,6 +89,7 @@ class DetectorInfo:
         self.neighborCut = 0.25  ## ditto
 
     def setup_rixsCCD(self, mode="1d", version=0):
+        print("rixsCCD mode:", mode)
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
         self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank
@@ -96,8 +97,8 @@ class DetectorInfo:
         if mode == "1d":
             self.nRows = 1
             self.clusterShape = [1, 5]  ## might be [1,3]
+            self.dimension = 2
         else:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
         self.g0cut = 1 << 16
-        self.dimension = 2

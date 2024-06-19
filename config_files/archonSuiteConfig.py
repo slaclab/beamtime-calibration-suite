@@ -13,6 +13,8 @@ import numpy as np
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 experimentHash = {
     "detectorType": "archon",
+    ##"detectorSubtype": "2d",
+    "detectorSubtype": "1d",
     "exp": "rixc00122",
     "location": "RixEndstation",
     "seedCut": 30,  ##from old scripts
