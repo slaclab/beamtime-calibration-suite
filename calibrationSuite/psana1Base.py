@@ -28,8 +28,6 @@ class PsanaBase(object):
         self.psanaType = 1
         print("in psana1Base")
         logger.info("in psana1Base")
-        self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
-        self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
 
@@ -217,13 +215,3 @@ class PsanaBase(object):
 
     def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
-
-
-"""
-if __name__ == "__main__":
-    bSS = BasicSuiteScript()
-    print("have built a BasicSuiteScript")
-    bSS.setupPsana()
-    evt = bSS.getEvt()
-    print(dir(evt))
-"""

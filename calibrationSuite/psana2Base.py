@@ -47,10 +47,6 @@ class PsanaBase(object):
         print("in psana2Base")
         logger.info("in psana2Base")
 
-        self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
-        self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-        ##self.g0cut = 1<<15 ## 2022
-
         self.allowed_timestamp_mismatch = 1000
 
         self.args = ArgumentParser().parse_args()
@@ -338,13 +334,3 @@ class PsanaBase(object):
         delta = evensEvenRowsOddsOddRows.mean() - oddsEvenRowsEvensOddRows.mean()
         ##print("delta:", delta)
         return delta > 0
-
-
-"""
-if __name__ == "__main__":
-    bSS = BasicSuiteScript()
-    print("have built a BasicSuiteScript")
-    bSS.setupPsana()
-    evt = bSS.getEvt()
-    print(dir(evt))
-"""
