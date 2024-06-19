@@ -8,6 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import matplotlib.pyplot as plt
+
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 

@@ -80,9 +80,7 @@ def test_parsing_4(parser):
 
 # Check: python SimpleClustersParallelSlice.py -r 224 -f ../lowFlux/SimpleClusters_c0_r224_n100.h5
 def test_parsing_5(parser):
-    args = parser.parse_args(
-        ["-r", "224", "-f", "../lowFlux/SimpleClusters_c0_r224_n100.h5"]
-    )
+    args = parser.parse_args(["-r", "224", "-f", "../lowFlux/SimpleClusters_c0_r224_n100.h5"])
     assert args.run == 224
     assert args.files == "../lowFlux/SimpleClusters_c0_r224_n100.h5"
     assert args.label is None

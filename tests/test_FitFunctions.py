@@ -24,9 +24,7 @@ def test_linear(a, b, expected):
     np.testing.assert_array_equal(result, expected)
 
 
-@pytest.mark.parametrize(
-    "a, b, c, d, expected", [(2, 3, 4, 10, np.array([5, 7, 9, 10, 10]))]
-)
+@pytest.mark.parametrize("a, b, c, d, expected", [(2, 3, 4, 10, np.array([5, 7, 9, 10, 10]))])
 def test_saturatedLinear(a, b, c, d, expected):
     x = np.array([1, 2, 3, 4, 5])
     result = saturatedLinear(x, a, b, c, d)
@@ -73,9 +71,7 @@ def test_gaussianArea(a, sigma, expected):
 
 def test_estimateGaussianParametersFromUnbinnedArray():
     flatData = np.array([1, 2, 3, 4, 5])
-    result_amp, result_mean, result_sigma = estimateGaussianParametersFromUnbinnedArray(
-        flatData
-    )
+    result_amp, result_mean, result_sigma = estimateGaussianParametersFromUnbinnedArray(flatData)
     expected_amp, expected_mean, expected_sigma = (
         0.5629831060402448,
         3.0,
@@ -109,9 +105,7 @@ def test_getHistogramMeanStd():
     assert np.isclose(result_std, expected_std)
 
 
-@pytest.mark.parametrize(
-    "y, fit, expected_r2", [(np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4, 6]), 0.9)]
-)
+@pytest.mark.parametrize("y, fit, expected_r2", [(np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4, 6]), 0.9)])
 def test_calculateFitR2(y, fit, expected_r2):
     result_r2 = calculateFitR2(y, fit)
     print(result_r2)
