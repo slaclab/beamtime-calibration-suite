@@ -8,9 +8,11 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
+
 from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
 
 

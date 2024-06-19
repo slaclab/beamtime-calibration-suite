@@ -7,18 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
 import os
 import sys
-import logging
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 import h5py
-
-from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import AutoMinorLocator
 
 import calibrationSuite.loggingSetup as ls
+from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
 
 # for logging from current file
 logger = logging.getLogger(__name__)

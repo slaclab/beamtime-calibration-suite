@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "1":
     print("psana1")
-    from calibrationSuite.psana1Base import PsanaBase
+    from calibrationSuite.psana1Base import PsanaBase, comm
 else:
     print("psana2")
-    from calibrationSuite.psana2Base import PsanaBase
+    from calibrationSuite.psana2Base import PsanaBase, comm
 
 
 def sortArrayByList(a, data):

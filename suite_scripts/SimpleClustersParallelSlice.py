@@ -9,12 +9,13 @@
 ##############################################################################
 import sys
 
-import calibrationSuite.fitFunctions as fitFunctions
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import curve_fit
+
+import calibrationSuite.fitFunctions as fitFunctions
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from calibrationSuite.cluster import BuildClusters
-from scipy.optimize import curve_fit
 
 
 class SimpleClusters(BasicSuiteScript):

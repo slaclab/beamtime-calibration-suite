@@ -10,8 +10,9 @@
 import logging
 import os
 
-import calibrationSuite.loggingSetup as ls
 import numpy as np
+
+import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from calibrationSuite.Stats import Stats
 

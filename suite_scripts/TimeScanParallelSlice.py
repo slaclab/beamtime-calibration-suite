@@ -11,12 +11,13 @@ import logging
 import os
 import sys
 
-import calibrationSuite.loggingSetup as ls
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from matplotlib.ticker import AutoMinorLocator
+
+import calibrationSuite.loggingSetup as ls
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
 logger = logging.getLogger(__name__)

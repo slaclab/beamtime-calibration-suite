@@ -49,6 +49,4 @@ def test_build_clusters_find_clusters():
     assert clusters[0].eTotalNoCuts == 10
     assert clusters[0].eSecondaryPixelNoCuts == 0
     assert clusters[0].goodCluster is True
-    assert np.array_equal(
-        clusters[0].pixelE, np.array([[0, 0, 0], [0, 10, 0], [0, 0, 0]])
-    )
+    assert np.array_equal(clusters[0].pixelE, np.array([[0, 0, 0], [0, 10, 0], [0, 0, 0]]))
