@@ -34,9 +34,6 @@ class PsanaBase(PsanaCommon):
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
 
-        self.args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(self.args))
-
         # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
         # if neither are set, use the default 'suiteConfig.py' file
         defaultConfigFileName = "suiteConfig.py"

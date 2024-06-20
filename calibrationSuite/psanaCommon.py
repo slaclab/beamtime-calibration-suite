@@ -26,6 +26,9 @@ class PsanaCommon(object):
         print("in psanaCommon")
         logger.info("in psanaCommon")
 
+        self.args = ArgumentParser().parse_args()
+        logger.info("parsed cmdline args: " + str(self.args))
+        
         self.loadExperimentHashFromConfig()
         self.setupFromExperimentHash()
         self.setupFromCmdlineArgs()

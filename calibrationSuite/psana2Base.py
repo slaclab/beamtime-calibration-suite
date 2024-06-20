@@ -51,9 +51,6 @@ class PsanaBase(PsanaCommon):
 
         self.allowed_timestamp_mismatch = 1000
 
-        self.args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(self.args))
-
     def get_ds(self, run=None):
         if run is None:
             run = self.run
