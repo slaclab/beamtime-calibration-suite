@@ -20,7 +20,7 @@ import importlib.util
 ## for parallelism
 import os
 import sys
-import np
+import numpy as np
 
 from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
@@ -50,7 +50,6 @@ class PsanaCommon(object):
         The config file is determined by checking the SUITE_CONFIG environment variable,
         then a command-line argument, and finally a default file 'suiteConfig.py' (in this order of precedence).
         If file cannot be found or read, exit the program.
-        The function also validates the detector type against known types (with info from the config).
         """
 
         # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
@@ -69,13 +68,6 @@ class PsanaCommon(object):
             logger.error("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
-        knownTypes = ["epixhr", "epixM", "rixsCCD"]
-        if self.experimentHash["detectorType"] not in knownTypes:
-            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
-            print("exiting...")
-            logger.error("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
-            logger.error("exiting...")
-            sys.exit(1)
 
     def importConfigFile(self, file_path):
         """
