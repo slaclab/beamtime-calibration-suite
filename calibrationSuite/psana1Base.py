@@ -7,10 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-# from psana import *
-import importlib
+"""
+This class contains a setup function and some utility functions that work only for psana1 based analysis.
+To make the library use this class execute 'export foo=psana1'.
+"""
+
 import logging
-import os
 import sys
 
 import psana
