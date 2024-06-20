@@ -165,7 +165,7 @@ class PsanaBase(PsanaCommon):
         if self.mfxDg1 is None:
             return None
 
-        ##        f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
+        ##f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
             ##print(f)
@@ -236,7 +236,7 @@ class PsanaBase(PsanaCommon):
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames
-
+      
     def getTimestamp(self, evt):
         return evt.timestamp
 

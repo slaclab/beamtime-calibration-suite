@@ -7,6 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+
+"""
+This class has setup-code and variables, along with some utility functions, common for both psana bases.
+(psana1Base and psana2Base must both inherit from PsanaCommon!)
+"""
+
 import psana
 import logging
 import importlib.util
@@ -14,6 +20,7 @@ import importlib.util
 ## for parallelism
 import os
 import sys
+import np
 
 from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
@@ -28,13 +35,24 @@ class PsanaCommon(object):
 
         self.args = ArgumentParser().parse_args()
         logger.info("parsed cmdline args: " + str(self.args))
-        
+
+        # Variable-setup calls
         self.loadExperimentHashFromConfig()
         self.setupFromExperimentHash()
         self.setupFromCmdlineArgs()
         self.setupOutputDirString(analysisType)
 
+    #### Start of setup related functions ####
+
     def loadExperimentHashFromConfig(self):
+        """
+        Loads the experiment config file (ex: beamtime-calibration-suite/config_files/epixMSuiteConfig.py)
+        The config file is determined by checking the SUITE_CONFIG environment variable,
+        then a command-line argument, and finally a default file 'suiteConfig.py' (in this order of precedence).
+        If file cannot be found or read, exit the program.
+        The function also validates the detector type against known types (with info from the config).
+        """
+
         # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
         # if neither are set, use the default 'suiteConfig.py' file
         defaultConfigFileName = "suiteConfig.py"
@@ -46,23 +64,44 @@ class PsanaCommon(object):
             print("\ncould not find or read config file: " + configFileName)
             print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
             print("exiting...")
+            logger.error("\ncould not find or read config file: " + configFileName)
+            logger.error("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            logger.error("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
         knownTypes = ["epixhr", "epixM", "rixsCCD"]
         if self.experimentHash["detectorType"] not in knownTypes:
             print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
-            return -1
+            print("exiting...")
+            logger.error("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
+            logger.error("exiting...")
+            sys.exit(1)
 
     def importConfigFile(self, file_path):
+        """
+        Imports config file as a Python module. See loadExperimentHashFromConfig() for how the config file
+        is specified by the user.
+        """
         if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
+            print("The file " + file_path + " does not exist")
+            logger.error("The file " + file_path + " does not exist")
             return None
         spec = importlib.util.spec_from_file_location("config", file_path)
         config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
+        try:
+            spec.loader.exec_module(config_module)
+        except Exception as e:
+            print("Error executing config-file code: " + str(e))
+            logger.info("Error executing config-file code: " + str(e))
+            return None
         return config_module
 
     def setupFromExperimentHash(self):
+        """
+        Sets up configurations and parameters based on user-specified config file.
+        Initializes necessary attributes and handles exceptions on specific evaluations.
+        """
+
         try:
             self.detectorInfo = DetectorInfo(
                 self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"]
@@ -100,6 +139,12 @@ class PsanaCommon(object):
         self.fakeBeamCode = True if self.ignoreEventCodeCheck is not None else False
 
     def setupROIFiles(self):
+        """
+        Sets up the ROI (Region of Interest) files.
+        Loads ROI data from the file names specified in the config file.
+        If any errors occur during the process, logs and prints appropriate error messages.
+        """
+
         self.ROIfileNames = None
         try:
             self.ROIfileNames = self.experimentHash.get("ROIs", None)
@@ -116,6 +161,11 @@ class PsanaCommon(object):
                     logger.exception("had trouble finding" + currName)
 
     def setupFromCmdlineArgs(self):
+        """
+        Sets up configurations and parameters based on user-entered command-line arguments.
+        Initializes necessary attributes and handles exceptions on specific evaluations.
+        """
+            
         self.special = self.args.special
 
         if not self.fakeBeamCode:  ## defined in ignoreEventCodeCheck
@@ -214,6 +264,11 @@ class PsanaCommon(object):
         self.negativeGain = self.detectorInfo.negativeGain  ## could just use the detector info in places it's defined
 
     def loadPedestalGainOffsetFiles(self):
+        """
+        Loads the pedestal, gain, and offset np files for analysis.
+        The files-locations are specified with cmd-line arguments.
+        """
+
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
 
         self.fakePedestal = None
@@ -249,7 +304,13 @@ class PsanaCommon(object):
             self.offset = np.load(self.offsetFile)
 
     def setupOutputDirString(self, analysisType):
-        # setup output-dir for dumping output .npy, .h5, and .png files
+        """
+        Sets up the output directory for saving output file (default dir-name is based on the analysis type).
+        The output directory can be specified via a command-line argument, and its location must be specified relative to the
+        'OUTPUT_ROOT environment variable. If the directory does not exist, it logs error and exits.
+        """
+            
+        # output dir is where we dump .npy, .h5, and .png files
         self.outputDir = "/%s/" % (analysisType)
         if self.args.path is not None:
             self.outputDir = self.args.path
@@ -273,7 +334,9 @@ class PsanaCommon(object):
             print("output dir: " + self.outputDir)
             logger.info("output dir: " + self.outputDir)
 
+    #### End of setup related functions ####
 
+    #### Start of common getter functions ####
 
     def get_evrs(self):
         if self.config is None:
@@ -329,3 +392,164 @@ class PsanaCommon(object):
             ##print("get event from new run")
             evt = next(self.ds.events())
             return evt
+
+    def getRawData(self, evt, gainBitsMasked=True, negativeGain=False):
+        frames = self.plainGetRawData(evt)
+        if frames is None:
+            return None
+        if False and self.special:  ## turned off for a tiny bit of speed
+            if "thirteenBits" in self.special:
+                frames = frames & 0xFFFE
+                ##print("13bits")
+            elif "twelveBits" in self.special:
+                frames = frames & 0xFFFC
+                ##print("12bits")
+            elif "elevenBits" in self.special:
+                frames = frames & 0xFFF8
+                ##print("11bits")
+            elif "tenBits" in self.special:
+                frames = frames & 0xFFF0
+                ##print("10bits")
+        if self.negativeGain or negativeGain:
+            zeroPixels = frames == 0
+            maskedData = frames & self.gainBitsMask
+            gainData = frames - maskedData
+            frames = gainData + self.gainBitsMask - maskedData
+            frames[zeroPixels] = 0
+        if gainBitsMasked:
+            return frames & self.gainBitsMask
+        return frames
+
+    def addFakePhotons(self, frames, occupancy, E, width):
+        shape = frames.shape
+        occ = np.random.random(shape)
+        fakes = np.random.normal(E, width, shape)
+        fakes[occ > occupancy] = 0
+        return frames + fakes, (fakes > 0).sum()
+
+    #### End of common getter functions ####
+
+    #### Start of common setter functions ####
+
+    def setROI(self, roiFile=None, roi=None):
+        """Call with both file name and roi to save roi to file and use,
+        just name to load,
+        just roi to set for current job"""
+        if roiFile is not None:
+            if roi is None:
+                self.ROIfile = roiFile
+                self.ROI = np.load(roiFile)
+                return
+            else:
+                np.save(roiFile, roi)
+        self.ROI = roi
+
+    #### End of common setter functions ####
+
+    #### Start of common utility functions ####
+
+    def sliceToDetector(self, sliceRow, sliceCol):  ## cp from AnalyzeH5: import?
+        return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
+
+    def getNswitchedPixels(self, data, region=None):
+        return ((data >= self.g0cut) * 1).sum()
+
+    def dumpEventCodeStatistics(self):
+        print(
+            "have counted %d run triggers, %d DAQ triggers, %d beam events"
+            % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
+        )
+        logger.info(
+            "have counted %d run triggers, %d DAQ triggers, %d beam events"
+            % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
+        )
+
+    def isBeamEvent(self, evt):
+        if self.ignoreEventCodeCheck:
+            return True
+        ec = self.getEventCodes(evt)
+        ##print(ec[280], ec[281], ec[282], ec[283], ec[284], ec[285] )
+        if ec[self.runCode]:
+            self.nRunCodeEvents += 1
+        if ec[self.daqCode]:
+            self.nDaqCodeEvents += 1
+            if self.fakeBeamCode:
+                return True
+        if ec[self.beamCode]:
+            self.nBeamCodeEvents += 1
+            return True
+        ## for FEE, ASC, ...
+        return self.fakeBeamCode  ##False
+    
+    #### End of common utility functions ####
+
+    #### Start of analysis/correction functions ####
+
+    def noCommonModeCorrection(self, frames):
+        return frames
+    
+    def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
+        ## this takes a 2d frame
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        regionCM = np.median(frame[region][frame[region] < arbitraryCut])
+        return frame - regionCM
+    
+    def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
+        return frames
+
+    def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+        for module in self.analyzedModules:
+            frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+        return frames
+    
+
+    def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
+        ## this takes a 2d object
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        for r in range(self.detectorInfo.nRows):
+            colOffset = 0
+            for b in range(0, self.detectorInfo.nBanksCol):
+                ##for b in range(0, 2):
+                try:
+                    rowCM = np.median(
+                        frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank][
+                            frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] < arbitraryCut
+                        ]
+                    )
+                    frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
+                except Exception:
+                    rowCM = -666
+                    print("rowCM problem")
+                    logger.error("rowCM problem")
+                    print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
+                colOffset += self.detectorInfo.nColsPerBank
+        return frame
+
+    def colCommonModeCorrection(self, frame, arbitraryCut=1000):
+        ## this takes a 2d frame
+        ## cut keeps photons in common mode - e.g. set to <<1 photon
+
+        ##rand = np.random.random()
+        for c in range(self.detectorInfo.nCols):
+            rowOffset = 0
+            for b in range(0, self.detectorInfo.nBanksRow):
+                try:
+                    colCM = np.median(
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
+                            frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
+                        ]
+                    )
+                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
+                except Exception:
+                    colCM = -666
+                    print("colCM problem")
+                    logger.error("colCM problem")
+                    print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
+                rowOffset += self.detectorInfo.nRowsPerBank
+        return frame
+       
+    #### End of analysis/correction functions ####
