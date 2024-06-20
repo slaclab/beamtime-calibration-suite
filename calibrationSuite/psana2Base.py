@@ -14,12 +14,11 @@ import logging
 import os
 import sys
 
-import psana
 
 ## standard
 from mpi4py import MPI
 
-from calibrationSuite.argumentParser import ArgumentParser
+import psana
 from calibrationSuite.psanaCommon import PsanaCommon
 
 ##from PSCalib.NDArrIO import load_txt
@@ -237,6 +236,9 @@ class PsanaBase(PsanaCommon):
         frames = self.det.raw.calib(evt)
         return frames
       
+    def getImage(self, evt, data=None):
+        return self.det.raw.image(evt, data)
+    
     def getTimestamp(self, evt):
         return evt.timestamp
 

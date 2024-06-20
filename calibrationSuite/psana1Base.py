@@ -14,8 +14,6 @@ import os
 import sys
 
 import psana
-
-from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.psanaCommon import PsanaCommon
 
 logger = logging.getLogger(__name__)
@@ -131,3 +129,6 @@ class PsanaBase(PsanaCommon):
 
     def getCalibData(self, evt):
         return self.det.calib(evt)
+
+    def getImage(self, evt, data=None):
+        return self.raw.image(evt, data)

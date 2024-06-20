@@ -350,8 +350,6 @@ class PsanaCommon(object):
     def get_config(self):
         self.config = self.ds.env().configStore()
 
-    def getImage(self, evt, data=None):
-        return self.raw.image(evt, data)
     
     def getFivePedestalRunInfo(self):
         ## could do load_txt but would require full path so
