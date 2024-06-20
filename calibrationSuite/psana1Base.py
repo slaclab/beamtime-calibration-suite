@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
+        super().__init__()
+
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
 
