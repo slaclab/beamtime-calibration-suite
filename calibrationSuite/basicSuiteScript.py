@@ -64,21 +64,8 @@ class BasicSuiteScript(PsanaBase):
             self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
 
         self.exp = self.experimentHash.get("exp", None)
-        self.ROIfileNames = None
 
-        try:
-            self.ROIfileNames = self.experimentHash.get("ROIs", None)
-            self.ROIs = []
-            for f in self.ROIfileNames:
-                self.ROIs.append(np.load(f))
-            self.ROI = self.ROIs[0] if len(self.ROIs) >= 1 else None
-        except Exception:
-            if self.ROIfileNames is not None:
-                print("had trouble finding" + str(self.ROIfileNames))
-                logger.error("had trouble finding" + str(self.ROIfileNames))
-                for currName in self.ROIfileNames:
-                    print("had trouble finding" + currName)
-                    logger.exception("had trouble finding" + currName)
+        self.setupROIFiles()
 
         self.singlePixels = self.experimentHash.get("singlePixels", None)
 
@@ -104,6 +91,22 @@ class BasicSuiteScript(PsanaBase):
 
         self.ignoreEventCodeCheck = self.experimentHash.get("ignoreEventCodeCheck", None)
         self.fakeBeamCode = True if self.ignoreEventCodeCheck is not None else False
+
+    def setupROIFiles(self):
+        self.ROIfileNames = None
+        try:
+            self.ROIfileNames = self.experimentHash.get("ROIs", None)
+            self.ROIs = []
+            for f in self.ROIfileNames:
+                self.ROIs.append(np.load(f))
+            self.ROI = self.ROIs[0] if len(self.ROIs) >= 1 else None
+        except Exception:
+            if self.ROIfileNames is not None:
+                print("had trouble finding" + str(self.ROIfileNames))
+                logger.error("had trouble finding" + str(self.ROIfileNames))
+                for currName in self.ROIfileNames:
+                    print("had trouble finding" + currName)
+                    logger.exception("had trouble finding" + currName)
 
     def setupFromCmdlineArgs(self):
         self.special = self.args.special
@@ -177,6 +180,33 @@ class BasicSuiteScript(PsanaBase):
                 logger.exception("Error evaluating runRange: " + str(e))
                 self.runRange = None
 
+        self.loadPedestalGainOffsetFiles() 
+
+        if self.args.detType == "":
+            ## assume epix10k for now
+            if self.args.nModules is not None:
+                self.detectorInfo.setNModules(self.args.nModules)
+                self.detType = self.detectorInfo.getCameraType()
+        else:
+            self.detType = self.args.detType
+
+        self.analyzedModules = self.experimentHash.get("analyzedModules", None)
+        if self.analyzedModules is not None:
+            try:
+                self.analyzedModules = range(self.detectorInfo.nModules)
+            except Exception as e:
+                print("Error evaluating range: " + str(e))
+                logger.info("Error evaluating range: " + str(e))
+
+        self.g0cut = self.detectorInfo.g0cut
+        if self.g0cut is not None:
+            self.gainBitsMask = self.g0cut - 1
+        else:
+            self.gainBitsMask = 0xFFFF  ## might be dumb. for non-autoranging
+
+        self.negativeGain = self.detectorInfo.negativeGain  ## could just use the detector info in places it's defined
+
+    def loadPedestalGainOffsetFiles(self):
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
 
         self.fakePedestal = None
@@ -210,30 +240,6 @@ class BasicSuiteScript(PsanaBase):
         self.offsetFile = self.args.offsetFile
         if self.offsetFile is not None:
             self.offset = np.load(self.offsetFile)
-
-        if self.args.detType == "":
-            ## assume epix10k for now
-            if self.args.nModules is not None:
-                self.detectorInfo.setNModules(self.args.nModules)
-                self.detType = self.detectorInfo.getCameraType()
-        else:
-            self.detType = self.args.detType
-
-        self.analyzedModules = self.experimentHash.get("analyzedModules", None)
-        if self.analyzedModules is not None:
-            try:
-                self.analyzedModules = range(self.detectorInfo.nModules)
-            except Exception as e:
-                print("Error evaluating range: " + str(e))
-                logger.info("Error evaluating range: " + str(e))
-
-        self.g0cut = self.detectorInfo.g0cut
-        if self.g0cut is not None:
-            self.gainBitsMask = self.g0cut - 1
-        else:
-            self.gainBitsMask = 0xFFFF  ## might be dumb. for non-autoranging
-
-        self.negativeGain = self.detectorInfo.negativeGain  ## could just use the detector info in places it's defined
 
     def setupOutputDirString(self, analysisType):
         # setup output-dir for dumping output .npy, .h5, and .png files
