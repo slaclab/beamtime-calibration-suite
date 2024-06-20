@@ -90,6 +90,9 @@ class SuiteTester:
             .decode("utf-8")
         )
 
+        # avoid any weirdness and make sure curr-dir is that of tested scripts
+        os.chdir(self.git_repo_root + "/suite_scripts")
+
         # tests can only run if the following are true (skip if not):
         # 1) pasna library is avaliable (i.e running on S3DF)
         # 2) tests/test-data submodule is installed
@@ -169,8 +172,8 @@ class SuiteTester:
         if result.returncode != 0:
             assert False, f"Script failed with error: {result.stderr}"
 
-        real_output_location = "../suite_scripts/" + output_location
-        expected_output_location = "./test_data/" + output_location
+        real_output_location = self.git_repo_root + "/suite_scripts/" + output_location
+        expected_output_location = self.git_repo_root + "/tests/test_data/" + output_location
 
         # Compare files in directories
         for root, dirs, files in os.walk(real_output_location):

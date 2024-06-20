@@ -39,6 +39,8 @@ def test_example(psana_installed):
 
         os.environ["OUTPUT_ROOT"] = "."
         os.environ["SUITE_CONFIG"] = git_repo_root + "/tests/testingSuiteConfig.py"
+        # to be sure this script acts the same as those in suite_scripts (in regards to file-paths)
+        os.chdir(git_repo_root + "/suite_scripts/")
         os.makedirs("basic_suite_test", exist_ok=True)
 
         bSS = BasicSuiteScript()
