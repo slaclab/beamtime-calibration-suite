@@ -182,7 +182,7 @@ class EventScanParallel(BasicSuiteScript):
         # sort pixels and rois based on timestamps
         pixels = self.sortArrayByList(ts, pixels)
         if rois is not None:
-            rois = self.(ts, rois)
+            rois = self.sortArrayByList(ts, rois)
 
         ts.sort()
         ts = ts - ts[0]
