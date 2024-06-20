@@ -12,12 +12,13 @@ This class has setup-code and variables common for both psana bases.
 (psana1Base and psana2Base must inherit from this class! ('PsanaCommon'))
 """
 
-import logging
 import importlib.util
+import logging
 
 ## for parallelism
 import os
 import sys
+
 import numpy as np
 
 from calibrationSuite.argumentParser import ArgumentParser
@@ -170,7 +171,7 @@ class PsanaCommon(object):
         Sets up configurations and parameters based on user-entered command-line arguments.
         Initializes necessary attributes and handles exceptions on specific evaluations.
         """
-            
+
         self.special = self.args.special
 
         if not self.fakeBeamCode:  ## defined in ignoreEventCodeCheck
@@ -242,7 +243,7 @@ class PsanaCommon(object):
                 logger.exception("Error evaluating runRange: " + str(e))
                 self.runRange = None
 
-        self.loadPedestalGainOffsetFiles() 
+        self.loadPedestalGainOffsetFiles()
 
         if self.args.detType == "":
             ## assume epix10k for now
@@ -314,7 +315,7 @@ class PsanaCommon(object):
         The output directory can be specified via a command-line argument, and its location must be specified relative to the
         'OUTPUT_ROOT environment variable. If the directory does not exist, it logs error and exits.
         """
-            
+
         # output dir is where we dump .npy, .h5, and .png files
         self.outputDir = "/%s/" % (analysisType)
         if self.args.path is not None:

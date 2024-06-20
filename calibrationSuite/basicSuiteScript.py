@@ -17,6 +17,7 @@ import logging
 import os
 
 import numpy as np
+import psana
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ else:
     print("psana2")
     from calibrationSuite.psana2Base import PsanaBase
 
+
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
         super().__init__()
@@ -35,7 +37,6 @@ class BasicSuiteScript(PsanaBase):
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         self.className = self.__class__.__name__
 
-    
     #### Start of common getter functions ####
 
     def get_evrs(self):
@@ -50,7 +51,6 @@ class BasicSuiteScript(PsanaBase):
     def get_config(self):
         self.config = self.ds.env().configStore()
 
-    
     def getFivePedestalRunInfo(self):
         ## could do load_txt but would require full path so
         if self.det is None:
@@ -61,7 +61,7 @@ class BasicSuiteScript(PsanaBase):
         self.fpPedestals = self.det.pedestals(evt)
         self.fpStatus = self.det.status(evt)  ## does this work?
         self.fpRMS = self.det.rms(evt)  ## does this work?
-    
+
     def getEvtFromRunsTooSmartForMyOwnGood(self):
         for r in self.runRange:
             self.run = r
@@ -181,21 +181,21 @@ class BasicSuiteScript(PsanaBase):
             return True
         ## for FEE, ASC, ...
         return self.fakeBeamCode  ##False
-    
+
     #### End of common utility functions ####
 
     #### Start of analysis/correction functions ####
 
     def noCommonModeCorrection(self, frames):
         return frames
-    
+
     def regionCommonModeCorrection(self, frame, region, arbitraryCut=1000):
         ## this takes a 2d frame
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
         regionCM = np.median(frame[region][frame[region] < arbitraryCut])
         return frame - regionCM
-    
+
     def rowCommonModeCorrection3d(self, frames, arbitraryCut=1000):
         for module in self.analyzedModules:
             frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
@@ -205,7 +205,6 @@ class BasicSuiteScript(PsanaBase):
         for module in self.analyzedModules:
             frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
         return frames
-    
 
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
         ## this takes a 2d object
@@ -252,5 +251,5 @@ class BasicSuiteScript(PsanaBase):
                     print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
                 rowOffset += self.detectorInfo.nRowsPerBank
         return frame
-       
+
     #### End of analysis/correction functions ####

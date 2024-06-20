@@ -16,6 +16,7 @@ import logging
 import sys
 
 import psana
+
 from calibrationSuite.psanaCommon import PsanaCommon
 
 logger = logging.getLogger(__name__)
@@ -33,11 +34,6 @@ class PsanaBase(PsanaCommon):
         logger.info("in psana1Base")
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
-
-    def get_ds(self, run=None):
-        if run is None:
-            run = self.run
-        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
     def setupPsana(self):
         logger.info("have built basic script class, exp %s run %d" % (self.exp, self.run))
@@ -59,6 +55,11 @@ class PsanaBase(PsanaCommon):
             self.controlData = psana.Detector("ControlData")
         except Exception:
             self.controlData = None
+
+    def get_ds(self, run=None):
+        if run is None:
+            run = self.run
+        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
     def getEvt(self, run=None):
         oldDs = self.ds

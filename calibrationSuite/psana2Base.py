@@ -16,11 +16,11 @@ import logging
 import os
 import sys
 
+import psana
 
 ## standard
 from mpi4py import MPI
 
-import psana
 from calibrationSuite.psanaCommon import PsanaCommon
 
 ##from PSCalib.NDArrIO import load_txt
@@ -52,16 +52,13 @@ class PsanaBase(PsanaCommon):
 
         self.allowed_timestamp_mismatch = 1000
 
-    def get_ds(self, run=None):
-        if run is None:
-            run = self.run
-        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
-        ds = psana.DataSource(
-            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
-        )  ##, dir=tmpDir)
-        return ds
-
     def setupPsana(self):
+        ## fix hardcoding in the fullness of time
+        self.detEvts = 0
+        self.flux = None
+        self.config = None
+        self.evrs = None
+
         if self.runRange is None:
             self.ds = self.get_ds(self.run)
         else:
@@ -93,24 +90,30 @@ class PsanaBase(PsanaCommon):
             self.mfxDg1 = None
             print("No flux source found")  ## if self.verbose?
             logger.exception("No flux source found")
+
         try:
             self.mfxDg2 = self.myrun.Detector("MfxDg2BmMon")
         except Exception:
             self.mfxDg2 = None
-        ## fix hardcoding in the fullness of time
-        self.detEvts = 0
-        self.flux = None
 
-        self.evrs = None
         try:
             self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
         except Exception:
             self.wave8 = None
-        self.config = None
+
         try:
             self.controlData = psana.Detector("ControlData")
         except Exception:
             self.controlData = None
+
+    def get_ds(self, run=None):
+        if run is None:
+            run = self.run
+        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
+        ds = psana.DataSource(
+            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+        )  ##, dir=tmpDir)
+        return ds
 
     def getEvtOld(self, run=None):
         oldDs = self.ds
@@ -237,10 +240,10 @@ class PsanaBase(PsanaCommon):
     def getCalibData(self, evt):
         frames = self.det.raw.calib(evt)
         return frames
-      
+
     def getImage(self, evt, data=None):
         return self.det.raw.image(evt, data)
-    
+
     def getTimestamp(self, evt):
         return evt.timestamp
 
