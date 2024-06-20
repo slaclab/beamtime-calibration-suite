@@ -146,7 +146,7 @@ class BasicSuiteScript(PsanaBase):
 
     #### Start of common utility functions ####
 
-    def sortArrayByList(a, data):
+    def sortArrayByList(self, a, data):
         return [x for _, x in sorted(zip(a, data), key=lambda pair: pair[0])]
 
     def sliceToDetector(self, sliceRow, sliceCol):  ## cp from AnalyzeH5: import?
