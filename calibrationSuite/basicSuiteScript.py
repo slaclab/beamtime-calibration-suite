@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "1":
     print("psana1")
-    from calibrationSuite.psana1Base import PsanaBase, comm
+    from calibrationSuite.psana1Base import PsanaBase
 else:
     print("psana2")
-    from calibrationSuite.psana2Base import PsanaBase, comm
+    from calibrationSuite.psana2Base import PsanaBase
 
 
 def sortArrayByList(a, data):
@@ -40,10 +40,12 @@ class BasicSuiteScript(PsanaBase):
         self.camera = 0
 
         try:
-            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"])
-        except:
+            self.detectorInfo = DetectorInfo(
+                self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"]
+            )
+        except Exception:
             self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
-    
+
         self.className = self.__class__.__name__
 
         self.exp = self.experimentHash.get("exp", None)
@@ -83,12 +85,11 @@ class BasicSuiteScript(PsanaBase):
             print("remapping regionSlice to handle 1d case")
             logger.info("remapping regionSlice to handle 1d case")
 
-
         self.fluxSource = self.experimentHash.get("fluxSource", None)
-        self.fluxChannels = self.experimentHas.get("fluxChannels", range(8, 16)) ## wave8
+        self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16))  ## wave8
         self.fluxSign = self.experimentHash.get("fluxSign", 1)
 
-        self.ignoreEventCodeCheck = self.experimentHash("ignoreEventCodeCheck", None)
+        self.ignoreEventCodeCheck = self.experimentHash.get("ignoreEventCodeCheck", None)
         self.fakeBeamCode = True if self.ignoreEventCodeCheck is not None else False
 
         self.special = self.args.special
@@ -105,8 +106,18 @@ class BasicSuiteScript(PsanaBase):
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
-        print("ignoring event code check, faking beam code:" + str(self.ignoreEventCodeCheck) + " "  + str(self.fakeBeamCode))
-        logger.info("ignoring event code check, faking beam code:" + str(self.ignoreEventCodeCheck) + " "  + str(self.fakeBeamCode))
+        print(
+            "ignoring event code check, faking beam code:"
+            + str(self.ignoreEventCodeCheck)
+            + " "
+            + str(self.fakeBeamCode)
+        )
+        logger.info(
+            "ignoring event code check, faking beam code:"
+            + str(self.ignoreEventCodeCheck)
+            + " "
+            + str(self.fakeBeamCode)
+        )
 
         ## for standalone analysis
         self.file = None
@@ -375,4 +386,4 @@ class BasicSuiteScript(PsanaBase):
         return frames + fakes, (fakes > 0).sum()
 
     def getNswitchedPixels(self, data, region=None):
-        return ((data >= self.g0cut) * 1).sum() 
+        return ((data >= self.g0cut) * 1).sum()

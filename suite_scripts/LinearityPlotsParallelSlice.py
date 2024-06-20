@@ -18,7 +18,7 @@ import numpy as np
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.loggingSetup as ls
-from calibrationSuite.basicSuiteScript import BasicSuiteScript, comm
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -375,7 +375,7 @@ if __name__ == "__main__":
     lpp.setupPsana()
 
     try:
-        size = comm.Get_size()
+        size = comm.Get_size()  # noqa: F821
     except Exception:
         size = 1
     smd = lpp.ds.smalldata(
