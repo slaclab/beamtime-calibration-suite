@@ -92,6 +92,7 @@ class PsanaBase(object):
     def setupPsana(self):
         ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
         if self.runRange is None:
+            print(self.run)
             self.ds = self.get_ds(self.run)
         else:
             self.run = self.runRange[0]

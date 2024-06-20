@@ -34,19 +34,34 @@ class BasicSuiteScript(PsanaBase):
 
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
+        self.className = self.__class__.__name__
 
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-        self.camera = 0
 
+        self.ds = None
+        self.det = None  ## do we need multiple dets in an array? or self.secondDet?
+
+        ## for non-120 Hz running
+        self.nRunCodeEvents = 0
+        self.nDaqCodeEvents = 0
+        self.nBeamCodeEvents = 0
+        self.runCode = 280
+        self.daqCode = 281
+        self.beamCode = 283  ## per Matt
+        ##self.beamCode = 281 ## don't see 283...
+
+        self.setupFromExperimentHash()
+        self.setupFromCmdlineArgs()
+        self.setupOutputDirString(analysisType)
+
+    def setupFromExperimentHash(self):
         try:
             self.detectorInfo = DetectorInfo(
                 self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"]
             )
         except Exception:
             self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
-
-        self.className = self.__class__.__name__
 
         self.exp = self.experimentHash.get("exp", None)
         self.ROIfileNames = None
@@ -64,8 +79,6 @@ class BasicSuiteScript(PsanaBase):
                 for currName in self.ROIfileNames:
                     print("had trouble finding" + currName)
                     logger.exception("had trouble finding" + currName)
-            # exit to make clear to user things went wrong...
-            exit(1)
 
         self.singlePixels = self.experimentHash.get("singlePixels", None)
 
@@ -92,16 +105,9 @@ class BasicSuiteScript(PsanaBase):
         self.ignoreEventCodeCheck = self.experimentHash.get("ignoreEventCodeCheck", None)
         self.fakeBeamCode = True if self.ignoreEventCodeCheck is not None else False
 
+    def setupFromCmdlineArgs(self):
         self.special = self.args.special
 
-        ## for non-120 Hz running
-        self.nRunCodeEvents = 0
-        self.nDaqCodeEvents = 0
-        self.nBeamCodeEvents = 0
-        self.runCode = 280
-        self.daqCode = 281
-        self.beamCode = 283  ## per Matt
-        ##self.beamCode = 281 ## don't see 283...
         if not self.fakeBeamCode:  ## defined in ignoreEventCodeCheck
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
@@ -120,75 +126,67 @@ class BasicSuiteScript(PsanaBase):
         )
 
         ## for standalone analysis
-        self.file = None
-        if self.args.files is not None:
-            self.file = self.args.files
-        self.label = ""
-        if self.args.label is not None:
-            self.label = self.args.label
+        self.file = self.args.files
+        self.label = "" if self.args.label is None else self.args.label
 
         ## analyzing xtcs
-        if self.args.run is not None:
-            self.run = self.args.run
-        if self.args.camera is not None:
-            self.camera = self.args.camera
+        self.run = self.args.run
+
+        self.camera = 0 if self.args.camera is None else self.args.camera
+
+        # this is set in the config-file, but take the cmd-line value instead if it is set
         if self.args.exp is not None:
             self.exp = self.args.exp
 
         self.location = self.experimentHash.get("location", None)
         if self.args.location is not None:
             self.location = self.args.location
-        if self.args.maxNevents is not None:
-            self.maxNevents = self.args.maxNevents
-        if self.args.skipNevents is not None:
-            self.skipNevents = self.args.skipNevents
 
-        self.outputDir = "/%s/" % (analysisType)
-        if self.args.path is not None:
-            self.outputDir = self.args.path
-        # if set, output folders will be relative to OUTPUT_ROOT
-        # if not, they will be relative to the current script file
-        self.outputDir = os.getenv("OUTPUT_ROOT", ".") + self.outputDir
-        # check if outputDir exists, if does not create it and tell user
-        if not os.path.exists(self.outputDir):
-            print("could not find output dir: " + self.outputDir)
-            logger.info("could not find output dir: " + self.outputDir)
-            print("please create this dir, exiting...")
-            logger.info("please create this dir, exiting...")
-            exit(1)
-            # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
-            # print("so creating dir: " + self.outputDir)
-            # logger.info("creating dir: " + self.outputDir)
-            # os.makedirs(self.outputDir)
-            # give dir read, write, execute permissions
-            # os.chmod(self.outputDir, 0o777)
-        else:
-            print("output dir: " + self.outputDir)
-            logger.info("output dir: " + self.outputDir)
+        self.maxNevents = self.args.maxNevents
+        self.skipNevents = self.args.skipNevents
 
         self.detObj = self.args.detObj
+
+        self.threshold = None
         if self.args.threshold is not None:
-            self.threshold = eval(self.args.threshold)
-        else:
-            self.threshold = None
+            try:
+                self.threshold = eval(self.args.threshold)
+            except Exception as e:
+                print("Error evaluating threshold: " + str(e))
+                logger.exception("Error evaluating threshold: " + str(e))
+                self.threshold = None
+
+        self.seedCut = None
         if self.args.seedCut is not None:
-            self.seedCut = eval(self.args.seedCut)
-        else:
-            self.seedCut = None
-        if self.args.fluxCutMin is not None:
-            self.fluxCutMin = self.args.fluxCutMin
-        if self.args.fluxCutMax is not None:
-            self.fluxCutMax = self.args.fluxCutMax
-        try:
-            self.runRange = eval(self.args.runRange)  ## in case needed
-        except Exception:
-            self.runRange = None
+            try:
+                self.seedCut = eval(self.args.seedCut)
+            except Exception as e:
+                print("Error evaluating seedcut: " + str(e))
+                logger.exception("Error evaluating seedcut: " + str(e))
+                self.seedCut = None
+
+        self.fluxCutMin = self.args.fluxCutMin
+        self.fluxCutMax = self.args.fluxCutMax
+
+        self.runRange = None
+        if self.args.runRange is not None:
+            try:
+                self.runRange = eval(self.args.runRange)  ## in case needed
+            except Exception as e:
+                print("Error evaluating runRange: " + str(e))
+                logger.exception("Error evaluating runRange: " + str(e))
+                self.runRange = None
 
         self.fivePedestalRun = self.args.fivePedestalRun  ## in case needed
+
         self.fakePedestal = None
-        self.fakePedestalFile = self.args.fakePedestalFile  ## in case needed
+        self.fakePedestalFile = self.args.fakePedestalFile
         if self.fakePedestalFile is not None:
-            self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
+            try:
+                self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
+            except Exception as e:
+                print("Error loading fake pedistal: " + str(e))
+                logger.exception("Error loading fake pedistal: " + str(e))
 
         self.g0PedFile = self.args.g0PedFile
         if self.g0PedFile is not None:
@@ -221,26 +219,46 @@ class BasicSuiteScript(PsanaBase):
         else:
             self.detType = self.args.detType
 
-        try:
-            self.analyzedModules = self.experimentHash["analyzedModules"]
-        except Exception:
-            self.analyzedModules = range(self.detectorInfo.nModules)
+        self.analyzedModules = self.experimentHash.get("analyzedModules", None)
+        if self.analyzedModules is not None:
+            try:
+                self.analyzedModules = range(self.detectorInfo.nModules)
+            except Exception as e:
+                print("Error evaluating range: " + str(e))
+                logger.info("Error evaluating range: " + str(e))
 
         self.g0cut = self.detectorInfo.g0cut
         if self.g0cut is not None:
             self.gainBitsMask = self.g0cut - 1
         else:
-            self.gainBitsMask = 0xFFFF  ## might be dumb.  for non-autoranging
+            self.gainBitsMask = 0xFFFF  ## might be dumb. for non-autoranging
 
         self.negativeGain = self.detectorInfo.negativeGain  ## could just use the detector info in places it's defined
 
-        ## done with configuration
-
-        self.ds = None
-        self.det = None  ## do we need multiple dets in an array? or self.secondDet?
-
-        ##self.setupPsana()
-        ##do this later or skip for -file
+    def setupOutputDirString(self, analysisType):
+        # setup output-dir for dumping output .npy, .h5, and .png files
+        self.outputDir = "/%s/" % (analysisType)
+        if self.args.path is not None:
+            self.outputDir = self.args.path
+        # if set, output folders will be relative to OUTPUT_ROOT
+        # if not, they will be relative to the current script file
+        self.outputDir = os.getenv("OUTPUT_ROOT", ".") + self.outputDir
+        # check if outputDir exists, if does not create it and tell user
+        if not os.path.exists(self.outputDir):
+            print("could not find output dir: " + self.outputDir)
+            logger.info("could not find output dir: " + self.outputDir)
+            print("please create this dir, exiting...")
+            logger.info("please create this dir, exiting...")
+            exit(1)
+            # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
+            # print("so creating dir: " + self.outputDir)
+            # logger.info("creating dir: " + self.outputDir)
+            # os.makedirs(self.outputDir)
+            # give dir read, write, execute permissions
+            # os.chmod(self.outputDir, 0o777)
+        else:
+            print("output dir: " + self.outputDir)
+            logger.info("output dir: " + self.outputDir)
 
     def setROI(self, roiFile=None, roi=None):
         """Call with both file name and roi to save roi to file and use,
