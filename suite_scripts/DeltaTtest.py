@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
-from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class EventScanParallel(BasicSuiteScript):
@@ -133,8 +133,8 @@ class EventScanParallel(BasicSuiteScript):
         np.save("%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp), np.array(pulseIds))
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
-        pixels = sortArrayByList(ts, pixels)
-        rois = sortArrayByList(ts, rois)
+        pixels = self.sortArrayByList(ts, pixels)
+        rois = self.sortArrayByList(ts, rois)
         ts.sort()
         ts = ts - ts[0]
         ##ts = ts/np.median(ts[1:]-ts[0:-1])
