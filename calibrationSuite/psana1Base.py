@@ -16,11 +16,12 @@ import sys
 import psana
 
 from calibrationSuite.argumentParser import ArgumentParser
+from calibrationSuite.psanaCommon import PsanaCommon
 
 logger = logging.getLogger(__name__)
 
 
-class PsanaBase(object):
+class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
@@ -51,8 +52,6 @@ class PsanaBase(object):
         if self.experimentHash["detectorType"] not in knownTypes:
             print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
             return -1
-
-    ## self.setupPsana()
 
     def importConfigFile(self, file_path):
         if not os.path.exists(file_path):
@@ -89,17 +88,6 @@ class PsanaBase(object):
         except Exception:
             self.controlData = None
 
-    def getFivePedestalRunInfo(self):
-        ## could do load_txt but would require full path so
-        if self.det is None:
-            self.setupPsana()
-
-        evt = self.getEvt(self.fivePedestalRun)
-        self.fpGains = self.det.gain(evt)
-        self.fpPedestals = self.det.pedestals(evt)
-        self.fpStatus = self.det.status(evt)  ## does this work?
-        self.fpRMS = self.det.rms(evt)  ## does this work?
-
     def getEvt(self, run=None):
         oldDs = self.ds
         if run is not None:
@@ -111,35 +99,6 @@ class PsanaBase(object):
             return None
         self.ds = oldDs
         return evt
-
-    def getEvtFromRunsTooSmartForMyOwnGood(self):
-        for r in self.runRange:
-            self.run = r
-            self.ds = self.get_ds()
-            try:
-                evt = next(self.ds.events())
-                yield evt
-            except Exception:
-                continue
-
-    def getEvtFromRuns(self):
-        try:  ## can't get yield to work
-            evt = next(self.ds.events())
-            return evt
-        except StopIteration:
-            i = self.runRange.index(self.run)
-            try:
-                self.run = self.runRange[i + 1]
-                print("switching to run %d" % (self.run))
-                logger.info("switching to run %d" % (self.run))
-                self.ds = self.get_ds(self.run)
-            except Exception:
-                print("have run out of new runs")
-                logger.exception("have run out of new runs")
-                return None
-            ##print("get event from new run")
-            evt = next(self.ds.events())
-            return evt
 
     def getFlux(self, evt):
         try:
@@ -163,15 +122,6 @@ class PsanaBase(object):
             return None
         return f
 
-    def get_evrs(self):
-        if self.config is None:
-            self.get_config()
-
-        self.evrs = []
-        for key in list(self.config.keys()):
-            if key.type() == psana.EvrData.ConfigV7:
-                self.evrs.append(key.src())
-
     def isKicked(self, evt):
         try:
             evr = evt.get(psana.EvrData.DataV4, self.evrs[0])
@@ -193,9 +143,6 @@ class PsanaBase(object):
             pass
         return kicked
 
-    def get_config(self):
-        self.config = self.ds.env().configStore()
-
     def getStepGen(self):
         return self.ds.steps()
 
@@ -212,6 +159,3 @@ class PsanaBase(object):
 
     def getCalibData(self, evt):
         return self.det.calib(evt)
-
-    def getImage(self, evt, data=None):
-        return self.raw.image(evt, data)
