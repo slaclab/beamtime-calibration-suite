@@ -62,7 +62,7 @@ def getEnergeticClusters(clusters):
 
 
 def getSmallSquareClusters(clusters, nPixelCut=4):
-    smallClusters = getSmallClusters(clusters, nPixelCut=4)
+    smallClusters = getSmallClusters(clusters, nPixelCut)
     return getSquareClusters(smallClusters)
 
 
