@@ -7,19 +7,19 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import h5py
-import numpy as np
-import calibrationSuite.fitFunctions as fitFunctions
-import calibrationSuite.ancillaryMethods as ancillaryMethods
+import logging
+import os
 
+import h5py
 import matplotlib.pyplot as plt
+import numpy as np
+
+import calibrationSuite.ancillaryMethods as ancillaryMethods
+import calibrationSuite.fitFunctions as fitFunctions
+import calibrationSuite.loggingSetup as ls
 
 ##import sys
 from calibrationSuite.argumentParser import ArgumentParser
-
-import logging
-import calibrationSuite.loggingSetup as ls
-import os
 
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)

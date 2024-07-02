@@ -84,13 +84,14 @@ class SuiteTester:
         # annoyingly complicated way to get root of current git repo,
         # do this so test can be run from tests/ dir or root of project
         self.git_repo_root = (
-            subprocess.Popen(
-                ["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE
-            )
+            subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE)
             .communicate()[0]
             .rstrip()
             .decode("utf-8")
         )
+
+        # avoid any weirdness and make sure curr-dir is that of tested scripts
+        os.chdir(self.git_repo_root + "/suite_scripts")
 
         # tests can only run if the following are true (skip if not):
         # 1) pasna library is avaliable (i.e running on S3DF)
@@ -130,9 +131,7 @@ class SuiteTester:
 
         # lets have the 'real output' folders just be in /suite_scripts
         for i in range(len(self.expected_outcome_dirs)):
-            self.expected_outcome_dirs[i] = (
-                self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
-            )
+            self.expected_outcome_dirs[i] = self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
 
         for dir in self.expected_outcome_dirs:
             os.makedirs(dir, exist_ok=True)
@@ -173,8 +172,8 @@ class SuiteTester:
         if result.returncode != 0:
             assert False, f"Script failed with error: {result.stderr}"
 
-        real_output_location = "../suite_scripts/" + output_location
-        expected_output_location = "./test_data/" + output_location
+        real_output_location = self.git_repo_root + "/suite_scripts/" + output_location
+        expected_output_location = self.git_repo_root + "/tests/test_data/" + output_location
 
         # Compare files in directories
         for root, dirs, files in os.walk(real_output_location):
@@ -183,9 +182,7 @@ class SuiteTester:
                 expected_file_path = expected_output_location + "/" + file
 
                 # Check if files are PNGs
-                if real_file_path.endswith(".png") and expected_file_path.endswith(
-                    ".png"
-                ):
+                if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
                     if self.are_images_same(real_file_path, expected_file_path) == 0:
                         assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
                 else:
@@ -330,7 +327,7 @@ def test_SinglePhoton(suite_tester, command, output_dir_name):
                 "bash",
                 "-c",
                 # this cmd runs pretty long, so we use '--special testing' and '-maxNevents 2' to stop pixel-analysis early
-                "python LinearityPlotsParallelSlice.py -r 102 --special testing --maxNevents 2 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n666.h5 --label fooBar",
+                "python LinearityPlotsParallelSlice.py -r 102 --special testing --maxNevents 2 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar",
             ],
             "test_linearity_scan",
         ),

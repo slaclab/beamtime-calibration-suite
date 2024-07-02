@@ -7,11 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-# from psana import *
-import importlib.util
-import logging
+"""
+This class contains a setup function and some utility functions that work only for psana2 based analysis.
+To make the library use this class execute 'export foo=psana2'.
+"""
 
-## for parallelism
+import logging
 import os
 import sys
 
@@ -20,7 +21,7 @@ import psana
 ## standard
 from mpi4py import MPI
 
-from calibrationSuite.argumentParser import ArgumentParser
+from calibrationSuite.psanaCommon import PsanaCommon
 
 ##from PSCalib.NDArrIO import load_txt
 
@@ -38,8 +39,10 @@ size = comm.Get_size()
 logger = logging.getLogger(__name__)
 
 
-class PsanaBase(object):
+class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
+        super().__init__()
+
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
 
@@ -47,54 +50,15 @@ class PsanaBase(object):
         print("in psana2Base")
         logger.info("in psana2Base")
 
-        self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
-        self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-        ##self.g0cut = 1<<15 ## 2022
-
         self.allowed_timestamp_mismatch = 1000
 
-        self.args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(self.args))
-
-        # if the SUITE_CONFIG env var is set use that, otherwise if the cmd line arg is set use that
-        # if neither are set, use the default 'suiteConfig.py' file
-        defaultConfigFileName = "suiteConfig.py"
-        secondaryConfigFileName = defaultConfigFileName if self.args.configFile is None else self.args.configFile
-        # secondaryConfigFileName is returned if env var not set
-        configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
-        config = self.importConfigFile(configFileName)
-        if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
-            sys.exit(1)
-        self.experimentHash = config.experimentHash
-        knownTypes = ["epixhr", "epixM", "rixsCCD"]
-        if self.experimentHash["detectorType"] not in knownTypes:
-            print("type %s not in known types" % (self.experimentHash["detectorType"]), knownTypes)
-            return -1
-        ##self.setupPsana()
-
-    def importConfigFile(self, file_path):
-        if not os.path.exists(file_path):
-            print(f"The file '{file_path}' does not exist")
-            return None
-        spec = importlib.util.spec_from_file_location("config", file_path)
-        config_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(config_module)
-        return config_module
-
-    def get_ds(self, run=None):
-        if run is None:
-            run = self.run
-        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'## temp
-        ds = psana.DataSource(
-            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
-        )  ##, dir=tmpDir)
-        return ds
-
     def setupPsana(self):
-        ##print("have built basic script class, exp %s run %d" %(self.exp, self.run))
+        ## fix hardcoding in the fullness of time
+        self.detEvts = 0
+        self.flux = None
+        self.config = None
+        self.evrs = None
+
         if self.runRange is None:
             self.ds = self.get_ds(self.run)
         else:
@@ -105,11 +69,10 @@ class PsanaBase(object):
         try:
             self.step_value = self.myrun.Detector("step_value")
             self.step_docstring = self.myrun.Detector("step_docstring")
-            ##print('foo', self.step_value, self.step_docstring)
         except Exception:
             self.step_value = self.step_docstring = None
 
-        ##        self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
+        ## self.det = Detector('%s.0:%s.%d' %(self.location, self.detType, self.camera), self.ds.env())
         ## make this less dumb to accomodate epixM etc.
         ## use a dict etc.
         self.det = self.myrun.Detector(self.experimentHash["detectorType"])
@@ -127,37 +90,30 @@ class PsanaBase(object):
             self.mfxDg1 = None
             print("No flux source found")  ## if self.verbose?
             logger.exception("No flux source found")
+
         try:
             self.mfxDg2 = self.myrun.Detector("MfxDg2BmMon")
         except Exception:
             self.mfxDg2 = None
-        ## fix hardcoding in the fullness of time
-        self.detEvts = 0
-        self.flux = None
 
-        self.evrs = None
         try:
             self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
         except Exception:
             self.wave8 = None
-        self.config = None
+
         try:
             self.controlData = psana.Detector("ControlData")
         except Exception:
             self.controlData = None
 
-    ##        if self.mfxDg1 is None:
-
-    def getFivePedestalRunInfo(self):
-        ## could do load_txt but would require full path so
-        if self.det is None:
-            self.setupPsana()
-
-        evt = self.getEvt(self.fivePedestalRun)
-        self.fpGains = self.det.gain(evt)
-        self.fpPedestals = self.det.pedestals(evt)
-        self.fpStatus = self.det.status(evt)  ## does this work?
-        self.fpRMS = self.det.rms(evt)  ## does this work?
+    def get_ds(self, run=None):
+        if run is None:
+            run = self.run
+        ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
+        ds = psana.DataSource(
+            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+        )  ##, dir=tmpDir)
+        return ds
 
     def getEvtOld(self, run=None):
         oldDs = self.ds
@@ -201,35 +157,6 @@ class PsanaBase(object):
             else:
                 continue
 
-    def getEvtFromRunsTooSmartForMyOwnGood(self):
-        for r in self.runRange:
-            self.run = r
-            self.ds = self.get_ds()
-            try:
-                evt = next(self.ds.events())
-                yield evt
-            except Exception:
-                continue
-
-    def getEvtFromRuns(self):
-        try:  ## can't get yield to work
-            evt = next(self.ds.events())
-            return evt
-        except StopIteration:
-            i = self.runRange.index(self.run)
-            try:
-                self.run = self.runRange[i + 1]
-                print("switching to run %d" % (self.run))
-                logger.info("switching to run %d" % (self.run))
-                self.ds = self.get_ds(self.run)
-            except Exception:
-                print("have run out of new runs")
-                logger.exception("have run out of new runs")
-                return None
-            ##print("get event from new run")
-            evt = next(self.ds.events())
-            return evt
-
     def getAllFluxes(self, evt):
         if evt is None:
             return None
@@ -242,7 +169,7 @@ class PsanaBase(object):
         if self.mfxDg1 is None:
             return None
 
-        ##        f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
+        ##f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean()*self.fluxSign
         try:
             f = self.mfxDg1.raw.peakAmplitude(evt)[self.fluxChannels].mean() * self.fluxSign
             ##print(f)
@@ -265,15 +192,6 @@ class PsanaBase(object):
         ##return 1
         return self.flux
 
-    def get_evrs(self):
-        if self.config is None:
-            self.get_config()
-
-        self.evrs = []
-        for key in list(self.config.keys()):
-            if key.type() == psana.EvrData.ConfigV7:
-                self.evrs.append(key.src())
-
     def getEventCodes(self, evt):
         return self.timing.raw.eventcodes(evt)
 
@@ -284,9 +202,6 @@ class PsanaBase(object):
         allcodes = self.getEventCodes(evt)
         ##print(allcodes)
         return allcodes[self.desiredCodes["120Hz"]]
-
-    def get_config(self):
-        self.config = self.ds.env().configStore()
 
     def getStepGen(self):
         return self.myrun.steps()
@@ -338,13 +253,3 @@ class PsanaBase(object):
         delta = evensEvenRowsOddsOddRows.mean() - oddsEvenRowsEvensOddRows.mean()
         ##print("delta:", delta)
         return delta > 0
-
-
-"""
-if __name__ == "__main__":
-    bSS = BasicSuiteScript()
-    print("have built a BasicSuiteScript")
-    bSS.setupPsana()
-    evt = bSS.getEvt()
-    print(dir(evt))
-"""

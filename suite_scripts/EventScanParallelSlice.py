@@ -7,18 +7,17 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import logging
 import os
 import sys
-import logging
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
 import h5py
-
-from calibrationSuite.basicSuiteScript import BasicSuiteScript, sortArrayByList
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import AutoMinorLocator
 
 import calibrationSuite.loggingSetup as ls
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
 logger = logging.getLogger(__name__)
@@ -181,9 +180,9 @@ class EventScanParallel(BasicSuiteScript):
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
         # sort pixels and rois based on timestamps
-        pixels = sortArrayByList(ts, pixels)
+        pixels = self.sortArrayByList(ts, pixels)
         if rois is not None:
-            rois = sortArrayByList(ts, rois)
+            rois = self.sortArrayByList(ts, rois)
 
         ts.sort()
         ts = ts - ts[0]

@@ -11,12 +11,13 @@ import logging
 import os
 import sys
 
-import calibrationSuite.ancillaryMethods as ancillaryMethods
-import calibrationSuite.fitFunctions as fitFunctions
-import calibrationSuite.loggingSetup as ls
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+
+import calibrationSuite.ancillaryMethods as ancillaryMethods
+import calibrationSuite.fitFunctions as fitFunctions
+import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
@@ -217,7 +218,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                     iDet, jDet = self.sliceToDetector(i, j)
                     try:
                         self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
-                    except:
+                    except Exception:
                         pass
                     if False:
                         self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
@@ -374,8 +375,8 @@ if __name__ == "__main__":
     lpp.setupPsana()
 
     try:
-        size = comm.Get_size()
-    except:
+        size = comm.Get_size()  # noqa: F821
+    except Exception:
         size = 1
     smd = lpp.ds.smalldata(
         filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)

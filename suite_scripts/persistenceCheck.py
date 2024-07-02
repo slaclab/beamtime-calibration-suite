@@ -7,10 +7,12 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import BasicSuiteScript
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class PersistenceCheck(BasicSuiteScript):
