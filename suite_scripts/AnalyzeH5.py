@@ -18,12 +18,11 @@ import calibrationSuite.ancillaryMethods as ancillaryMethods
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.loggingSetup as ls
 
-##import sys
 from calibrationSuite.argumentParser import ArgumentParser
 
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
+ls.setupScriptLogging("logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
 # for logging from current file
 logger = logging.getLogger(__name__)
 
@@ -34,10 +33,9 @@ class AnalyzeH5(object):
 
         self.run = args.run
         self.files = args.files.replace(" ", "")
-        print(self.files)
+        logger.info(str(self.files))
         self.outputDir = args.path
-        print("output dir:", self.outputDir)
-        ##logging.info("Output dir: " + self.outputDir)
+        logger.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
 
@@ -68,7 +66,6 @@ class AnalyzeH5(object):
         if self.analysisType == "cluster":
             self.clusterAnalysis()
         else:
-            print("unknown analysis type %s" % (self.analysisType))
             logging.info("unknown analysis type %s" % (self.analysisType))
 
     def clusterAnalysis(self):
@@ -146,7 +143,6 @@ class AnalyzeH5(object):
         self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
         self.sliceEdges = [rows, cols]
 
-        print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
         # foo = ax.hist(energy[energy > 0], 100)
@@ -175,13 +171,11 @@ class AnalyzeH5(object):
                     detRow, detCol = self.sliceToDetector(i, j)
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
-                        print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                         logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                         continue
                     energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
                     photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
                     nPixelClusters = (photonEcut > 0).sum()
-                    print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
                     logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
                     photonRegion = energies[photonEcut]
                     mean = photonRegion.mean()

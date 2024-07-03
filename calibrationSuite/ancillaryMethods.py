@@ -30,7 +30,6 @@ def makeProfile(x, y, bins, range=None, spread=False, myStatistic="mean"):
     usefulBins = np.bitwise_and(bin_N > 0, ~np.isnan(means))
     if bin_N.sum() == 0:
         ##no data
-        print("no data in profile")
         logger.error("no data in profile")
         return None, None, None
 

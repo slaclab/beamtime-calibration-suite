@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 
@@ -32,7 +32,6 @@ class TimeScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__()  ##self)
         try:
-            print("positive events:", "positive" in self.special)
             logger.info("positive events:" + (["positive" in self.special]))
         except Exception:
             pass
@@ -180,7 +179,6 @@ class TimeScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     tsp = TimeScanParallel()
-    print("have built a ", tsp.className, "class")
     logger.info("have built a " + tsp.className + "class")
     fileMadeByScript = False
     if tsp.file is not None:
@@ -190,7 +188,6 @@ if __name__ == "__main__":
         tsp.analyze_h5(tsp.file, "means", tsp.label)
         ##tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
-        print("done with standalone analysis of %s, exiting" % (tsp.file))
         logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
         sys.exit(0)
 
@@ -199,7 +196,6 @@ if __name__ == "__main__":
     ##this is a hack
     if tsp.exp == "foo" and tsp.run < 500:  ## guess
         tsp.use_281_for_old_data = True
-        print("using all event code 281 frames for old data")
         logger.info("using all event code 281 frames for old data")
 
     size = 666
@@ -222,7 +218,6 @@ if __name__ == "__main__":
     for nstep, step in enumerate(stepGen):
         ##scanValue = tsp.getScanValue(step, useStringInfo=True)
         scanValue = tsp.getScanValue(step, True)
-        print(scanValue, "in tsp")
         logger.info(str(scanValue) + "in tsp")
         roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.uint32)
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
@@ -246,7 +241,6 @@ if __name__ == "__main__":
                 ##tsp.isBeamEvent(evt):
                 if tsp.detectorInfo.detectorType == "epixm" or tsp.isBeamEvent(evt):  ##FEE hack
                     frames = tsp.getRawData(evt)  ##, gainBitsMasked=True)
-                    ##print("real beam on event", nstep, nevt)
                     ##logger.info("real beam on event" + str(nstep) + ", " + str(nevt))
                 elif tsp.use_281_for_old_data and ec[281]:
                     frames = tsp.getRawData(evt)  ##, gainBitsMasked=True)
@@ -255,7 +249,6 @@ if __name__ == "__main__":
                     tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
                 else:
-                    print("not beam event, not frame event, not bld...")
                     logger.info("not beam event, not frame event, not bld...")
                     continue
             else:
@@ -301,7 +294,6 @@ if __name__ == "__main__":
 
             tsp.nGoodEvents += 1
             if tsp.nGoodEvents % 100 == 0:
-                print("n good events analyzed: %d" % (tsp.nGoodEvents))
                 logger.info("n good events analyzed: %d" % (tsp.nGoodEvents))
                 ##print("switched pixels: %d" %((switchedPixels>0).sum()))
 

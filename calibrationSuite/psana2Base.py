@@ -47,7 +47,6 @@ class PsanaBase(PsanaCommon):
         logger.info("Ran with cmd: " + commandUsed)
 
         self.psanaType = 2
-        print("in psana2Base")
         logger.info("in psana2Base")
 
         self.allowed_timestamp_mismatch = 1000
@@ -88,7 +87,6 @@ class PsanaBase(PsanaCommon):
             self.mfxDg1 = self.myrun.Detector("MfxDg1BmMon")
         except Exception:
             self.mfxDg1 = None
-            print("No flux source found")  ## if self.verbose?
             logger.exception("No flux source found")
 
         try:
@@ -229,7 +227,6 @@ class PsanaBase(PsanaCommon):
             print(payload)
             sv = eval(payload.split()[-1][:-1])
             ##print('sv', sv)
-            print("step", int(self.step_value(step)), sv)
             logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return int(float(sv))
         return self.step_value(step)

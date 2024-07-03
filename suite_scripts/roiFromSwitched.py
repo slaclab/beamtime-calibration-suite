@@ -20,12 +20,11 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.ERROR
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 if __name__ == "__main__":
     rfs = BasicSuiteScript("test2")
-    print("have built an RFS")
     logger.info("have built an RFS")
 
     rfs.setupPsana()
@@ -49,9 +48,7 @@ if __name__ == "__main__":
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
-            print("n good events analyzed: %d" % (nGoodEvents))
             logger.info("n good events analyzed: %d" % (nGoodEvents))
-            print("switched pixels: %d" % ((switchedPixels > 0).sum()))
             logger.info("switched pixels: %d" % ((switchedPixels > 0).sum()))
 
         if nGoodEvents > rfs.maxNevents:
@@ -61,5 +58,4 @@ if __name__ == "__main__":
     np.save(fileName, switchedPixels)
     logger.info("Wrote file: ", fileName)
 
-    print("%d pixels were in low at least once in %d events" % ((switchedPixels > 0).sum(), nGoodEvents))
     logger.info("%d pixels were in low at least once in %d events" % ((switchedPixels > 0).sum(), nGoodEvents))

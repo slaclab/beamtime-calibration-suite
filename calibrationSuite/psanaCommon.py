@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 
 class PsanaCommon(object):
     def __init__(self, analysisType="scan"):
-        print("in psanaCommon")
         logger.info("in psanaCommon")
 
         self.args = ArgumentParser().parse_args()
@@ -74,9 +73,6 @@ class PsanaCommon(object):
         configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
         config = self.importConfigFile(configFileName)
         if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
             logger.error("\ncould not find or read config file: " + configFileName)
             logger.error("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
             logger.error("exiting...")
@@ -89,7 +85,6 @@ class PsanaCommon(object):
         is specified by the user.
         """
         if not os.path.exists(file_path):
-            print("The file " + file_path + " does not exist")
             logger.error("The file " + file_path + " does not exist")
             return None
         spec = importlib.util.spec_from_file_location("config", file_path)
@@ -97,7 +92,6 @@ class PsanaCommon(object):
         try:
             spec.loader.exec_module(config_module)
         except Exception as e:
-            print("Error executing config-file code: " + str(e))
             logger.info("Error executing config-file code: " + str(e))
             return None
         return config_module
@@ -134,7 +128,6 @@ class PsanaCommon(object):
         ## handle 1d rixs ccd data
         if self.detectorInfo.dimension == 2:
             self.regionSlice = self.regionSlice[0], self.regionSlice[2]
-            print("remapping regionSlice to handle 1d case")
             logger.info("remapping regionSlice to handle 1d case")
 
         self.fluxSource = self.experimentHash.get("fluxSource", None)
@@ -160,10 +153,8 @@ class PsanaCommon(object):
             self.ROI = self.ROIs[0] if len(self.ROIs) >= 1 else None
         except Exception:
             if self.ROIfileNames is not None:
-                print("had trouble finding" + str(self.ROIfileNames))
                 logger.error("had trouble finding" + str(self.ROIfileNames))
                 for currName in self.ROIfileNames:
-                    print("had trouble finding" + currName)
                     logger.exception("had trouble finding" + currName)
 
     def setupFromCmdlineArgs(self):
@@ -178,12 +169,6 @@ class PsanaCommon(object):
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
-        print(
-            "ignoring event code check, faking beam code:"
-            + str(self.ignoreEventCodeCheck)
-            + " "
-            + str(self.fakeBeamCode)
-        )
         logger.info(
             "ignoring event code check, faking beam code:"
             + str(self.ignoreEventCodeCheck)
@@ -218,7 +203,6 @@ class PsanaCommon(object):
             try:
                 self.threshold = eval(self.args.threshold)
             except Exception as e:
-                print("Error evaluating threshold: " + str(e))
                 logger.exception("Error evaluating threshold: " + str(e))
                 self.threshold = None
 
@@ -227,7 +211,6 @@ class PsanaCommon(object):
             try:
                 self.seedCut = eval(self.args.seedCut)
             except Exception as e:
-                print("Error evaluating seedcut: " + str(e))
                 logger.exception("Error evaluating seedcut: " + str(e))
                 self.seedCut = None
 
@@ -239,7 +222,6 @@ class PsanaCommon(object):
             try:
                 self.runRange = eval(self.args.runRange)  ## in case needed
             except Exception as e:
-                print("Error evaluating runRange: " + str(e))
                 logger.exception("Error evaluating runRange: " + str(e))
                 self.runRange = None
 
@@ -258,7 +240,6 @@ class PsanaCommon(object):
             try:
                 self.analyzedModules = range(self.detectorInfo.nModules)
             except Exception as e:
-                print("Error evaluating range: " + str(e))
                 logger.info("Error evaluating range: " + str(e))
 
         self.g0cut = self.detectorInfo.g0cut
@@ -283,7 +264,6 @@ class PsanaCommon(object):
             try:
                 self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
             except Exception as e:
-                print("Error loading fake pedistal: " + str(e))
                 logger.exception("Error loading fake pedistal: " + str(e))
 
         self.g0PedFile = self.args.g0PedFile
@@ -325,9 +305,7 @@ class PsanaCommon(object):
         self.outputDir = os.getenv("OUTPUT_ROOT", ".") + self.outputDir
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
-            print("could not find output dir: " + self.outputDir)
             logger.info("could not find output dir: " + self.outputDir)
-            print("please create this dir, exiting...")
             logger.info("please create this dir, exiting...")
             exit(1)
             # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
@@ -337,7 +315,6 @@ class PsanaCommon(object):
             # give dir read, write, execute permissions
             # os.chmod(self.outputDir, 0o777)
         else:
-            print("output dir: " + self.outputDir)
             logger.info("output dir: " + self.outputDir)
 
     #### End of setup related functions ####

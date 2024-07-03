@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 
@@ -101,7 +101,6 @@ if __name__ == "__main__":
         "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"
         % (spc.photonCut, (thresholded / nGoodEvents).mean())
     )
-    print("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
     logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
 
     if False:

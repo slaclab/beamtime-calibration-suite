@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 ## This builds and analyzes a dict with keys:
@@ -38,13 +38,11 @@ class LinearityPlotsParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("scan")  ##self)
         self.saturated = [True, False][1]
-        print("using saturation fit =", self.saturated)
         logger.info("using saturation fit =" + str(self.saturated))
         self.residuals = [True, False][0]
         self.profiles = [True, False][0]
         self.seabornProfiles = [True, False][0]
         try:
-            print("positive events:", "positive" in self.special)
             logger.info("positive events:" + str("positive" in self.special))
 
         except Exception:
@@ -234,7 +232,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         if self.profiles:
                             x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
-                                print("empty profile for %d, %d" % (i, j))
                                 logger.info("empty profile for %d, %d" % (i, j))
                                 continue
                         if x is not None:
@@ -273,7 +270,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         if self.profiles:
                             x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
-                                print("empty profile for %d, %d" % (i, j))
                                 logger.info("empty profile for %d, %d" % (i, j))
                         if x is not None:
                             fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
@@ -342,9 +338,10 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
 
 if __name__ == "__main__":
+    
     lpp = LinearityPlotsParallel()
-    print("have built an LPP")
     logger.info("have built an LPP")
+    
     lpp.useNswitchedAsFlux = False
     lpp.fluxLabel = "wave8 flux (ADU)"
     if lpp.special is not None and "useNswitchedAsFlux" in lpp.special:
@@ -353,23 +350,20 @@ if __name__ == "__main__":
 
     noSwitchedOnly = lpp.special is not None and "noSwitchedOnly" in lpp.special
 
-    print("using switched pixels as flux? only events with no switch?", lpp.useNswitchedAsFlux, noSwitchedOnly)
+    print("using switched pixels as flux? only events with no switch? " + str(lpp.useNswitchedAsFlux) + " " + str(noSwitchedOnly))
 
     if lpp.file is not None:
-        print("using flux label:", lpp.fluxLabel)
+        logger.info("using flux label: " + lpp.fluxLabel)
         lpp.fitInfo = None
         lpp.analyze_h5(lpp.file, lpp.label + "_raw")
         lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
-        print("done with standalone analysis of %s, exiting" % (lpp.file))
         logger.info("done with standalone analysis of %s, exiting" % (lpp.file))
         sys.exit(0)
 
     doKazFlux = False
     if doKazFlux:
-        print("doing Kaz flux events")
         logger.info("doing Kaz flux events")
     else:
-        print("not doing Kaz events")
         logger.info("not doing Kaz events")
 
     lpp.setupPsana()
@@ -419,7 +413,6 @@ if __name__ == "__main__":
             frames = lpp.getCalibData(evt)
 
         if rawFrames is None:
-            print("No contrib found")
             logger.info("No contrib found")
             continue
         ## could? should? check for calib here I guess
@@ -430,13 +423,11 @@ if __name__ == "__main__":
 
         flux = lpp.getFlux(evt)
         if flux is None:
-            print("no flux found")
             logger.info("no flux found")
             continue
         delta = lpp.framesTS - lpp.fluxTS
         if delta > 1000:
             ## probably not relevant when checking isBeamEvent
-            print("frame - bld timestamp delta too large:", delta)
             logger.info("frame - bld timestamp delta too large:" + str(delta))
             continue
 
@@ -486,7 +477,6 @@ if __name__ == "__main__":
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
-            print("n good events analyzed: %d" % (nGoodEvents))
             logger.info("n good events analyzed: %d" % (nGoodEvents))
         ## print("switched pixels: %d" %((switchedPixels>0).sum()))
 
@@ -569,4 +559,3 @@ if __name__ == "__main__":
 
     smd.done()
 
-    lpp.dumpEventCodeStatistics()

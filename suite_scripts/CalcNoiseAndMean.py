@@ -21,13 +21,12 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 
 if __name__ == "__main__":
     bss = BasicSuiteScript("dark")
-    print("have built a " + bss.className + " class")
     logger.info("have built a " + bss.className + " class")
 
     bss.setupPsana()
@@ -107,7 +106,6 @@ if __name__ == "__main__":
                 ##print(frames)
 
             if frames is None:
-                print("None frames on beam event, should not happen")
                 logger.info("None frames on beam event")
                 continue
 
@@ -129,7 +127,6 @@ if __name__ == "__main__":
         means = stats.mean()
         if bss.special is not None and "slice" in bss.special:
             noise = noise[bss.regionSlice]
-            print("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             logger.info("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             means = means[bss.regionSlice]
 

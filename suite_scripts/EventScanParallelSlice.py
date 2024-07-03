@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.ERROR
+    "logs/" + currFileName[:-3] + ".log", logging.INFO
 )  # change to logging.INFO for full logging output
 
 
@@ -193,12 +193,10 @@ class EventScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     esp = EventScanParallel()
-    print("have built a " + esp.className + "class")
     logger.info("have built a " + esp.className + "class")
 
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
-        print("done with standalone analysis of %s, exiting" % (esp.file))
         logger.info("done with standalone analysis of %s, exiting" % (esp.file))
         sys.exit(0)
 
@@ -308,7 +306,6 @@ if __name__ == "__main__":
 
         esp.nGoodEvents += 1
         if esp.nGoodEvents % 100 == 0:
-            print("n good events analyzed: %d" % (esp.nGoodEvents))
             logger.info("n good events analyzed: %d" % (esp.nGoodEvents))
 
         if esp.nGoodEvents > esp.maxNevents:
