@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO, False
 )  # change to logging.INFO for full logging output
 
 

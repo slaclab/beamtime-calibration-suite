@@ -17,12 +17,13 @@ import numpy as np
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 import calibrationSuite.fitFunctions as fitFunctions
 import calibrationSuite.loggingSetup as ls
-
 from calibrationSuite.argumentParser import ArgumentParser
 
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging("logs/" + currFileName[:-3] + ".log", logging.INFO)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(
+    "logs/" + currFileName[:-3] + ".log", logging.INFO, False
+)  # change to logging.INFO for full logging output
 # for logging from current file
 logger = logging.getLogger(__name__)
 

@@ -22,10 +22,11 @@ from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
 logger = logging.getLogger(__name__)
+
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
 ls.setupScriptLogging(
-    "logs/" + currFileName[:-3] + ".log", logging.INFO
+    "logs/" + currFileName[:-3] + ".log", logging.INFO, False
 )  # change to logging.INFO for full logging output
 
 ## This builds and analyzes a dict with keys:
@@ -338,10 +339,9 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
 
 if __name__ == "__main__":
-    
     lpp = LinearityPlotsParallel()
     logger.info("have built an LPP")
-    
+
     lpp.useNswitchedAsFlux = False
     lpp.fluxLabel = "wave8 flux (ADU)"
     if lpp.special is not None and "useNswitchedAsFlux" in lpp.special:
@@ -350,7 +350,12 @@ if __name__ == "__main__":
 
     noSwitchedOnly = lpp.special is not None and "noSwitchedOnly" in lpp.special
 
-    print("using switched pixels as flux? only events with no switch? " + str(lpp.useNswitchedAsFlux) + " " + str(noSwitchedOnly))
+    print(
+        "using switched pixels as flux? only events with no switch? "
+        + str(lpp.useNswitchedAsFlux)
+        + " "
+        + str(noSwitchedOnly)
+    )
 
     if lpp.file is not None:
         logger.info("using flux label: " + lpp.fluxLabel)
@@ -558,4 +563,3 @@ if __name__ == "__main__":
     """
 
     smd.done()
-
