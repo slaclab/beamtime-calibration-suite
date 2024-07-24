@@ -61,6 +61,13 @@ class PsanaBase(PsanaCommon):
             run = self.run
         return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
+    def get_smalldata(self, **kwargs):##, gather_interval=100):
+        try:
+            return self.ds.small_data(filename=filename, gather_interval=gather_interval)
+        except:
+            print("can't make smalldata - is datasource defined?")
+        return None
+        
     def getEvt(self, run=None):
         oldDs = self.ds
         if run is not None:

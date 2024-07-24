@@ -33,27 +33,32 @@ class DetectorInfo:
         # end of detector-specific vars
 
         self.detectorType = detType
-        self.choosenCameraType = None
+        self.cameraType = None
         self.dimension = 3  ## suite attempts not to know
 
-        knownTypes = ["epixhr", "epixm", "archon"]
+        knownTypes = ["epixhr", "epixm", "epix100", "jungfrau", "epix10k", "archon"]
         if detType not in knownTypes:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
+        self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
         if detType == "epixhr":
             self.setup_epixhr()
         elif detType == "epixm":
             self.setup_epixM()
+        elif detType == "epix100":
+            self.setup_epix100()
         elif detType == "archon":
             self.setup_rixsCCD(mode=detSubtype)
-
+        elif detType == "jungfrau":
+            self.setup_jungfrau(nModules=detSubtype)
+            
     def setNModules(self, n):
-        self.choosenCameraType = self.ePix10kCameraTypes.get(n)
+        self.chosenCameraType = self.ePix10kCameraTypes.get(n)
 
     def getCameraType(self):
-        return self.choosenCameraType
+        return self.chosenCameraType
 
     def setup_epixhr(self, version=0):
         self.g0cut = 1 << 14
@@ -88,6 +93,40 @@ class DetectorInfo:
         self.seedCut = 2
         self.neighborCut = 0.25  ## ditto
 
+    def setup_epix100(self, version=0):
+        self.g0cut = 1 << 15
+        self.nRows = 704
+        self.nCols = 768
+        self.nColsPerBank = 96
+        self.nBanksRow = int(self.nCols / self.nColsPerBank)
+        self.nBanksCol = 4
+        self.nRowsPerBank = int(self.nRows / self.nBanksCol)
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "regionCommonMode"
+        self.clusterShape = [3, 3]
+        self.seedCut = 3
+        self.neighborCut = 0.5  
+
+    def setup_jungfrau(self, nModules=1,version=0):
+        self.nModules = nModules
+        self.cameraType = self.jungfrauCameraTypes[self.nModules]
+        self.g0cut = 1 << 14
+        self.g1cut = 2 << 14
+        self.g2cut = 3 << 14
+        self.nRows = 512
+        self.nCols = 1024
+        self.nColsPerBank = 256
+        self.nBanksRow = int(self.nCols / self.nColsPerBank)
+        self.nBanksCol = 1
+        self.nRowsPerBank = int(self.nRows / self.nBanksCol)
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "regionCommonMode"
+        self.clusterShape = [3, 3]
+        self.seedCut = 3
+        self.neighborCut = 0.5  
+
     def setup_rixsCCD(self, mode, version=0):
         print("rixsCCD mode:", mode)
         self.nTestPixelsPerBank = 36
@@ -102,3 +141,5 @@ class DetectorInfo:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
         self.g0cut = 1 << 16
+
+    

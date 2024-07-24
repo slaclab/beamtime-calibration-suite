@@ -135,8 +135,11 @@ if __name__ == "__main__":
 
     sic.setupPsana()
     size = 666
-    smd = sic.ds.smalldata(
-        filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    if sic.psanaType==1:
+        smd = sic.ds.small_data(filename=filename, gather_interval=100)
+    else:
+        smd = sic.get_smalldata(filename=filename)
     )
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
@@ -297,7 +300,10 @@ if __name__ == "__main__":
                     ## had continue here
                     break
 
-        smd.event(evt, clusterData=clusterArray)
+        if scp.psanaType==1:
+            smd.event(clusterData=clusterArray)
+        else:
+            smd.event(evt, clusterData=clusterArray)
 
         sic.nGoodEvents += 1
         if sic.nGoodEvents % 1000 == 0:

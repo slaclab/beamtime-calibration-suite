@@ -115,6 +115,13 @@ class PsanaBase(PsanaCommon):
         )  ##, dir=tmpDir)
         return ds
 
+    def get_smalldata(self, filename=filename):##, gather_interval=100):
+        try:
+            return self.ds.smalldata(filename=filename)##, gather_interval=gather_interval)
+        except:
+            print("can't make smalldata - is datasource defined?")
+        return None
+
     def getEvtOld(self, run=None):
         oldDs = self.ds
         if run is not None:
