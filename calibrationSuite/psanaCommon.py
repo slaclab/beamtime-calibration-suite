@@ -250,6 +250,8 @@ class PsanaCommon(object):
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)
                 self.detType = self.detectorInfo.getCameraType()
+            else:
+                self.detType = self.detectorInfo.getCameraType()
         else:
             self.detType = self.args.detType
 

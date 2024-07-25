@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
-        super().__init__()
+        super().__init__(analysisType)
 
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
@@ -59,7 +59,8 @@ class PsanaBase(PsanaCommon):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        ##return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        return psana.MPIDataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
     def get_smalldata(self, **kwargs):##, gather_interval=100):
         try:

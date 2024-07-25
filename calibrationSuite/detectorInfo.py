@@ -54,13 +54,14 @@ class DetectorInfo:
         elif detType == "jungfrau":
             self.setup_jungfrau(nModules=detSubtype)
             
-    def setNModules(self, n):
-        self.chosenCameraType = self.ePix10kCameraTypes.get(n)
+##    def setNModules(self, n):
+##        self.chosenCameraType = self.ePix10kCameraTypes.get(n)
 
     def getCameraType(self):
-        return self.chosenCameraType
+        return self.cameraType
 
     def setup_epixhr(self, version=0):
+        self.cameraType = "epixhr"
         self.g0cut = 1 << 14
         self.nRows = 288
         self.nCols = 284
@@ -76,6 +77,7 @@ class DetectorInfo:
         self.neighborCut = 0.5  ## probably too low given the noise
 
     def setup_epixM(self, version=0):
+        self.cameraType = "epixM"
         self.g0cut = 1 << 15
         self.nModules = 4
         ## per module (aka asic)
@@ -94,6 +96,7 @@ class DetectorInfo:
         self.neighborCut = 0.25  ## ditto
 
     def setup_epix100(self, version=0):
+        self.cameraType = "Epix100a"
         self.g0cut = 1 << 15
         self.dimension = 2
         self.nRows = 704
@@ -130,6 +133,7 @@ class DetectorInfo:
 
     def setup_rixsCCD(self, mode, version=0):
         print("rixsCCD mode:", mode)
+        self.cameraType = "rixsCCD" ##+ mode ## psana should support mode
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
         self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank

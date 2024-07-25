@@ -140,7 +140,7 @@ if __name__ == "__main__":
         smd = sic.ds.small_data(filename=filename, gather_interval=100)
     else:
         smd = sic.get_smalldata(filename=filename)
-    )
+
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
@@ -171,8 +171,12 @@ if __name__ == "__main__":
     if sic.useFlux:
         evtGen = sic.matchedDetEvt()
     else:
-        evtGen = sic.myrun.events()
-
+        try:
+            evtGen = sic.myrun.events()
+        except:
+            ##if sic.psanaType == 1: ## fix in base class asap
+            evtGen = sic.ds.events()
+        
     pedestal = None
     nComplaints = 0
     try:
@@ -258,7 +262,10 @@ if __name__ == "__main__":
             print("common mode killed frames???")
             raise Exception
 
-        flux = sic.flux
+        try: ## added for psana1 - should fix in base class
+            flux = sic.flux
+        except:
+            flux = None
         if sic.useFlux and flux is None:
             continue
         if sic.threshold is not None and flux > sic.threshold:
@@ -300,7 +307,7 @@ if __name__ == "__main__":
                     ## had continue here
                     break
 
-        if scp.psanaType==1:
+        if sic.psanaType==1:
             smd.event(clusterData=clusterArray)
         else:
             smd.event(evt, clusterData=clusterArray)
@@ -321,9 +328,18 @@ if __name__ == "__main__":
     ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
     ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if smd.summary:
+    if sic.psanaType==1 or smd.summary:
+        ## guess at desired psana1 behavior - no smd.summary there
+        ## maybe check smd.rank == 0?
         sumhSum = smd.sum(hSum)
-        smd.save_summary({"energyHistogram": sumhSum})
-    smd.done()
+        if sic.psanaType==1:
+            smd.save({"energyHistogram": sumhSum})
+        else:
+            smd.save_summary({"energyHistogram": sumhSum})
+
+    if sic.psanaType != 1:
+        ## need to figure out how to hide the smalldata differences
+        ## unless we have to make new classes to wrap it
+        smd.done()
 
     sic.dumpEventCodeStatistics()
