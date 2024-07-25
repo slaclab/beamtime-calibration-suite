@@ -80,6 +80,10 @@ class PsanaBase(PsanaCommon):
         self.ds = oldDs
         return evt
 
+    def getEventCodes(self, evt):
+        ## do something smarter if ever needed
+        return []
+    
     def getFlux(self, evt):
         try:
             fluxes = self.wave8.get(evt).peakA()
@@ -128,6 +132,9 @@ class PsanaBase(PsanaCommon):
 
     def getScanValue(self, foo):
         return self.controlData().pvControls()[0].value()
+
+    def plainGetRawData(self, evt):
+        return self.det.raw(evt)
 
     def getRawData(self, evt, gainBitsMasked=True):
         frames = self.det.raw(evt)

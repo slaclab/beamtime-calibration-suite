@@ -13,18 +13,19 @@ import numpy as np
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 singlePixelArray = []
 for i in [0]:
-    singlePixelArray.append([i, 10, 10])
-    singlePixelArray.append([i, 10, 100])
-    singlePixelArray.append([i, 100, 10])
-    singlePixelArray.append([i, 100, 100])
-    singlePixelArray.append([i, 150, 150])
-    singlePixelArray.append([i, 80, 20])
+    singlePixelArray.append([10, 10])
+    singlePixelArray.append([10, 100])
+    singlePixelArray.append([100, 10])
+    singlePixelArray.append([100, 100])
+    singlePixelArray.append([150, 150])
+    singlePixelArray.append([80, 20])
 
 experimentHash = {
     "detectorType": "epix100",
     "exp": "detdaq21",
     # "exp": "rixx1003721",
     "location": "DetLab",
+    "ignoreEventCodeCheck": True,
     ## might add camera:0 or whatever here...
     "analyzedModules": [0],
     "seedCut": 40,  ## pure guess
@@ -40,5 +41,5 @@ experimentHash = {
     # 'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     # "ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
     #],
-    "regionSlice": np.s_[0, 0:704:, 0:768]  
+    "regionSlice": np.s_[0:1, 0:704:, 0:768]  
 }

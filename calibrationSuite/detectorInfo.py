@@ -95,6 +95,7 @@ class DetectorInfo:
 
     def setup_epix100(self, version=0):
         self.g0cut = 1 << 15
+        self.dimension = 2
         self.nRows = 704
         self.nCols = 768
         self.nColsPerBank = 96
