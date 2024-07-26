@@ -108,6 +108,7 @@ class DetectorInfo:
         # need to still implement getGainMode()
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "regionCommonMode"
+        self.aduPerKeV = 18. ## approximate
         self.clusterShape = [3, 3]
         self.seedCut = 3
         self.neighborCut = 0.5  
