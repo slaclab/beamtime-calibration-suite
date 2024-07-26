@@ -307,6 +307,9 @@ if __name__ == "__main__":
                     ## had continue here
                     break
 
+        if nevt%1000 == 0:
+            print("event %d, found %d clusters" %(nevt, nClusters))
+            
         if sic.psanaType==1:
             smd.event(clusterData=clusterArray)
         else:
