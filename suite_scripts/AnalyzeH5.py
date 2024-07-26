@@ -40,6 +40,7 @@ class AnalyzeH5(object):
         ##logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
+        self.seedCut = args.seedCut
 
     def getFiles(self):
         fileNames = self.files.split(",")
@@ -85,6 +86,7 @@ class AnalyzeH5(object):
             pass
 
         self.nBins = 200  ## for epixM with a lot of 2 photon events...
+        
         if self.seedCut is None:
             self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         else:
