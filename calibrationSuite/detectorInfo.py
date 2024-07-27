@@ -99,6 +99,7 @@ class DetectorInfo:
         self.cameraType = "Epix100a"
         self.g0cut = 1 << 15
         self.dimension = 2
+        self.nModules = 1
         self.nRows = 704
         self.nCols = 768
         self.nColsPerBank = 96

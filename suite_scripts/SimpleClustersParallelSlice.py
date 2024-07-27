@@ -262,6 +262,10 @@ if __name__ == "__main__":
             print("common mode killed frames???")
             raise Exception
 
+        ## temp fix for 2d case (epix100, rixsCCD)
+        if sic.detectorInfo.dimension == 2:
+            frames = np.array([frames])
+            
         try: ## added for psana1 - should fix in base class
             flux = sic.flux
         except:
