@@ -208,7 +208,11 @@ if __name__ == "__main__":
     zeroLowGain = False
     if sic.special and "zeroLowGain" in sic.special:
         zeroLowGain = True
-
+        
+    useSlice = False
+    if sic.special is not None and "slice" in sic.special:
+        useSlice = True
+    
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
@@ -290,7 +294,7 @@ if __name__ == "__main__":
         for module in sic.analyzedModules:
             if nClusters == maxClusters:
                 continue
-            if sic.special is not None and "slice" in sic.special:
+            if useSlice:## smarter to decide this above
                 bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
             else:
                 bc = BuildClusters(frames[module], seedCut, neighborCut)
@@ -304,7 +308,11 @@ if __name__ == "__main__":
             for c in fc:
                 ##print(c.goodCluster, c.nPixels, c.eTotal)
                 if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
-                    clusterArray[nClusters] = [c.eTotal, module, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
+                    sr = c.seedRow
+                    sc = c.seedCol
+                    if useSlice:
+                        sr, sc = sic.sliceToDetector(sr, sc)
+                    clusterArray[nClusters] = [c.eTotal, module, sr, sc, c.nPixels, c.isSquare()]
                     nClusters += 1
                 if nClusters == maxClusters:
                     print("have found %d clusters, mean energy:" % (maxClusters), np.array(clusterArray)[:, 0].mean())
