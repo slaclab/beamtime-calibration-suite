@@ -16,21 +16,20 @@ import numpy as np
 
 import calibrationSuite.ancillaryMethods as ancillaryMethods
 import calibrationSuite.fitFunctions as fitFunctions
-import calibrationSuite.loggingSetup as ls
 
 ##import sys
 from calibrationSuite.argumentParser import ArgumentParser
-
-# log to file named <curr script name>.log
-currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
-# for logging from current file
-logger = logging.getLogger(__name__)
 
 
 class AnalyzeH5(object):
     def __init__(self):
         args = ArgumentParser().parse_args()
+
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="../log.txt",
+        level=logging.INFO,  # For full logging set to INFO which includes ERROR logging too
+        format="%(asctime)s - %(levelname)s - %(message)s",  # levelname is log severity (ERROR, INFO, etc)
+        )
 
         self.run = args.run
         self.files = args.files.replace(" ", "")
@@ -95,7 +94,7 @@ class AnalyzeH5(object):
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
         np.save(npyFileName, clusters)
-        ##logger.info("Wrote file: " + npyFileName)
+        ##self.logger.info("Wrote file: " + npyFileName)
 
         self.analyzeSimpleClusters(clusters)
 
@@ -117,7 +116,7 @@ class AnalyzeH5(object):
             self.label,
         )
         plt.savefig(figFileName)
-        logger.info("Wrote file: " + figFileName)
+        self.logger.info("Wrote file: " + figFileName)
         npyFileName = "%s/%s_r%d_c%d_%s_energyHistogram.npy" % (
             self.outputDir,
             self.__class__.__name__,
@@ -126,7 +125,7 @@ class AnalyzeH5(object):
             self.label,
         )
         np.save(npyFileName, energyHist)
-        logger.info("Wrote file: " + npyFileName)
+        self.logger.info("Wrote file: " + npyFileName)
         plt.close()
 
     def analyzeSimpleClusters(self, clusters):
@@ -149,7 +148,7 @@ class AnalyzeH5(object):
         self.sliceEdges = [rows, cols]
 
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
-        logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
+        self.logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
 
         # foo = ax.hist(energy[energy > 0], 100)
         plt.xlabel = "energy (keV)"
@@ -162,7 +161,7 @@ class AnalyzeH5(object):
             self.label,
         )
         plt.savefig(figFileName)
-        logger.info("Wrote file: " + figFileName)
+        self.logger.info("Wrote file: " + figFileName)
         plt.close()
 
         # verbose = False
@@ -182,13 +181,13 @@ class AnalyzeH5(object):
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
                         print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
-                        logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                        self.logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                         continue
                     energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
                     photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
                     nPixelClusters = (photonEcut > 0).sum()
                     print("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
-                    logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
+                    self.logger.info("pixel %d,%d,%d has about %d photons" % (m, i, j, nPixelClusters))
                     photonRegion = energies[photonEcut]
                     mean = photonRegion.mean()
                     std = photonRegion.std()
@@ -215,7 +214,7 @@ class AnalyzeH5(object):
                             self.label,
                         )
                         plt.savefig(figFileName)
-                        logger.info("Wrote file: " + figFileName)
+                        self.logger.info("Wrote file: " + figFileName)
                     plt.close()
 
         npyFileName = "%s/%s_r%d_c%d_%s_fitInfo.npy" % (
@@ -226,7 +225,7 @@ class AnalyzeH5(object):
             self.label,
         )
         np.save(npyFileName, fitInfo)
-        logger.info("Wrote file: " + npyFileName)
+        self.logger.info("Wrote file: " + npyFileName)
 
         gains = fitInfo[:, :, 3]
         goodGains = gains[np.bitwise_and(gains > 0, gains < 15)]

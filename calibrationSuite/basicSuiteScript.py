@@ -19,8 +19,6 @@ import os
 import numpy as np
 import psana
 
-logger = logging.getLogger(__name__)
-
 if os.getenv("foo") == "1":
     print("psana1")
     from calibrationSuite.psana1Base import PsanaBase
@@ -34,7 +32,7 @@ class BasicSuiteScript(PsanaBase):
         super().__init__()
 
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
-        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
+        self.logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         self.className = self.__class__.__name__
 
     #### Start of common getter functions ####
@@ -81,11 +79,11 @@ class BasicSuiteScript(PsanaBase):
             try:
                 self.run = self.runRange[i + 1]
                 print("switching to run %d" % (self.run))
-                logger.info("switching to run %d" % (self.run))
+                self.logger.info("switching to run %d" % (self.run))
                 self.ds = self.get_ds(self.run)
             except Exception:
                 print("have run out of new runs")
-                logger.exception("have run out of new runs")
+                self.logger.exception("have run out of new runs")
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
@@ -160,7 +158,7 @@ class BasicSuiteScript(PsanaBase):
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
-        logger.info(
+        self.logger.info(
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
@@ -224,7 +222,7 @@ class BasicSuiteScript(PsanaBase):
                 except Exception:
                     rowCM = -666
                     print("rowCM problem")
-                    logger.error("rowCM problem")
+                    self.logger.error("rowCM problem")
                     print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
                 colOffset += self.detectorInfo.nColsPerBank
         return frame
@@ -247,7 +245,7 @@ class BasicSuiteScript(PsanaBase):
                 except Exception:
                     colCM = -666
                     print("colCM problem")
-                    logger.error("colCM problem")
+                    self.logger.error("colCM problem")
                     print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
                 rowOffset += self.detectorInfo.nRowsPerBank
         return frame

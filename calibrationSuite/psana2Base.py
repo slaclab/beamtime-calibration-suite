@@ -36,19 +36,16 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 
-logger = logging.getLogger(__name__)
-
-
 class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
         super().__init__()
 
         commandUsed = sys.executable + " " + " ".join(sys.argv)
-        logger.info("Ran with cmd: " + commandUsed)
+        self.logger.info("Ran with cmd: " + commandUsed)
 
         self.psanaType = 2
         print("in psana2Base")
-        logger.info("in psana2Base")
+        self.logger.info("in psana2Base")
 
         self.allowed_timestamp_mismatch = 1000
 
@@ -89,7 +86,7 @@ class PsanaBase(PsanaCommon):
         except Exception:
             self.mfxDg1 = None
             print("No flux source found")  ## if self.verbose?
-            logger.exception("No flux source found")
+            self.logger.exception("No flux source found")
 
         try:
             self.mfxDg2 = self.myrun.Detector("MfxDg2BmMon")
@@ -230,7 +227,7 @@ class PsanaBase(PsanaCommon):
             sv = eval(payload.split()[-1][:-1])
             ##print('sv', sv)
             print("step", int(self.step_value(step)), sv)
-            logger.info("step" + str(int(self.step_value(step))) + str(sv))
+            self.logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return int(float(sv))
         return self.step_value(step)
 
