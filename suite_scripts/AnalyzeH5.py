@@ -40,6 +40,8 @@ class AnalyzeH5(object):
         ##logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
+        self.seedCut = args.seedCut
+        self.isTestRun = 'testRun' in args.special
 
     def getFiles(self):
         fileNames = self.files.split(",")
@@ -169,6 +171,10 @@ class AnalyzeH5(object):
         for m in analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
             for i in range(rows):
+                # just do a single row when testing
+                if self.isTestRun and i > 0:
+                    break
+
                 rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, "row", i)
 
                 for j in range(cols):
