@@ -134,6 +134,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
+    print("analyzed modules:", sic.analyzedModules) ## move this to psana setup
     size = 666
     filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
     if sic.psanaType==1:
@@ -328,6 +329,10 @@ if __name__ == "__main__":
             smd.event(evt, clusterData=clusterArray)
 
         sic.nGoodEvents += 1
+        if sic.nGoodEvents == sic.maxNevents:
+            print("have reached max n events %d, quitting" %(sic.maxNevents))
+            break
+            
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
             f = frames[sic.regionSlice]

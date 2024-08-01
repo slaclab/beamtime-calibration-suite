@@ -246,22 +246,40 @@ class PsanaCommon(object):
         self.loadPedestalGainOffsetFiles()
 
         if self.args.detType == "":
-            ## assume epix10k for now
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)
-                self.detType = self.detectorInfo.getCameraType()
-            else:
-                self.detType = self.detectorInfo.getCameraType()
+                ##self.detType = self.detectorInfo.getCameraType()
         else:
             self.detType = self.args.detType
+            jungfrau = epix10k = False
+            if 'epix10k' in self.detType.lower():
+                epix10k = True
+            elif 'jungfrau' in self.det.lower():
+                jungfrau = True
+            ## could allow just epix10k or jungfrau + n modules...
+            if epix10k or jungfrau:
+                if self.args.nModules is not None:
+                    raise RuntimeError("should not specify exact detector type and n modules")
+                if epix10k:
+                    nModules = [k for k in self.detectorInfo.epix10kCameraTypes.keys() if self.detectorInfo.epix10kCameraTypes[k]==self.detType]
+                if jungfrau:
+                    nModules = [k for k in self.detectorInfo.jungfrauCameraTypes.keys() if self.detectorInfo.jungfrauCameraTypes[k]==self.detType]
+                if nModules == []:
+                    raise RuntimeError("could not determin n modules from detector type %s" %(self.detType))
+                self.detectorInfo.setNModules(nModules[0])
+
+        self.detectorInfo.setupDetector()
+        ##self.detType = self.detectorInfo.getCameraType()
+        self.detType = self.detectorInfo.detectorType
 
         self.analyzedModules = self.experimentHash.get("analyzedModules", None)
-        if self.analyzedModules is not None:
+        if self.analyzedModules is None:
             try:
                 self.analyzedModules = range(self.detectorInfo.nModules)
             except Exception as e:
                 print("Error evaluating range: " + str(e))
                 logger.info("Error evaluating range: " + str(e))
+        print("analyzing modules:", self.analyzedModules)
 
         self.g0cut = self.detectorInfo.g0cut
         if self.g0cut is not None:

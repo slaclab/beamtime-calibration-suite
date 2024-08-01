@@ -36,26 +36,31 @@ class DetectorInfo:
         self.cameraType = None
         self.dimension = 3  ## suite attempts not to know
 
-        knownTypes = ["epixhr", "epixm", "epix100", "jungfrau", "epix10k", "archon"]
+        knownTypes = ["epixhr", "epixm", "epix100",
+                      "jungfrau", "Jungfrau",## cxic00121 has no alias in run 88
+                      "epix10k", "archon"]
         if detType not in knownTypes:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
-        if detType == "epixhr":
+    def setupDetector(self): ## needs nModules to be set
+        if self.detectorType == "epixhr":
             self.setup_epixhr()
-        elif detType == "epixm":
+        elif self.detectorType == "epixm":
             self.setup_epixM()
-        elif detType == "epix100":
+        elif self.detectorType == "epix100":
             self.setup_epix100()
-        elif detType == "archon":
+        elif self.detectorType == "archon":
             self.setup_rixsCCD(mode=detSubtype)
-        elif detType == "jungfrau":
-            self.setup_jungfrau(nModules=detSubtype)
+        elif 'jungfrau' in self.detectorType.lower():
+            self.setup_jungfrau()
+        elif 'epix10k' in self.detectorType.lower():
+            self.setup_epix10k()
             
-##    def setNModules(self, n):
-##        self.chosenCameraType = self.ePix10kCameraTypes.get(n)
+    def setNModules(self, n):
+        self.nModules = n
 
     def getCameraType(self):
         return self.cameraType
@@ -114,8 +119,7 @@ class DetectorInfo:
         self.seedCut = 3
         self.neighborCut = 0.5  
 
-    def setup_jungfrau(self, nModules=1,version=0):
-        self.nModules = nModules
+    def setup_jungfrau(self, version=0):
         self.cameraType = self.jungfrauCameraTypes[self.nModules]
         self.g0cut = 1 << 14
         self.g1cut = 2 << 14
@@ -130,6 +134,7 @@ class DetectorInfo:
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "regionCommonMode"
         self.clusterShape = [3, 3]
+        self.aduPerKeV = 41 ## g0 only of course...
         self.seedCut = 3
         self.neighborCut = 0.5  
 

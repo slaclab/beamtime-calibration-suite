@@ -52,9 +52,12 @@ if __name__ == "__main__":
         statsArray = [None for i in bss.singlePixels]
 
         for nevt, evt in enumerate(step.events()):
+            if nevt >= bss.maxNevents:
+                print("have reached %d events" %(bss.maxNevents))
+                break
             if evt is None:
                 continue
-
+    
             # for testing
             inner_count += 1
             if isTestRun and inner_count > inner_max:
