@@ -30,6 +30,9 @@ class ArgumentParser:
         self.parser.add_argument("-c", "--camera", type=int, help="camera.n")
         self.parser.add_argument("-p", "--path", type=str, help="the base path to the output directory")
         self.parser.add_argument("-n", "--nModules", type=int, help="nModules")
+        self.parser.add_argument("--analyzedModules", type=str, help="of the form '[0,2,5]'")
+        self.parser.add_argument("--regionSlice", type=str, help="of the form '[0,8,0,704,0,768]' - six ints for 3d detectors")
+        
         self.parser.add_argument(
             "--mode", type=str, help="detector mode (1d, 2d, ...?"
         )  ## might be discoverable otherwise
