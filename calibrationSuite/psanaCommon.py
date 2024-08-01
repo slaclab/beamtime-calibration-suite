@@ -265,10 +265,11 @@ class PsanaCommon(object):
         ##self.analyzedModules = self.experimentHash.get("analyzedModules", None)
         ## why was this here?
         ## some code moved to setupFromHashOrCmd
-        if self.args.analyzedModules != "":
+        if self.args.analyzedModules is not None:
+            print("am:", self.args.analyzedModules)
             self.analyzedModules = eval(self.args.analyzedModules)
 
-        if self.args.regionSlice != "":
+        if self.args.regionSlice is not None:
             regionSliceArray = eval(self.args.regionSlice)
             if len(regionSliceArray) != 6:
                 raise RuntimeError("expect 6 elements in region slice")
