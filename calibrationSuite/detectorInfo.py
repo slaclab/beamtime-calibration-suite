@@ -36,7 +36,7 @@ class DetectorInfo:
         self.cameraType = None
         self.dimension = 3  ## suite attempts not to know
 
-        knownTypes = ["epixhr", "epixm", "epix100",
+        knownTypes = ["epixhr", "epixm", "epix100", "Epix100a",
                       "jungfrau", "Jungfrau",## cxic00121 has no alias in run 88
                       "epix10k", "archon"]
         if detType not in knownTypes:

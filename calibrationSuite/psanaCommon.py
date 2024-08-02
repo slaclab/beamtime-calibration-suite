@@ -266,7 +266,6 @@ class PsanaCommon(object):
         ## why was this here?
         ## some code moved to setupFromHashOrCmd
         if self.args.analyzedModules is not None:
-            print("am:", self.args.analyzedModules)
             self.analyzedModules = eval(self.args.analyzedModules)
 
         if self.args.regionSlice is not None:
