@@ -142,7 +142,6 @@ if __name__ == "__main__":
     else:
         smd = sic.get_smalldata(filename=filename)
 
-
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
     if sic.seedCut is not None:
@@ -338,9 +337,10 @@ if __name__ == "__main__":
             
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            try:
+            
+            if sic.detectorInfo.dimension == 3:
                 f = frames[sic.regionSlice]
-            except:
+            elif sic.detectorInfo.dimension == 2:
                 f = frames[sic.analyzedModules[0]]
             print(
                 "slice or module median, max, guess at single photon, guess at zero photon:",
