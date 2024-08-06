@@ -12,23 +12,14 @@ import os
 
 import numpy as np
 
-import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from calibrationSuite.Stats import Stats
 
-# for logging from current file
-logger = logging.getLogger(__name__)
-# log to file named <curr script name>.log
-currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
-)  # change to logging.INFO for full logging output
-
-
 if __name__ == "__main__":
     bss = BasicSuiteScript("dark")
+
     print("have built a " + bss.className + " class")
-    logger.info("have built a " + bss.className + " class")
+    bss.logger.info("have built a " + bss.className + " class")
 
     bss.setupPsana()
     if bss.special is not None and "skip283" in bss.special:
@@ -108,7 +99,7 @@ if __name__ == "__main__":
 
             if frames is None:
                 print("None frames on beam event, should not happen")
-                logger.info("None frames on beam event")
+                bss.logger.info("None frames on beam event")
                 continue
 
             for i, p in enumerate(bss.singlePixels):
@@ -130,7 +121,7 @@ if __name__ == "__main__":
         if bss.special is not None and "slice" in bss.special:
             noise = noise[bss.regionSlice]
             print("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
-            logger.info("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
+            bss.logger.info("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             means = means[bss.regionSlice]
 
         if bss.fakePedestal is not None:
@@ -140,8 +131,8 @@ if __name__ == "__main__":
         np.save(meanRmsFileName, noise)
         meanFileName = "%s/CalcNoiseAndMean_mean_%s_r%d_step%s.npy" % (bss.outputDir, bss.label, bss.run, nstep)
         np.save(meanFileName, means)
-        logger.info("Wrote file: " + meanRmsFileName)
-        logger.info("Wrote file: " + meanFileName)
+        bss.logger.info("Wrote file: " + meanRmsFileName)
+        bss.logger.info("Wrote file: " + meanFileName)
 
         for i, p in enumerate(bss.singlePixels):
             try:

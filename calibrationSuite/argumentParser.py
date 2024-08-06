@@ -16,6 +16,7 @@ class ArgumentParser:
             description="Configures calibration suite, overriding experimentHash",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         )
+        self.parser.add_argument('--logFile', type=str, default='log.txt', help='path to log file, relative to project root (default: log.txt)')
         self.parser.add_argument("-e", "--exp", help="experiment")
         self.parser.add_argument("-l", "--location", help="hutch location, e.g. MfxEndstation or DetLab")
         self.parser.add_argument("-r", "--run", type=int, help="run")
