@@ -296,7 +296,11 @@ if __name__ == "__main__":
             if nClusters == maxClusters:
                 continue
             if useSlice:## smarter to decide this above
-                bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
+                if sic.detectorInfo.dimension == 2:
+                    bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut)
+                elif sic.detectorInfo.dimension == 3:
+                    bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
+                    bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut) ## almost certainly needs to have order flipped, left as is for test
             else:
                 bc = BuildClusters(frames[module], seedCut, neighborCut)
 
