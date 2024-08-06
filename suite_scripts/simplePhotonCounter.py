@@ -36,13 +36,13 @@ if __name__ == "__main__":
                 gain = 6.66  # 20/3
             else:
                 raise Exception
-        print("using gain correction", gain)
+        spc.logger.info("using gain correction" + str(gain))
 
     if spc.threshold is not None:
         spc.photonCut = spc.threshold
     else:
         spc.photonCut = 6.0
-        print("using photon cut", spc.photonCut)
+        spc.logger.info("using photon cut" + str(spc.photonCut))
 
     while True:
         evt = spc.getEvt()
@@ -73,7 +73,6 @@ if __name__ == "__main__":
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
-            print("n good events analyzed: %d" % (nGoodEvents))
             logging.info("n good events analyzed: %d" % (nGoodEvents))
 
         if nGoodEvents > spc.maxNevents:
@@ -84,15 +83,10 @@ if __name__ == "__main__":
     npyFileName = "%s/%s_%s_r%d_c%d_%s.npy" % (spc.outputDir, scriptType, spc.label, spc.run, spc.camera, spc.exp)
     np.save(npyFileName, thresholded / nGoodEvents)
     spc.logger.info("Wrote file: " + npyFileName)
-    print(
-        "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"
-        % (spc.photonCut, (thresholded / nGoodEvents).mean())
-    )
     spc.logger.info(
         "likelihood of a photon or photons per pixel using cut %0.2f is %0.3f"
         % (spc.photonCut, (thresholded / nGoodEvents).mean())
     )
-    print("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
     spc.logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
 
     if False:

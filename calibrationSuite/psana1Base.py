@@ -30,7 +30,6 @@ class PsanaBase(PsanaCommon):
         logger.info("Ran with cmd: " + commandUsed)
 
         self.psanaType = 1
-        print("in psana1Base")
         logger.info("in psana1Base")
         self.g0cut = 1 << 14
         self.gainBitsMask = self.g0cut - 1
@@ -77,7 +76,6 @@ class PsanaBase(PsanaCommon):
         try:
             fluxes = self.wave8.get(evt).peakA()
             if fluxes is None:
-                print("No flux found")  ## if self.verbose?
                 logger.error("No flux found")
                 return None
             f = fluxes[self.fluxChannels].mean() * self.fluxSign

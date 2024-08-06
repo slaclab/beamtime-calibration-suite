@@ -18,7 +18,7 @@ class HistogramFluxEtc(BasicSuiteScript):
         super().__init__()  ##self)
 
     def plotData(self, flux, meanFrames, eventCodes, label):
-        print("plotting data")
+        self.logging.info("plotting data")
         plt.hist(flux, 100)
         plt.xlabel("flux")
         plt.title("Run %d flux %s" % (self.run, label))

@@ -18,7 +18,6 @@ from calibrationSuite.Stats import Stats
 if __name__ == "__main__":
     bss = BasicSuiteScript("dark")
 
-    print("have built a " + bss.className + " class")
     bss.logger.info("have built a " + bss.className + " class")
 
     bss.setupPsana()
@@ -77,13 +76,13 @@ if __name__ == "__main__":
                     frames = bss.noCommonModeCorrection(frames)
                 elif "rowCommonMode" in bss.special:
                     if bss.fakePedestal is None:
-                        print("row common mode needs reasonable pedestal")
+                        bss.logger.exception("row common mode needs reasonable pedestal")
                         raise Exception
                     frames = frames - bss.fakePedestal
                     frames = bss.rowCommonModeCorrection3d(frames, 2.0)
                 elif "colCommonMode" in bss.special:
                     if bss.fakePedestal is None:
-                        print("col common mode needs reasonable pedestal")
+                        logger.exception("col common mode needs reasonable pedestal")
                         raise Exception
                     frames = frames - bss.fakePedestal
                     frames = bss.colCommonModeCorrection3d(frames, 2.0)
@@ -98,7 +97,6 @@ if __name__ == "__main__":
                 ##print(frames)
 
             if frames is None:
-                print("None frames on beam event, should not happen")
                 bss.logger.info("None frames on beam event")
                 continue
 
@@ -120,7 +118,6 @@ if __name__ == "__main__":
         means = stats.mean()
         if bss.special is not None and "slice" in bss.special:
             noise = noise[bss.regionSlice]
-            print("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             bss.logger.info("mean, median noise: " + str(noise.mean()) + " " + str(np.median(noise)))
             means = means[bss.regionSlice]
 

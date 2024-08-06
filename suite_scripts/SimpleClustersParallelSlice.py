@@ -49,7 +49,7 @@ class SimpleClusters(BasicSuiteScript):
                 mean = std = mu = sigma = 0
                 pixelE = energy[pixelEcut > 0]
                 if nPixelClusters > 5:
-                    print("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
+                    self.logger.info("pixel %d,%d has %d photons" % (i, j, nPixelClusters))
                     ax = plt.subplot()
                     y, bin_edges, _ = ax.hist(pixelE, 100)
                     bins = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -127,10 +127,10 @@ class SimpleClusters(BasicSuiteScript):
 
 if __name__ == "__main__":
     sic = SimpleClusters()
-    print("have built a", sic.className, "class")
+    sic.logger.info("have built a", sic.className, "class")
     if sic.file is not None:
         sic.analyze_h5(sic.file, sic.label)
-        print("done with standalone analysis of %s, exiting" % (sic.file))
+        sic.logger.info("done with standalone analysis of %s, exiting" % (sic.file))
         sys.exit(0)
 
     sic.setupPsana()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     except Exception:
         neighborCut = 0.5
 
-    print("using seed, neighbor cuts", seedCut, neighborCut)
+    print("using seed, neighbor cuts" + str(seedCut) + " " + str(neighborCut))
 
     sic.clusterElements = ["energy", "module", "row", "col", "nPixels", "isSquare"]
     nClusterElements = len(sic.clusterElements)
@@ -181,21 +181,21 @@ if __name__ == "__main__":
             gain = 20  ##17.## my guess
         elif "FM" in sic.special:
             gain = 6.66  # 20/3
-        print("using gain correction", gain)
+        sic.logger.info("using gain correction" + str(gain))
 
         try:
             if "FH" in sic.special:
                 gainMode = sic.gainModes["FH"]
             if "FM" in sic.special:
                 gainMode = sic.gainModes["FM"]
-            print("you have decided this is gain mode %d" % (gainMode))
+            sic.logger.info("you have decided this is gain mode %d" % (gainMode))
             pedestal = sic.det.calibconst["pedestals"][0][gainMode]
             if gain is None:
                 gain = sic.det.calibconst["pedestals"][0][gainMode]
                 ## something wrong with the overall logic here
         except Exception:
-            print("May not have a detector object in this data stream...")
-            print("sic.det:", sic.det)
+            sic.logger.exception("May not have a detector object in this data stream...")
+            sic.logger.exception("sic.det:" + str(sic.det))
             pass
 
     zeroLowGain = False
@@ -235,12 +235,12 @@ if __name__ == "__main__":
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666 * 10, 10)
-                print("added %d fake photons" % (nAdded))
+                sic.logger.info("added %d fake photons" % (nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
             frame = sic.getCalibData(evt)[0]
         if frames is None:
-            print("something weird and bad happened, ignore event")
+            sic.logger.error("something weird and bad happened, ignore event")
             continue
 
         if sic.special is not None:
@@ -252,7 +252,7 @@ if __name__ == "__main__":
                 frames = sic.colCommonModeCorrection3d(frames, 2.0)
 
         if frames is None:
-            print("common mode killed frames???")
+            logger.exception("common mode killed frames???")
             raise Exception
 
         flux = sic.flux
@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
         sic.nGoodEvents += 1
         if sic.nGoodEvents % 1000 == 0:
-            print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
+            logger.info("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
             f = frames[sic.regionSlice]
             print(
                 "slice median, max, guess at single photon, guess at zero photon:",

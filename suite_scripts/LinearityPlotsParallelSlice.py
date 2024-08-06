@@ -29,13 +29,11 @@ class LinearityPlotsParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("scan")  ##self)
         self.saturated = [True, False][1]
-        print("using saturation fit =", self.saturated)
         self.logger.info("using saturation fit =" + str(self.saturated))
         self.residuals = [True, False][0]
         self.profiles = [True, False][0]
         self.seabornProfiles = [True, False][0]
         try:
-            print("positive events:", "positive" in self.special)
             self.logger.info("positive events:" + str("positive" in self.special))
 
         except Exception:
@@ -225,7 +223,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         if self.profiles:
                             x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
-                                print("empty profile for %d, %d" % (i, j))
                                 self.logger.info("empty profile for %d, %d" % (i, j))
                                 continue
                         if x is not None:
@@ -264,7 +261,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         if self.profiles:
                             x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
-                                print("empty profile for %d, %d" % (i, j))
                                 self.logger.info("empty profile for %d, %d" % (i, j))
                         if x is not None:
                             fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
@@ -334,7 +330,6 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     lpp = LinearityPlotsParallel()
-    print("have built an LPP")
     lpp.logger.info("have built an LPP")
     lpp.useNswitchedAsFlux = False
     lpp.fluxLabel = "wave8 flux (ADU)"
@@ -351,16 +346,13 @@ if __name__ == "__main__":
         lpp.fitInfo = None
         lpp.analyze_h5(lpp.file, lpp.label + "_raw")
         lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
-        print("done with standalone analysis of %s, exiting" % (lpp.file))
         lpp.logger.info("done with standalone analysis of %s, exiting" % (lpp.file))
         sys.exit(0)
 
     doKazFlux = False
     if doKazFlux:
-        print("doing Kaz flux events")
         lpp.logger.info("doing Kaz flux events")
     else:
-        print("not doing Kaz events")
         lpp.logger.info("not doing Kaz events")
 
     lpp.setupPsana()
@@ -410,7 +402,6 @@ if __name__ == "__main__":
             frames = lpp.getCalibData(evt)
 
         if rawFrames is None:
-            print("No contrib found")
             lpp.logger.info("No contrib found")
             continue
         ## could? should? check for calib here I guess
@@ -421,13 +412,11 @@ if __name__ == "__main__":
 
         flux = lpp.getFlux(evt)
         if flux is None:
-            print("no flux found")
             lpp.logger.info("no flux found")
             continue
         delta = lpp.framesTS - lpp.fluxTS
         if delta > 1000:
             ## probably not relevant when checking isBeamEvent
-            print("frame - bld timestamp delta too large:", delta)
             lpp.logger.info("frame - bld timestamp delta too large:" + str(delta))
             continue
 

@@ -44,7 +44,6 @@ class PsanaBase(PsanaCommon):
         self.logger.info("Ran with cmd: " + commandUsed)
 
         self.psanaType = 2
-        print("in psana2Base")
         self.logger.info("in psana2Base")
 
         self.allowed_timestamp_mismatch = 1000
@@ -74,7 +73,7 @@ class PsanaBase(PsanaCommon):
         ## use a dict etc.
         self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
-            print("no det object for epixhr, what?  Pretend it's ok.")
+            logger.error("no det object for epixhr, what?  Pretend it's ok.")
             ##raise Exception
         ## could set to None and reset with first frame I guess, or does the det object know?
 
@@ -85,7 +84,6 @@ class PsanaBase(PsanaCommon):
             self.mfxDg1 = self.myrun.Detector("MfxDg1BmMon")
         except Exception:
             self.mfxDg1 = None
-            print("No flux source found")  ## if self.verbose?
             self.logger.exception("No flux source found")
 
         try:
@@ -226,7 +224,6 @@ class PsanaBase(PsanaCommon):
             print(payload)
             sv = eval(payload.split()[-1][:-1])
             ##print('sv', sv)
-            print("step", int(self.step_value(step)), sv)
             self.logger.info("step" + str(int(self.step_value(step))) + str(sv))
             return int(float(sv))
         return self.step_value(step)

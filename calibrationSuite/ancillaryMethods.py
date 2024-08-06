@@ -30,7 +30,6 @@ def makeProfile(x, y, bins, range=None, spread=False, myStatistic="mean"):
     usefulBins = np.bitwise_and(bin_N > 0, ~np.isnan(means))
     if bin_N.sum() == 0:
         ##no data
-        print("no data in profile")
         logger.error("no data in profile")
         return None, None, None
 
@@ -98,13 +97,10 @@ def goodClusters(clusters, module, row, col, nPixelCut=4, isSquare=None):
     else:
         small = np.bitwise_and((clusters[:, :, 4] < nPixelCut), (clusters[:, :, 5] == isSquare))
     c = clusters[np.bitwise_and.reduce([mCut, small, pixelRowCol])]
-    ##print(c.shape)
-    ##print(c)
     return c
 
 
 def getClusterEnergies(clusters):
-    ##print(clusters)
     return clusters[:, 0]
 
 

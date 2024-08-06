@@ -23,7 +23,6 @@ class TimeScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__()  ##self)
         try:
-            print("positive events:", "positive" in self.special)
             self.logger.info("positive events:" + (["positive" in self.special]))
         except Exception:
             pass
@@ -106,7 +105,7 @@ class TimeScanParallel(BasicSuiteScript):
             plt.close()
 
     def plotSliceData(self, sliceData, delays, label):
-        print("in plot slice data, asic 1 for the moment")
+        logger.info("in plot slice data, asic 1 for the moment")
         for i in range(5):
             ##slicePixel = [i*2, i*2]
             ax = plt.subplot()
@@ -171,17 +170,15 @@ class TimeScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     tsp = TimeScanParallel()
-    print("have built a ", tsp.className, "class")
     tsp.logger.info("have built a " + tsp.className + "class")
     fileMadeByScript = False
     if tsp.file is not None:
-        print("tsp.file", tsp.file)
+        logger.info("tsp.file" + tsp.file)
         fileMadeByScript = tsp.file.split("/")[-1].startswith(tsp.className)
     if fileMadeByScript:  ##and tsp.psanaType != 0: ## added type for rogue
         tsp.analyze_h5(tsp.file, "means", tsp.label)
         ##tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
-        print("done with standalone analysis of %s, exiting" % (tsp.file))
         tsp.logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
         sys.exit(0)
 
@@ -190,7 +187,6 @@ if __name__ == "__main__":
     ##this is a hack
     if tsp.exp == "foo" and tsp.run < 500:  ## guess
         tsp.use_281_for_old_data = True
-        print("using all event code 281 frames for old data")
         tsp.logger.info("using all event code 281 frames for old data")
 
     size = 666
@@ -246,7 +242,6 @@ if __name__ == "__main__":
                     tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
                 else:
-                    print("not beam event, not frame event, not bld...")
                     tsp.logger.info("not beam event, not frame event, not bld...")
                     continue
             else:
@@ -292,7 +287,6 @@ if __name__ == "__main__":
 
             tsp.nGoodEvents += 1
             if tsp.nGoodEvents % 100 == 0:
-                print("n good events analyzed: %d" % (tsp.nGoodEvents))
                 tsp.logger.info("n good events analyzed: %d" % (tsp.nGoodEvents))
                 ##print("switched pixels: %d" %((switchedPixels>0).sum()))
 
