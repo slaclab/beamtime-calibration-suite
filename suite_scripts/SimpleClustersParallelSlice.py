@@ -295,12 +295,11 @@ if __name__ == "__main__":
         for module in sic.analyzedModules:
             if nClusters == maxClusters:
                 continue
-            if useSlice:## smarter to decide this above
-                if sic.detectorInfo.dimension == 2:
+            if useSlice:
+                if sic.detectorInfo.dimension == 2: ## figure out how to kill if
                     bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut)
                 elif sic.detectorInfo.dimension == 3:
                     bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
-                    bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut) ## almost certainly needs to have order flipped, left as is for test
             else:
                 bc = BuildClusters(frames[module], seedCut, neighborCut)
 
@@ -339,9 +338,12 @@ if __name__ == "__main__":
             
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            f = frames[sic.regionSlice]
+            try:
+                f = frames[sic.regionSlice]
+            except:
+                f = frames[sic.analyzedModules[0]]
             print(
-                "slice median, max, guess at single photon, guess at zero photon:",
+                "slice or module median, max, guess at single photon, guess at zero photon:",
                 np.median(f),
                 f.max(),
                 np.median(f[f > 4]),

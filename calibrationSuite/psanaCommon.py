@@ -236,7 +236,7 @@ class PsanaCommon(object):
         self.loadPedestalGainOffsetFiles()
 
         print("det type:", self.args.detType)
-        if self.args.detType is None:
+        if self.args.detType == "":
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)
                 ##self.detType = self.detectorInfo.getCameraType()
