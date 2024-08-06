@@ -50,7 +50,7 @@ class DetectorInfo:
             self.setup_epixhr()
         elif self.detectorType == "epixm":
             self.setup_epixM()
-        elif self.detectorType == "epix100":
+        elif self.detectorType in ["epix100", "Epix100a"]:
             self.setup_epix100()
         elif self.detectorType == "archon":
             self.setup_rixsCCD(mode=detSubtype)

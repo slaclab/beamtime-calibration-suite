@@ -235,7 +235,8 @@ class PsanaCommon(object):
 
         self.loadPedestalGainOffsetFiles()
 
-        if self.args.detType == "":
+        print("det type:", self.args.detType)
+        if self.args.detType is None:
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)
                 ##self.detType = self.detectorInfo.getCameraType()
@@ -244,7 +245,7 @@ class PsanaCommon(object):
             jungfrau = epix10k = False
             if 'epix10k' in self.detType.lower():
                 epix10k = True
-            elif 'jungfrau' in self.det.lower():
+            elif 'jungfrau' in self.detType.lower():
                 jungfrau = True
             ## could allow just epix10k or jungfrau + n modules...
             if epix10k or jungfrau:
@@ -327,7 +328,9 @@ class PsanaCommon(object):
         ## setup based on configuration information that can come from
         ## either experiment hash or command line
         if self.regionSlice is not None:
-            ## n.b. assumes 3d slice now
+            ## n.b. expects 3d slice definition regardless for consistency
+            if self.detectorInfo.dimension == 3:
+                offset = 1
             self.sliceCoordinates = [
                 [self.regionSlice[1].start, self.regionSlice[1].stop],
                 [self.regionSlice[2].start, self.regionSlice[2].stop],
@@ -335,8 +338,12 @@ class PsanaCommon(object):
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
 
+            if self.detectorInfo.dimension == 2: ## remap to be 2d
+                self.regionSlice = self.regionSlice[1:3]
+
+
         ## handle 1d rixs ccd data
-        if self.detectorInfo.dimension == 2:
+        if self.detectorInfo.dimension == 1:
             self.regionSlice = self.regionSlice[0], self.regionSlice[2]
             print("remapping regionSlice to handle 1d case")
             logger.info("remapping regionSlice to handle 1d case")
