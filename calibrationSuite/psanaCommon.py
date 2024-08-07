@@ -24,16 +24,18 @@ import numpy as np
 from calibrationSuite.argumentParser import ArgumentParser
 from calibrationSuite.detectorInfo import DetectorInfo
 
-logger = logging.getLogger(__name__)
-
 
 class PsanaCommon(object):
     def __init__(self, analysisType="scan"):
-        print("in psanaCommon")
-        logger.info("in psanaCommon")
-
         self.args = ArgumentParser().parse_args()
-        logger.info("parsed cmdline args: " + str(self.args))
+
+        self.logger = logging.getLogger(__name__)
+        
+        # prepend "../" to logFile name so path is relative to project root
+        self.setupScriptLogging("../" + self.args.logFile)
+
+        self.logger.info("parsed cmdline args: " + str(self.args))
+        self.logger.info("in psanaCommon")
 
         self.gainModes = {"FH": 0, "FM": 1, "FL": 2, "AHL-H": 3, "AML-M": 4, "AHL-L": 5, "AML-L": 6}
         self.ePix10k_cameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
@@ -58,6 +60,25 @@ class PsanaCommon(object):
 
     #### Start of setup related functions ####
 
+    def setupScriptLogging(self, fileName):
+        # setup logging to file '<filename>.log', and configures the underlying calibration-library logging.
+        # log file gets appended to each new run, and can manually delete for fresh log.
+
+        # logger will both writes to log file and prints to terminal
+        self.logger = logging.getLogger()
+        # note: we don't use logging.DEBUG b/c it picks up alot of noisy logging output from psana library,
+        # and for now can't figure out how to supress it...
+        self.logger.setLevel(logging.INFO)
+
+        # only format the log-file output, too hard to read formatted terminal output
+        file_handler = logging.FileHandler(fileName)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+
+        print_handler = logging.StreamHandler()
+        self.logger.addHandler(print_handler)
+
     def loadExperimentHashFromConfig(self):
         """
         Loads the experiment config file (ex: beamtime-calibration-suite/config_files/epixMSuiteConfig.py)
@@ -74,12 +95,9 @@ class PsanaCommon(object):
         configFileName = os.environ.get("SUITE_CONFIG", secondaryConfigFileName)
         config = self.importConfigFile(configFileName)
         if config is None:
-            print("\ncould not find or read config file: " + configFileName)
-            print("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            print("exiting...")
-            logger.error("\ncould not find or read config file: " + configFileName)
-            logger.error("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
-            logger.error("exiting...")
+            self.logger.error("\ncould not find or read config file: " + configFileName)
+            self.logger.error("please set SUITE_CONFIG env-var or use the '-cf' cmd-line arg to specify a valid config file")
+            self.logger.error("exiting...")
             sys.exit(1)
         self.experimentHash = config.experimentHash
 
@@ -89,16 +107,14 @@ class PsanaCommon(object):
         is specified by the user.
         """
         if not os.path.exists(file_path):
-            print("The file " + file_path + " does not exist")
-            logger.error("The file " + file_path + " does not exist")
+            self.logger.error("The file " + file_path + " does not exist")
             return None
         spec = importlib.util.spec_from_file_location("config", file_path)
         config_module = importlib.util.module_from_spec(spec)
         try:
             spec.loader.exec_module(config_module)
         except Exception as e:
-            print("Error executing config-file code: " + str(e))
-            logger.info("Error executing config-file code: " + str(e))
+            logger.exception("Error executing config-file code: " + str(e))
             return None
         return config_module
 
@@ -134,8 +150,7 @@ class PsanaCommon(object):
         ## handle 1d rixs ccd data
         if self.detectorInfo.dimension == 2:
             self.regionSlice = self.regionSlice[0], self.regionSlice[2]
-            print("remapping regionSlice to handle 1d case")
-            logger.info("remapping regionSlice to handle 1d case")
+            self.logger.info("remapping regionSlice to handle 1d case")
 
         self.fluxSource = self.experimentHash.get("fluxSource", None)
         self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16))  ## wave8
@@ -160,11 +175,9 @@ class PsanaCommon(object):
             self.ROI = self.ROIs[0] if len(self.ROIs) >= 1 else None
         except Exception:
             if self.ROIfileNames is not None:
-                print("had trouble finding" + str(self.ROIfileNames))
-                logger.error("had trouble finding" + str(self.ROIfileNames))
+                self.logger.exception("had trouble finding" + str(self.ROIfileNames))
                 for currName in self.ROIfileNames:
-                    print("had trouble finding" + currName)
-                    logger.exception("had trouble finding" + currName)
+                    self.logger.exception("had trouble finding" + currName)
 
     def setupFromCmdlineArgs(self):
         """
@@ -178,13 +191,7 @@ class PsanaCommon(object):
             if self.special is not None:
                 self.fakeBeamCode = "fakeBeamCode" in self.special
 
-        print(
-            "ignoring event code check, faking beam code:"
-            + str(self.ignoreEventCodeCheck)
-            + " "
-            + str(self.fakeBeamCode)
-        )
-        logger.info(
+        self.logger.info(
             "ignoring event code check, faking beam code:"
             + str(self.ignoreEventCodeCheck)
             + " "
@@ -218,8 +225,7 @@ class PsanaCommon(object):
             try:
                 self.threshold = eval(self.args.threshold)
             except Exception as e:
-                print("Error evaluating threshold: " + str(e))
-                logger.exception("Error evaluating threshold: " + str(e))
+                self.logger.exception("Error evaluating threshold: " + str(e))
                 self.threshold = None
 
         self.seedCut = None
@@ -227,8 +233,7 @@ class PsanaCommon(object):
             try:
                 self.seedCut = eval(self.args.seedCut)
             except Exception as e:
-                print("Error evaluating seedcut: " + str(e))
-                logger.exception("Error evaluating seedcut: " + str(e))
+                self.logger.exception("Error evaluating seedcut: " + str(e))
                 self.seedCut = None
 
         self.fluxCutMin = self.args.fluxCutMin
@@ -239,8 +244,7 @@ class PsanaCommon(object):
             try:
                 self.runRange = eval(self.args.runRange)  ## in case needed
             except Exception as e:
-                print("Error evaluating runRange: " + str(e))
-                logger.exception("Error evaluating runRange: " + str(e))
+                self.logger.exception("Error evaluating runRange: " + str(e))
                 self.runRange = None
 
         self.loadPedestalGainOffsetFiles()
@@ -258,8 +262,7 @@ class PsanaCommon(object):
             try:
                 self.analyzedModules = range(self.detectorInfo.nModules)
             except Exception as e:
-                print("Error evaluating range: " + str(e))
-                logger.info("Error evaluating range: " + str(e))
+                self.logger.exception("Error evaluating range: " + str(e))
 
         self.g0cut = self.detectorInfo.g0cut
         if self.g0cut is not None:
@@ -283,8 +286,7 @@ class PsanaCommon(object):
             try:
                 self.fakePedestal = np.load(self.fakePedestalFile)  ##cast to uint32???
             except Exception as e:
-                print("Error loading fake pedistal: " + str(e))
-                logger.exception("Error loading fake pedistal: " + str(e))
+                self.logger.exception("Error loading fake pedistal: " + str(e))
 
         self.g0PedFile = self.args.g0PedFile
         if self.g0PedFile is not None:
@@ -325,10 +327,8 @@ class PsanaCommon(object):
         self.outputDir = os.getenv("OUTPUT_ROOT", ".") + self.outputDir
         # check if outputDir exists, if does not create it and tell user
         if not os.path.exists(self.outputDir):
-            print("could not find output dir: " + self.outputDir)
-            logger.info("could not find output dir: " + self.outputDir)
-            print("please create this dir, exiting...")
-            logger.info("please create this dir, exiting...")
+            self.logger.error("could not find output dir: " + self.outputDir)
+            self.logger.error("please create this dir, exiting...")
             exit(1)
             # the following doesnt work with mpi parallelism (other thread could make dir b4 curr thread)
             # print("so creating dir: " + self.outputDir)
@@ -337,7 +337,6 @@ class PsanaCommon(object):
             # give dir read, write, execute permissions
             # os.chmod(self.outputDir, 0o777)
         else:
-            print("output dir: " + self.outputDir)
-            logger.info("output dir: " + self.outputDir)
+            self.logger.info("output dir: " + self.outputDir)
 
     #### End of setup related functions ####

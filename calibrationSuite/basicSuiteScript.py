@@ -19,13 +19,11 @@ import os
 import numpy as np
 import psana
 
-logger = logging.getLogger(__name__)
-
 if os.getenv("foo") == "1":
-    print("psana1")
+    print("using psana1")
     from calibrationSuite.psana1Base import PsanaBase
 else:
-    print("psana2")
+    print("using psana2")
     from calibrationSuite.psana2Base import PsanaBase
 
 
@@ -33,8 +31,7 @@ class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
         super().__init__()
 
-        print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
-        logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
+        self.logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         self.className = self.__class__.__name__
 
     #### Start of common getter functions ####
@@ -80,12 +77,10 @@ class BasicSuiteScript(PsanaBase):
             i = self.runRange.index(self.run)
             try:
                 self.run = self.runRange[i + 1]
-                print("switching to run %d" % (self.run))
-                logger.info("switching to run %d" % (self.run))
+                self.logger.info("switching to run %d" % (self.run))
                 self.ds = self.get_ds(self.run)
             except Exception:
-                print("have run out of new runs")
-                logger.exception("have run out of new runs")
+                self.logger.exception("have run out of new runs")
                 return None
             ##print("get event from new run")
             evt = next(self.ds.events())
@@ -156,11 +151,7 @@ class BasicSuiteScript(PsanaBase):
         return ((data >= self.g0cut) * 1).sum()
 
     def dumpEventCodeStatistics(self):
-        print(
-            "have counted %d run triggers, %d DAQ triggers, %d beam events"
-            % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
-        )
-        logger.info(
+        self.logger.info(
             "have counted %d run triggers, %d DAQ triggers, %d beam events"
             % (self.nRunCodeEvents, self.nDaqCodeEvents, self.nBeamCodeEvents)
         )
@@ -223,9 +214,8 @@ class BasicSuiteScript(PsanaBase):
                     frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
                 except Exception:
                     rowCM = -666
-                    print("rowCM problem")
-                    logger.error("rowCM problem")
-                    print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
+                    self.logger.exception("rowCM problem")
+                    self.logger.exception(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
                 colOffset += self.detectorInfo.nColsPerBank
         return frame
 
@@ -246,9 +236,8 @@ class BasicSuiteScript(PsanaBase):
                     frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
                 except Exception:
                     colCM = -666
-                    print("colCM problem")
-                    logger.error("colCM problem")
-                    print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
+                    self.logger.exception("colCM problem")
+                    self.logger.exception(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
                 rowOffset += self.detectorInfo.nRowsPerBank
         return frame
 

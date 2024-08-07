@@ -16,24 +16,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
-import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
-
-# for logging from current file
-logger = logging.getLogger(__name__)
-# log to file named <curr script name>.log
-currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.INFO
-)  # change to logging.INFO for full logging output
 
 
 class TimeScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__()  ##self)
         try:
-            print("positive events:", "positive" in self.special)
-            logger.info("positive events:" + (["positive" in self.special]))
+            self.logger.info("positive events:" + (["positive" in self.special]))
         except Exception:
             pass
 
@@ -62,7 +52,7 @@ class TimeScanParallel(BasicSuiteScript):
                 i,
             )
             plt.savefig(figFileName)
-            logger.info("Wrote file: " + figFileName)
+            self.logger.info("Wrote file: " + figFileName)
             plt.clf()
 
         for i, roi in enumerate(self.ROIs):
@@ -88,7 +78,7 @@ class TimeScanParallel(BasicSuiteScript):
                 i,
             )
             plt.savefig(figFileName)
-            logger.info("Wrote file: " + figFileName)
+            self.logger.info("Wrote file: " + figFileName)
             plt.close()
         # plt.show()
 
@@ -111,11 +101,11 @@ class TimeScanParallel(BasicSuiteScript):
                 i,
             )
             plt.savefig(figFileName)
-            logger.info(figFileName)
+            self.logger.info(figFileName)
             plt.close()
 
     def plotSliceData(self, sliceData, delays, label):
-        print("in plot slice data, asic 1 for the moment")
+        logger.info("in plot slice data, asic 1 for the moment")
         for i in range(5):
             ##slicePixel = [i*2, i*2]
             ax = plt.subplot()
@@ -180,18 +170,16 @@ class TimeScanParallel(BasicSuiteScript):
 
 if __name__ == "__main__":
     tsp = TimeScanParallel()
-    print("have built a ", tsp.className, "class")
-    logger.info("have built a " + tsp.className + "class")
+    tsp.logger.info("have built a " + tsp.className + "class")
     fileMadeByScript = False
     if tsp.file is not None:
-        print("tsp.file", tsp.file)
+        logger.info("tsp.file" + tsp.file)
         fileMadeByScript = tsp.file.split("/")[-1].startswith(tsp.className)
     if fileMadeByScript:  ##and tsp.psanaType != 0: ## added type for rogue
         tsp.analyze_h5(tsp.file, "means", tsp.label)
         ##tsp.analyze_h5(tsp.file, 'ratios', tsp.label)
         tsp.analyze_h5(tsp.file, "slice", tsp.label)
-        print("done with standalone analysis of %s, exiting" % (tsp.file))
-        logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
+        tsp.logger.info("done with standalone analysis of %s, exiting" % (tsp.file))
         sys.exit(0)
 
     tsp.setupPsana()
@@ -199,8 +187,7 @@ if __name__ == "__main__":
     ##this is a hack
     if tsp.exp == "foo" and tsp.run < 500:  ## guess
         tsp.use_281_for_old_data = True
-        print("using all event code 281 frames for old data")
-        logger.info("using all event code 281 frames for old data")
+        tsp.logger.info("using all event code 281 frames for old data")
 
     size = 666
     if "size" in dir():  ## check for rogue
@@ -223,7 +210,7 @@ if __name__ == "__main__":
         ##scanValue = tsp.getScanValue(step, useStringInfo=True)
         scanValue = tsp.getScanValue(step, True)
         print(scanValue, "in tsp")
-        logger.info(str(scanValue) + "in tsp")
+        tsp.logger.info(str(scanValue) + "in tsp")
         roiAndPixelSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.uint32)
         ratioSums = np.zeros(len(tsp.ROIs) + len(tsp.singlePixels)).astype(np.float32)
 
@@ -255,8 +242,7 @@ if __name__ == "__main__":
                     tsp.flux = tsp._getFlux(evt)  ## fix this
                     continue
                 else:
-                    print("not beam event, not frame event, not bld...")
-                    logger.info("not beam event, not frame event, not bld...")
+                    tsp.logger.info("not beam event, not frame event, not bld...")
                     continue
             else:
                 tsp.flux = tsp._getFlux(evt)  ## fix this
@@ -301,8 +287,7 @@ if __name__ == "__main__":
 
             tsp.nGoodEvents += 1
             if tsp.nGoodEvents % 100 == 0:
-                print("n good events analyzed: %d" % (tsp.nGoodEvents))
-                logger.info("n good events analyzed: %d" % (tsp.nGoodEvents))
+                tsp.logger.info("n good events analyzed: %d" % (tsp.nGoodEvents))
                 ##print("switched pixels: %d" %((switchedPixels>0).sum()))
 
             if tsp.nGoodEvents > tsp.maxNevents:
@@ -344,14 +329,14 @@ if __name__ == "__main__":
     if False:
         meansFileName = "%s/means_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
         np.save(meansFileName, np.array(roiMeans))
-        logger.info("Wrote file: " + meansFileName)
+        tsp.logger.info("Wrote file: " + meansFileName)
         fluxesFileName = "%s/fluxes_%s_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.run, tsp.exp)
         np.save(fluxesFileNAme, np.array(fluxes))
-        logger.info("Wrote file: " + fluxesFileName)
+        tsp.logger.info("Wrote file: " + fluxesFileName)
         ##np.save("%s/ratios_c%d_r%d_%s.npy" %(tsp.outputDir, tsp.camera, tsp.run, tsp.exp), np.array(ratios))
         delaysFileName = "%s/delays_%s_c%d_r%d_%s.npy" % (tsp.outputDir, tsp.label, tsp.camera, tsp.run, tsp.exp)
         np.save(delaysFileName, np.array(delays))
-        logger.info("Wrote file: " + delaysFileName)
+        tsp.logger.info("Wrote file: " + delaysFileName)
         
         tsp.plotData(ratios, delays, "normalized_signal")
         tsp.plotData(roiMeans, delays, "signal")

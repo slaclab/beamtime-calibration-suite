@@ -16,22 +16,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
-import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
-
-# for logging from current file
-logger = logging.getLogger(__name__)
-# log to file named <curr script name>.log
-currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(
-    "../logs/" + currFileName[:-3] + ".log", logging.ERROR
-)  # change to logging.INFO for full logging output
 
 
 class EventScanParallel(BasicSuiteScript):
     def __init__(self):
         super().__init__("misc")  ##self)
-        logging.info("Output dir: " + self.outputDir)
+        self.logger.info("Output dir: " + self.outputDir)
 
     def plotData(self, rois, pixels, eventNumbers, dPulseId, label):
         if "timestamp" in label:
@@ -64,7 +55,7 @@ class EventScanParallel(BasicSuiteScript):
                 label,
                 i,
             )
-            logger.info("Wrote file: " + figFileName)
+            self.logger.info("Wrote file: " + figFileName)
             plt.savefig(figFileName)
             plt.clf()
 
@@ -90,7 +81,7 @@ class EventScanParallel(BasicSuiteScript):
                 label,
                 i,
             )
-            logger.info("Wrote file: " + figFileName)
+            self.logger.info("Wrote file: " + figFileName)
             plt.savefig(figFileName)
             plt.clf()
         # plt.show()
@@ -113,7 +104,7 @@ class EventScanParallel(BasicSuiteScript):
                 i,
             )
             plt.savefig(figFileName)
-            logger.info("Wrote file: " + figFileName)
+            self.logger.info("Wrote file: " + figFileName)
             plt.close()
 
             if True:
@@ -131,7 +122,7 @@ class EventScanParallel(BasicSuiteScript):
                     i,
                 )
                 plt.savefig(pltFileName)
-                logger.info("Wrote file: " + pltFileName)
+                self.logger.info("Wrote file: " + pltFileName)
                 plt.close()
 
     # not working or used atm...
@@ -167,7 +158,7 @@ class EventScanParallel(BasicSuiteScript):
         try:
             bitSlice = data["summedBitSlice"][()]
             npyFileName = "%s/bitSlice_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
-            logger.info("Wrote file: " + npyFileName)
+            self.logger.info("Wrote file: " + npyFileName)
             np.save(npyFileName, np.array(bitSlice))
         except Exception:
             pass
@@ -175,7 +166,7 @@ class EventScanParallel(BasicSuiteScript):
         # sort and save pulseIds to a numpy file
         pulseIds.sort()
         npyFileName = "%s/pulseIds_c%d_r%d_%s.npy" % (self.outputDir, self.camera, self.run, self.exp)
-        logger.info("Wrote file: " + npyFileName)
+        self.logger.info("Wrote file: " + npyFileName)
         np.save(npyFileName, np.array(pulseIds))
         dPulseId = pulseIds[1:] - pulseIds[0:-1]
 
@@ -194,12 +185,12 @@ class EventScanParallel(BasicSuiteScript):
 if __name__ == "__main__":
     esp = EventScanParallel()
     print("have built a " + esp.className + "class")
-    logger.info("have built a " + esp.className + "class")
+    esp.logger.info("have built a " + esp.className + "class")
 
     if esp.file is not None:
         esp.analyze_h5(esp.file, esp.label)
         print("done with standalone analysis of %s, exiting" % (esp.file))
-        logger.info("done with standalone analysis of %s, exiting" % (esp.file))
+        esp.logger.info("done with standalone analysis of %s, exiting" % (esp.file))
         sys.exit(0)
 
     esp.setupPsana()
@@ -309,7 +300,7 @@ if __name__ == "__main__":
         esp.nGoodEvents += 1
         if esp.nGoodEvents % 100 == 0:
             print("n good events analyzed: %d" % (esp.nGoodEvents))
-            logger.info("n good events analyzed: %d" % (esp.nGoodEvents))
+            esp.logger.info("n good events analyzed: %d" % (esp.nGoodEvents))
 
         if esp.nGoodEvents > esp.maxNevents:
             break
@@ -317,15 +308,15 @@ if __name__ == "__main__":
     print(esp.outputDir)
     npyFileName = "%s/means_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp)
     np.save(npyFileName, np.array(roiMeans))
-    logger.info("Wrote file: " + npyFileName)
+    esp.logger.info("Wrote file: " + npyFileName)
 
     npyFileName = "%s/eventNumbers_c%d_r%d_%s.npy" % (esp.outputDir, esp.camera, esp.run, esp.exp)
     np.save(npyFileName, np.array(eventNumbers))
-    logger.info("Wrote file: " + npyFileName)
+    esp.logger.info("Wrote file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
     if smd.summary and esp.fakePedestal is None:
         allSum = smd.sum(bitSliceSum)
         smd.save_summary({"summedBitSlice": allSum})
     smd.done()
-    logger.info("Wrote file: " + h5FileName)
+    esp.logger.info("Wrote file: " + h5FileName)

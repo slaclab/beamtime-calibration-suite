@@ -63,12 +63,12 @@ class LinearityPlotsAutoranging(BasicSuiteScript):
 
 if __name__ == "__main__":
     lpa = LinearityPlotsAutoranging()
-    print("have built an LPA")
+    logger.info("have built an LPA")
     doKazFlux = False
     if doKazFlux:
-        print("doing Kaz flux events")
+        logger.info("doing Kaz flux events")
     else:
-        print("not doing Kaz events")
+        logger.info("not doing Kaz events")
 
     lpa.setupPsana()
     ##    efs.setROI('roiFromSwitched_e398_rmfxx1005021.npy')
@@ -162,8 +162,8 @@ if __name__ == "__main__":
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
-            print("n good events analyzed: %d" % (nGoodEvents))
-            ##            print("switched pixels: %d" %((switchedPixels>0).sum()))
+            logger.info("n good events analyzed: %d" % (nGoodEvents))
+            ## print("switched pixels: %d" %((switchedPixels>0).sum()))
 
         if nGoodEvents > lpa.maxNevents:
             break

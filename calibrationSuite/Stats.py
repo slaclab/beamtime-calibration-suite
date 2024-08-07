@@ -57,9 +57,6 @@ if __name__ == "__main__":
         d = numpy.sin((numpy.array(list(range(10))) + i) / 3.14159)
         s.accumulate(d, d[7])
 
-    print("mean: " + str(s.mean()))
-    print("rms: " + str(s.rms()))
-    print("s.corr(s.mean()[7], s.rms()[7]): " + str(s.corr(s.mean()[7], s.rms()[7])))
     logger.info("mean: " + str(s.mean()))
     logger.info("rms: " + str(s.rms()))
     logger.info("s.corr(s.mean()[7], s.rms()[7]): " + str(s.corr(s.mean()[7], s.rms()[7])))
