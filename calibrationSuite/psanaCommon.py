@@ -32,6 +32,8 @@ class PsanaCommon(object):
         print("in psanaCommon")
         logger.info("in psanaCommon")
 
+        self.analysisType = analysisType ## fix below
+        
         self.args = ArgumentParser().parse_args()
         logger.info("parsed cmdline args: " + str(self.args))
 
@@ -56,7 +58,7 @@ class PsanaCommon(object):
         self.setupFromCmdlineArgs()
         self.setupFromHashOrCmd()
         self.setupOutputDirString(analysisType)
-
+        self.setupConfigHash()
     #### Start of setup related functions ####
 
     def loadExperimentHashFromConfig(self):
@@ -337,10 +339,10 @@ class PsanaCommon(object):
             ]
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
-
+            ##print(self.regionSlice, sc, self.sliceEdges)
             if self.detectorInfo.dimension == 2: ## remap to be 2d
                 self.regionSlice = self.regionSlice[1:3]
-
+                print("remapping regionSlice to be 2d")
 
         ## handle 1d rixs ccd data
         if self.detectorInfo.dimension == 1:
@@ -387,4 +389,13 @@ class PsanaCommon(object):
             print("output dir: " + self.outputDir)
             logger.info("output dir: " + self.outputDir)
 
+
+    def setupConfigHash(self):
+        ## info to write to h5 to help processing
+        self.configHash = {"sliceCoordinates":self.sliceCoordinates,
+                           "analyzedModules": self.analyzedModules,
+                           "modules": self.detectorInfo.nModules,
+                           "rows": self.detectorInfo.nRows,
+                           "cols": self.detectorInfo.nCols
+                           }
     #### End of setup related functions ####

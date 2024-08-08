@@ -134,6 +134,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
+    sic.configHash["analysis"] = "cluster"
+    
     print("analyzed modules:", sic.analyzedModules) ## move this to psana setup
     size = 666
     filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
@@ -360,8 +362,10 @@ if __name__ == "__main__":
         sumhSum = smd.sum(hSum)
         if sic.psanaType==1:
             smd.save({"energyHistogram": sumhSum})
+            smd.save(sic.configHash)
         else:
             smd.save_summary({"energyHistogram": sumhSum})
+            smd.save_summary(sic.configHash)
 
     if sic.psanaType != 1:
         ## need to figure out how to hide the smalldata differences

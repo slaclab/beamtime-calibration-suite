@@ -51,22 +51,28 @@ class AnalyzeH5(object):
 
     def identifyAnalysis(self):
         try:
-            self.analysisType = self.h5Files[0]["analysisType"]
-            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-            print("slice coordinates:", self.sliceCoordinates)
+            ##print("in identifyAnalysis")
+            encoding = 'utf-8'
+            self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
+            self.detModules = self.h5Files[0]["modules"][()][0]
+            self.detRows = self.h5Files[0]["rows"][()][0]
+            self.detCols = self.h5Files[0]["cols"][()][0]
+            ##print("slice coordinates:", self.sliceCoordinates)
         except Exception:
+            print("imposing old hr info, something went wrong")
             ## do something useful here, maybe
             self.analysisType = None
             ## but for now
             self.analysisType = "cluster"
             self.sliceCoordinates = [[270, 288], [59, 107]]
             self.sliceEdges = [288 - 270, 107 - 59]
-
+            
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
     def analyze(self):
-        if self.analysisType == "cluster":
+        if self.analysis == "cluster":
             self.clusterAnalysis()
         else:
             print("unknown analysis type %s" % (self.analysisType))
@@ -139,14 +145,15 @@ class AnalyzeH5(object):
         analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
 
-        ##rows = self.sliceEdges[0]
-        ##cols = self.sliceEdges[1]
-        ## doesn't exist in h5 yet so calculate dumbly instead
-        rows = int(clusters[:, 2].max()) + 1
-        cols = int(clusters[:, 3].max()) + 1
+        rows = self.sliceCoordinates[1][1] - self.sliceCoordinates[0][1]
+        cols = self.sliceCoordinates[1][0] - self.sliceCoordinates[0][0]
+##        ##cols = self.sliceEdges[1]
+##        ## doesn't exist in h5 yet so calculate dumbly instead
+##        rows = int(clusters[:, 2].max()) + 1
+##        cols = int(clusters[:, 3].max()) + 1
         print("appear to have a slice with %d rows, %d cols" % (rows, cols))
-        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
-        self.sliceEdges = [rows, cols]
+##        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
+##        self.sliceEdges = [rows, cols]
 
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
@@ -166,7 +173,8 @@ class AnalyzeH5(object):
         plt.close()
 
         # verbose = False
-        fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        ##fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        fitInfo = np.zeros((self.detModules, self.detRows, self.detCols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
