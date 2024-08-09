@@ -75,9 +75,14 @@ class AnalyzeH5(object):
         offset = 0
         if len(self.sliceCoordinates) == 3:
             offset = 1
-        rows = self.sliceCoordinates[offset][1] - self.sliceCoordinates[offset][0]
-        cols = self.sliceCoordinates[offset+1][1] - self.sliceCoordinates[offset+1][0]
+        self.rowStart = self.sliceCoordinates[offset][0]
+        self.rowStop = self.sliceCoordinates[offset][1]
+        self.colStart = self.sliceCoordinates[offset+1][0]
+        self.colStop = self.sliceCoordinates[offset+1][1]
+        rows = self.rowStop-self.rowStart
+        cols = self.colStop-self.colStart
         print("analyzing %d rows, %d cols" %(rows, cols))
+        
         return rows, cols
     
     def analyze(self):
@@ -186,11 +191,12 @@ class AnalyzeH5(object):
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
-            for i in range(rows):
+            for i in range(self.rowStart, self.rowStop):
                 rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, "row", i)
 
-                for j in range(cols):
-                    detRow, detCol = self.sliceToDetector(i, j)
+                for j in range(self.colStart, self.colStop):
+                    ##detRow, detCol = self.sliceToDetector(i, j)
+                    detRow, detCol = i, j ## mostly for clarity
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
                         print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
