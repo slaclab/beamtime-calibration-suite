@@ -71,6 +71,15 @@ class AnalyzeH5(object):
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
+    def getRowsColsFromSliceCoordinates(self):
+        offset = 0
+        if len(self.sliceCoordinates) == 3:
+            offset = 1
+        rows = self.sliceCoordinates[offset][1] - self.sliceCoordinates[offset][0]
+        cols = self.sliceCoordinates[offset+1][1] - self.sliceCoordinates[offset+1][0]
+        print("analyzing %d rows, %d cols" %(rows, cols))
+        return rows, cols
+    
     def analyze(self):
         if self.analysis == "cluster":
             self.clusterAnalysis()
@@ -144,9 +153,8 @@ class AnalyzeH5(object):
         maximumModule = int(clusters[:, 1].max())
         analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
+        rows, cols = self.getRowsColsFromSliceCoordinates()
 
-        rows = self.sliceCoordinates[1][1] - self.sliceCoordinates[0][1]
-        cols = self.sliceCoordinates[1][0] - self.sliceCoordinates[0][0]
 ##        ##cols = self.sliceEdges[1]
 ##        ## doesn't exist in h5 yet so calculate dumbly instead
 ##        rows = int(clusters[:, 2].max()) + 1
