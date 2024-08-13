@@ -202,7 +202,6 @@ def suite_tester():
         if os.path.exists(dir):
             shutil.rmtree(dir)
 
-
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
@@ -392,7 +391,6 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
-
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
@@ -438,7 +436,6 @@ def test_SearchNonSwitching(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
-
 @pytest.mark.parametrize(
     "command, output_dir_name",
     [
@@ -456,7 +453,6 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-
 
 # non-working commands...
 """

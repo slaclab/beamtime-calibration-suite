@@ -115,7 +115,7 @@ class PsanaBase(PsanaCommon):
         )  ##, dir=tmpDir)
         return ds
 
-    def get_smalldata(self, filename=filename):##, gather_interval=100):
+    def get_smalldata(self, filename):##, gather_interval=100):
         try:
             return self.ds.smalldata(filename=filename)##, gather_interval=gather_interval)
         except:

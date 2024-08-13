@@ -12,6 +12,7 @@ class DetectorInfo:
         # declare all detector-specific info vars here in case any setup_X functions don't,
         # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
         self.nModules = -1
+        self.detSubtype = detSubtype
 
         self.nRows = -1
         self.nCols = -1
@@ -43,6 +44,7 @@ class DetectorInfo:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
+
         self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
     def setupDetector(self): ## needs nModules to be set
@@ -53,7 +55,7 @@ class DetectorInfo:
         elif self.detectorType in ["epix100", "Epix100a"]:
             self.setup_epix100()
         elif self.detectorType == "archon":
-            self.setup_rixsCCD(mode=detSubtype)
+            self.setup_rixsCCD(mode=self.detSubtype)
         elif 'jungfrau' in self.detectorType.lower():
             self.setup_jungfrau()
         elif 'epix10k' in self.detectorType.lower():

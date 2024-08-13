@@ -254,7 +254,7 @@ class PsanaCommon(object):
                 if self.args.nModules is not None:
                     raise RuntimeError("should not specify exact detector type and n modules")
                 if epix10k:
-                    nModules = [k for k in self.detectorInfo.epix10kCameraTypes.keys() if self.detectorInfo.epix10kCameraTypes[k]==self.detType]
+                    nModules = [k for k in self.detectorInfo.ePix10kCameraTypes.keys() if self.detectorInfo.ePix10kCameraTypes[k]==self.detType]
                 if jungfrau:
                     nModules = [k for k in self.detectorInfo.jungfrauCameraTypes.keys() if self.detectorInfo.jungfrauCameraTypes[k]==self.detType]
                 if nModules == []:
