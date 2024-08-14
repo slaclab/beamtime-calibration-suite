@@ -203,6 +203,9 @@ if __name__ == "__main__":
         sys.exit(0)
 
     esp.setupPsana()
+    if esp.psanaType == 1:## move to psana1Base asap
+        from psana import EventId
+        
     try:
         ##skip_283_check = "skip283" in esp.special
         skip_283_check = "fakeBeamCode" in esp.special
@@ -219,14 +222,21 @@ if __name__ == "__main__":
 
     size = 666
     h5FileName = "%s/%s_c%d_r%d_%s_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.label, size)
-    smd = esp.ds.smalldata(filename=h5FileName)
+    if esp.psanaType==1:
+        smd = esp.ds.small_data(filename=h5FileName, gather_interval=100)
+    else:
+        smd = esp.ds.smalldata(filename=h5FileName)
 
     esp.nGoodEvents = 0
     roiMeans = [[] for i in esp.ROIs]
     pixelValues = [[] for i in esp.singlePixels]
     eventNumbers = []
     bitSliceSum = None
-    evtGen = esp.myrun.events()
+    try:
+        evtGen = esp.myrun.events()
+    except:
+        evtGen = esp.ds.events()
+        
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
@@ -295,16 +305,26 @@ if __name__ == "__main__":
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])
         ##print(frames[tuple(esp.singlePixels[0])], parityTest)
 
+        if esp.psanaType==1:
+            t = evt.get(EventId).time()
+            timestamp = t[0]+t[1]/1000000000.
+            pulseId = 0
+        else:
+            timestamp = evt.datetime().timestamp()
+            pulsId = esp.getPulseId(evt)
         smdDict = {
-            "timestamps": evt.datetime().timestamp(),
-            "pulseIds": esp.getPulseId(evt),
+            "timestamps": timestamp,
+            "pulseIds": pulseId,
             "pixels": np.array([pixelValues[i][-1] for i in range(len(esp.singlePixels))]),
         }
         rois = np.array(None)  ## might not be defined, and smd doesn't like (0,)
         if esp.ROIs != []:
             smdDict["rois"] = np.array([roiMeans[i][-1] for i in range(len(esp.ROIs))])
 
-        smd.event(evt, **smdDict)
+        if esp.psanaType==1:
+            smd.event(**smdDict)
+        else:
+            smd.event(evt, **smdDict)
 
         esp.nGoodEvents += 1
         if esp.nGoodEvents % 100 == 0:
@@ -324,8 +344,13 @@ if __name__ == "__main__":
     logger.info("Wrote file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
-    if smd.summary and esp.fakePedestal is None:
+    
+    if (esp.psanaType==1 or smd.summary) and esp.fakePedestal is None:
         allSum = smd.sum(bitSliceSum)
-        smd.save_summary({"summedBitSlice": allSum})
-    smd.done()
+        if esp.psanaType==1:
+            smd.save({"summedBitSlice": allSum})
+        else:
+            smd.save_summary({"summedBitSlice": allSum})
+    if esp.psanaType != 1:
+        smd.done()
     logger.info("Wrote file: " + h5FileName)
