@@ -150,3 +150,8 @@ class PsanaBase(PsanaCommon):
 
     def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
+
+    def getPedestal(self, evt, gainmode):
+        if self.detectorInfo.autoRanging:
+            return self.det.pedestal(evt)[gainmode]
+        return self.det.pedestals(evt)

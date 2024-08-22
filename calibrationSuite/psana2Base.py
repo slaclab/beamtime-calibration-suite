@@ -115,7 +115,7 @@ class PsanaBase(PsanaCommon):
         )  ##, dir=tmpDir)
         return ds
 
-    def get_smalldata(self, filename=filename):##, gather_interval=100):
+    def get_smalldata(self, filename):##, gather_interval=100):
         try:
             return self.ds.smalldata(filename=filename)##, gather_interval=gather_interval)
         except:
@@ -254,6 +254,15 @@ class PsanaBase(PsanaCommon):
     def getTimestamp(self, evt):
         return evt.timestamp
 
+    def getUniqueid(self):
+        return getattr(self.det, 'raw')._uniqueid
+
+    def getPedestal(self, evt, gainMode):
+        ## assumes a dimension for gainmode
+        if self.detectorInfo.autoRanging:
+            return self.det.calibconst["pedestals"][0][gainMode]
+        return self.det.calibconst["pedestals"][0]
+            
     def getPingPongParity(self, frameRegion):
         evensEvenRowsOddsOddRows = frameRegion[::2, ::2] + frameRegion[1::2, 1::2]
         oddsEvenRowsEvensOddRows = frameRegion[1::2, ::2] + frameRegion[::2, 1::2]
