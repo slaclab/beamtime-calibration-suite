@@ -117,6 +117,16 @@ if __name__ == "__main__":
                 logger.info("None frames on beam event")
                 continue
 
+            ## temp for Alex:
+            if False and not (bss.detObj and bss.detObj == "calib"):
+            ##if True and not (bss.detObj and bss.detObj == "calib"):
+                nonZeroAsics = [1*np.any(frames[i]) for i in range(frames.shape[0])]
+                try:
+                    ##print(nonZeroAsics)
+                    nonZeroAsicArray += nonZeroAsics
+                except:
+                    nonZeroAsicArray = np.array(nonZeroAsics)
+
             for i, p in enumerate(bss.singlePixels):
                 try:
                     statsArray[i].accumulate(np.double(frames), frames[tuple(p)])
@@ -172,3 +182,7 @@ if __name__ == "__main__":
             break
 
     bss.dumpEventCodeStatistics()
+    ## temp for Alex:
+    if False:
+        np.save("nonZeroAsicAccounting.npy", np.array(nonZeroAsicArray))
+        print("non-zero asic accounting:", nonZeroAsicArray)
