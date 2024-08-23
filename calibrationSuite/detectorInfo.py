@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 class DetectorInfo:
-    def __init__(self, detType, detSubtype="1d"):
+    def __init__(self, detType, detSubtype="1d", detVersion=0):
         # declare all detector-specific info vars here in case any setup_X functions don't,
         # and use -1 so caller knows things are not setup (non-0 to avoid error on divide.
         self.nModules = -1
@@ -34,9 +34,12 @@ class DetectorInfo:
         # end of detector-specific vars
 
         self.detectorType = detType
+        self.detectorSubtype = detSubtype
+        self.detectorVersion = detVersion
         self.cameraType = None
         self.dimension = 3  ## suite attempts not to know
-
+        self.autoRanging = True
+        
         knownTypes = ["epixhr", "epixm", "epix100", "Epix100a",
                       "jungfrau", "Jungfrau",## cxic00121 has no alias in run 88
                       "epix10k", "archon"]
@@ -44,7 +47,6 @@ class DetectorInfo:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
-
         self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
     def setupDetector(self): ## needs nModules to be set
@@ -55,7 +57,7 @@ class DetectorInfo:
         elif self.detectorType in ["epix100", "Epix100a"]:
             self.setup_epix100()
         elif self.detectorType == "archon":
-            self.setup_rixsCCD(mode=self.detSubtype)
+            self.setup_rixsCCD()
         elif 'jungfrau' in self.detectorType.lower():
             self.setup_jungfrau()
         elif 'epix10k' in self.detectorType.lower():
@@ -67,7 +69,7 @@ class DetectorInfo:
     def getCameraType(self):
         return self.cameraType
 
-    def setup_epixhr(self, version=0):
+    def setup_epixhr(self):
         self.cameraType = "epixhr"
         self.g0cut = 1 << 14
         self.nRows = 288
@@ -83,7 +85,7 @@ class DetectorInfo:
         self.seedCut = 4  ## maybe the minimum sensible
         self.neighborCut = 0.5  ## probably too low given the noise
 
-    def setup_epixM(self, version=0):
+    def setup_epixM(self):
         self.cameraType = "epixM"
         self.g0cut = 1 << 15
         self.nModules = 4
@@ -97,13 +99,16 @@ class DetectorInfo:
         self.preferredCommonMode = "rowCommonMode"  ## guess
         self.clusterShape = [3, 3]
         self.gainMode = None  ## may want to know about default, softHigh, softLow
-        self.negativeGain = True
+        if self.detectorVersion<1:
+            self.negativeGain = True
+            print("N.b: using negative gain for version %d" %(self.detectorVersion))
         self.aduPerKeV = 666
         self.seedCut = 2
         self.neighborCut = 0.25  ## ditto
 
-    def setup_epix100(self, version=0):
+    def setup_epix100(self):
         self.cameraType = "Epix100a"
+        self.autoRanging = False
         self.g0cut = 1 << 15
         self.dimension = 2
         self.nModules = 1
@@ -121,7 +126,7 @@ class DetectorInfo:
         self.seedCut = 3
         self.neighborCut = 0.5  
 
-    def setup_jungfrau(self, version=0):
+    def setup_jungfrau(self):
         self.cameraType = self.jungfrauCameraTypes[self.nModules]
         self.g0cut = 1 << 14
         self.g1cut = 2 << 14
@@ -140,14 +145,15 @@ class DetectorInfo:
         self.seedCut = 3
         self.neighborCut = 0.5  
 
-    def setup_rixsCCD(self, mode, version=0):
-        print("rixsCCD mode:", mode)
+    def setup_rixsCCD(self):
+        print("rixsCCD mode:", self.detectorSubtype)
         self.cameraType = "rixsCCD" ##+ mode ## psana should support mode
+        self.autoRanging = False
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
         self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank
         self.preferredCommonMode = "rixsCCDTestPixelSubtraction"
-        if mode == "1d":
+        if self.detectorSubtype == "1d":
             self.nRows = 1
             self.clusterShape = [1, 5]  ## might be [1,3]
             self.dimension = 2

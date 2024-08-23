@@ -103,16 +103,29 @@ if __name__ == "__main__":
                     frames = bss.regionCommonModeCorrection(frames, bss.regionSlice, commonModeCut)
 
             else:
-                frames = bss.getRawData(evt, gainBitsMasked=True)
-                if frames is not None and bss.special is not None and "parity" in bss.special:
-                    if bss.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in bss.special):
-                        continue
+                if bss.detObj and bss.detObj == "calib":
+                    frames = bss.getCalibData(evt)
+                else:
+                    frames = bss.getRawData(evt, gainBitsMasked=True)
+                    if frames is not None and bss.special is not None and "parity" in bss.special:
+                        if bss.getPingPongParity(frames[0][144:224, 0:80]) == ("negative" in bss.special):
+                            continue
                 ##print(frames)
 
             if frames is None:
                 print("None frames on beam event, should not happen")
                 logger.info("None frames on beam event")
                 continue
+
+            ## temp for Alex:
+            if False and not (bss.detObj and bss.detObj == "calib"):
+            ##if True and not (bss.detObj and bss.detObj == "calib"):
+                nonZeroAsics = [1*np.any(frames[i]) for i in range(frames.shape[0])]
+                try:
+                    ##print(nonZeroAsics)
+                    nonZeroAsicArray += nonZeroAsics
+                except:
+                    nonZeroAsicArray = np.array(nonZeroAsics)
 
             for i, p in enumerate(bss.singlePixels):
                 try:
@@ -169,3 +182,7 @@ if __name__ == "__main__":
             break
 
     bss.dumpEventCodeStatistics()
+    ## temp for Alex:
+    if False:
+        np.save("nonZeroAsicAccounting.npy", np.array(nonZeroAsicArray))
+        print("non-zero asic accounting:", nonZeroAsicArray)

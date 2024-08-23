@@ -112,11 +112,21 @@ class PsanaCommon(object):
         """
 
         try:
+            detVersion = self.experimentHash["detectorVersion"]
+        except:
+            detVersion = 0
+
+        try:
             self.detectorInfo = DetectorInfo(
-                self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"]
+                self.experimentHash["detectorType"],
+                detSubtype=self.experimentHash["detectorSubtype"],
+                detVersion=detVersion
             )
         except Exception:
-            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
+            self.detectorInfo = DetectorInfo(
+                self.experimentHash["detectorType"],
+                detVersion=detVersion
+            )
 
         self.exp = self.experimentHash.get("exp", None)
 
@@ -219,9 +229,11 @@ class PsanaCommon(object):
             try:
                 self.seedCut = eval(self.args.seedCut)
             except Exception as e:
-                print("Error evaluating seedcut: " + str(e))
-                logger.exception("Error evaluating seedcut: " + str(e))
+                print("Error evaluating seedCut: " + str(e))
+                logger.exception("Error evaluating seedCut: " + str(e))
                 self.seedCut = None
+
+        self.photonEnergy = self.args.photonEnergy
 
         self.fluxCutMin = self.args.fluxCutMin
         self.fluxCutMax = self.args.fluxCutMax
