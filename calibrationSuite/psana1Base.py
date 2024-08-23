@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
-        super().__init__()
+        super().__init__(analysisType)
 
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
@@ -59,8 +59,16 @@ class PsanaBase(PsanaCommon):
     def get_ds(self, run=None):
         if run is None:
             run = self.run
-        return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        ##return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
+        return psana.MPIDataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
+    def get_smalldata(self, **kwargs):##, gather_interval=100):
+        try:
+            return self.ds.small_data(filename=filename, gather_interval=gather_interval)
+        except:
+            print("can't make smalldata - is datasource defined?")
+        return None
+        
     def getEvt(self, run=None):
         oldDs = self.ds
         if run is not None:
@@ -73,6 +81,10 @@ class PsanaBase(PsanaCommon):
         self.ds = oldDs
         return evt
 
+    def getEventCodes(self, evt):
+        ## do something smarter if ever needed
+        return []
+    
     def getFlux(self, evt):
         try:
             fluxes = self.wave8.get(evt).peakA()
@@ -122,6 +134,9 @@ class PsanaBase(PsanaCommon):
     def getScanValue(self, foo):
         return self.controlData().pvControls()[0].value()
 
+    def plainGetRawData(self, evt):
+        return self.det.raw(evt)
+
     def getRawData(self, evt, gainBitsMasked=True):
         frames = self.det.raw(evt)
         if frames is None:
@@ -135,3 +150,8 @@ class PsanaBase(PsanaCommon):
 
     def getImage(self, evt, data=None):
         return self.raw.image(evt, data)
+
+    def getPedestal(self, evt, gainmode):
+        if self.detectorInfo.autoRanging:
+            return self.det.pedestal(evt)[gainmode]
+        return self.det.pedestals(evt)

@@ -32,6 +32,8 @@ class PsanaCommon(object):
         print("in psanaCommon")
         logger.info("in psanaCommon")
 
+        self.analysisType = analysisType ## fix below
+        
         self.args = ArgumentParser().parse_args()
         logger.info("parsed cmdline args: " + str(self.args))
 
@@ -54,8 +56,9 @@ class PsanaCommon(object):
         self.loadExperimentHashFromConfig()
         self.setupFromExperimentHash()
         self.setupFromCmdlineArgs()
+        self.setupFromHashOrCmd()
         self.setupOutputDirString(analysisType)
-
+        self.setupConfigHash()
     #### Start of setup related functions ####
 
     def loadExperimentHashFromConfig(self):
@@ -109,11 +112,21 @@ class PsanaCommon(object):
         """
 
         try:
+            detVersion = self.experimentHash["detectorVersion"]
+        except:
+            detVersion = 0
+
+        try:
             self.detectorInfo = DetectorInfo(
-                self.experimentHash["detectorType"], self.experimentHash["detectorSubtype"]
+                self.experimentHash["detectorType"],
+                detSubtype=self.experimentHash["detectorSubtype"],
+                detVersion=detVersion
             )
         except Exception:
-            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"])
+            self.detectorInfo = DetectorInfo(
+                self.experimentHash["detectorType"],
+                detVersion=detVersion
+            )
 
         self.exp = self.experimentHash.get("exp", None)
 
@@ -121,21 +134,10 @@ class PsanaCommon(object):
 
         self.singlePixels = self.experimentHash.get("singlePixels", None)
 
+        
         self.regionSlice = self.experimentHash.get("regionSlice", None)
-        if self.regionSlice is not None:
-            ## n.b. assumes 3d slice now
-            self.sliceCoordinates = [
-                [self.regionSlice[1].start, self.regionSlice[1].stop],
-                [self.regionSlice[2].start, self.regionSlice[2].stop],
-            ]
-            sc = self.sliceCoordinates
-            self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
-
-        ## handle 1d rixs ccd data
-        if self.detectorInfo.dimension == 2:
-            self.regionSlice = self.regionSlice[0], self.regionSlice[2]
-            print("remapping regionSlice to handle 1d case")
-            logger.info("remapping regionSlice to handle 1d case")
+        ## some code moved to setupFromHashOrCmd
+        self.analyzedModules = self.experimentHash.get("analyzedModules", None)
 
         self.fluxSource = self.experimentHash.get("fluxSource", None)
         self.fluxChannels = self.experimentHash.get("fluxChannels", range(8, 16))  ## wave8
@@ -227,9 +229,11 @@ class PsanaCommon(object):
             try:
                 self.seedCut = eval(self.args.seedCut)
             except Exception as e:
-                print("Error evaluating seedcut: " + str(e))
-                logger.exception("Error evaluating seedcut: " + str(e))
+                print("Error evaluating seedCut: " + str(e))
+                logger.exception("Error evaluating seedCut: " + str(e))
                 self.seedCut = None
+
+        self.photonEnergy = self.args.photonEnergy
 
         self.fluxCutMin = self.args.fluxCutMin
         self.fluxCutMax = self.args.fluxCutMax
@@ -245,21 +249,46 @@ class PsanaCommon(object):
 
         self.loadPedestalGainOffsetFiles()
 
+        print("det type:", self.args.detType)
         if self.args.detType == "":
-            ## assume epix10k for now
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)
-                self.detType = self.detectorInfo.getCameraType()
+                ##self.detType = self.detectorInfo.getCameraType()
         else:
             self.detType = self.args.detType
+            jungfrau = epix10k = False
+            if 'epix10k' in self.detType.lower():
+                epix10k = True
+            elif 'jungfrau' in self.detType.lower():
+                jungfrau = True
+            ## could allow just epix10k or jungfrau + n modules...
+            if epix10k or jungfrau:
+                if self.args.nModules is not None:
+                    raise RuntimeError("should not specify exact detector type and n modules")
+                if epix10k:
+                    nModules = [k for k in self.detectorInfo.epix10kCameraTypes.keys() if self.detectorInfo.epix10kCameraTypes[k]==self.detType]
+                if jungfrau:
+                    nModules = [k for k in self.detectorInfo.jungfrauCameraTypes.keys() if self.detectorInfo.jungfrauCameraTypes[k]==self.detType]
+                if nModules == []:
+                    raise RuntimeError("could not determine n modules from detector type %s" %(self.detType))
+                self.detectorInfo.setNModules(nModules[0])
 
-        self.analyzedModules = self.experimentHash.get("analyzedModules", None)
-        if self.analyzedModules is not None:
-            try:
-                self.analyzedModules = range(self.detectorInfo.nModules)
-            except Exception as e:
-                print("Error evaluating range: " + str(e))
-                logger.info("Error evaluating range: " + str(e))
+        self.detectorInfo.setupDetector()
+        ##self.detType = self.detectorInfo.getCameraType()
+        self.detType = self.detectorInfo.detectorType
+
+        ##self.analyzedModules = self.experimentHash.get("analyzedModules", None)
+        ## why was this here?
+        ## some code moved to setupFromHashOrCmd
+        if self.args.analyzedModules is not None:
+            self.analyzedModules = eval(self.args.analyzedModules)
+
+        if self.args.regionSlice is not None:
+            regionSliceArray = eval(self.args.regionSlice)
+            if len(regionSliceArray) != 6:
+                raise RuntimeError("expect 6 elements in region slice")
+            a,b,c,d,e,f = regionSliceArray
+            self.regionSlice = np.s_[a:b, c:d, e:f]
 
         self.g0cut = self.detectorInfo.g0cut
         if self.g0cut is not None:
@@ -309,6 +338,38 @@ class PsanaCommon(object):
         if self.offsetFile is not None:
             self.offset = np.load(self.offsetFile)
 
+    def setupFromHashOrCmd(self):
+        ## setup based on configuration information that can come from
+        ## either experiment hash or command line
+        if self.regionSlice is not None:
+            ## n.b. expects 3d slice definition regardless for consistency
+            if self.detectorInfo.dimension == 3:
+                offset = 1
+            self.sliceCoordinates = [
+                [self.regionSlice[1].start, self.regionSlice[1].stop],
+                [self.regionSlice[2].start, self.regionSlice[2].stop],
+            ]
+            sc = self.sliceCoordinates
+            self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
+            ##print(self.regionSlice, sc, self.sliceEdges)
+            if self.detectorInfo.dimension == 2: ## remap to be 2d
+                self.regionSlice = self.regionSlice[1:3]
+                print("remapping regionSlice to be 2d")
+
+        ## handle 1d rixs ccd data
+        if self.detectorInfo.dimension == 1:
+            self.regionSlice = self.regionSlice[0], self.regionSlice[2]
+            print("remapping regionSlice to handle 1d case")
+            logger.info("remapping regionSlice to handle 1d case")
+
+        if self.analyzedModules is None:
+            try:
+                self.analyzedModules = range(self.detectorInfo.nModules)
+            except Exception as e:
+                print("Error evaluating range: " + str(e))
+                logger.info("Error evaluating range: " + str(e))
+        print("analyzing modules:", self.analyzedModules)
+
     def setupOutputDirString(self, analysisType):
         """
         Sets up the output directory for saving output file (default dir-name is based on the analysis type).
@@ -340,4 +401,13 @@ class PsanaCommon(object):
             print("output dir: " + self.outputDir)
             logger.info("output dir: " + self.outputDir)
 
+
+    def setupConfigHash(self):
+        ## info to write to h5 to help processing
+        self.configHash = {"sliceCoordinates":self.sliceCoordinates,
+                           "analyzedModules": self.analyzedModules,
+                           "modules": self.detectorInfo.nModules,
+                           "rows": self.detectorInfo.nRows,
+                           "cols": self.detectorInfo.nCols
+                           }
     #### End of setup related functions ####

@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 class PsanaBase(PsanaCommon):
     def __init__(self, analysisType="scan"):
-        super().__init__()
+        super().__init__(analysisType)
 
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         logger.info("Ran with cmd: " + commandUsed)
@@ -114,6 +114,13 @@ class PsanaBase(PsanaCommon):
             exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
         )  ##, dir=tmpDir)
         return ds
+
+    def get_smalldata(self, filename):##, gather_interval=100):
+        try:
+            return self.ds.smalldata(filename=filename)##, gather_interval=gather_interval)
+        except:
+            print("can't make smalldata - is datasource defined?")
+        return None
 
     def getEvtOld(self, run=None):
         oldDs = self.ds
@@ -247,6 +254,15 @@ class PsanaBase(PsanaCommon):
     def getTimestamp(self, evt):
         return evt.timestamp
 
+    def getUniqueid(self):
+        return getattr(self.det, 'raw')._uniqueid
+
+    def getPedestal(self, evt, gainMode):
+        ## assumes a dimension for gainmode
+        if self.detectorInfo.autoRanging:
+            return self.det.calibconst["pedestals"][0][gainMode]
+        return self.det.calibconst["pedestals"][0]
+            
     def getPingPongParity(self, frameRegion):
         evensEvenRowsOddsOddRows = frameRegion[::2, ::2] + frameRegion[1::2, 1::2]
         oddsEvenRowsEvensOddRows = frameRegion[1::2, ::2] + frameRegion[::2, 1::2]

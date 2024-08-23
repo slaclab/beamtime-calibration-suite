@@ -52,22 +52,42 @@ class AnalyzeH5(object):
 
     def identifyAnalysis(self):
         try:
-            self.analysisType = self.h5Files[0]["analysisType"]
-            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-            print("slice coordinates:", self.sliceCoordinates)
+            ##print("in identifyAnalysis")
+            encoding = 'utf-8'
+            self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
+            self.detModules = self.h5Files[0]["modules"][()][0]
+            self.detRows = self.h5Files[0]["rows"][()][0]
+            self.detCols = self.h5Files[0]["cols"][()][0]
+            ##print("slice coordinates:", self.sliceCoordinates)
         except Exception:
+            print("imposing old hr info, something went wrong")
             ## do something useful here, maybe
             self.analysisType = None
             ## but for now
             self.analysisType = "cluster"
             self.sliceCoordinates = [[270, 288], [59, 107]]
             self.sliceEdges = [288 - 270, 107 - 59]
-
+            
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
+    def getRowsColsFromSliceCoordinates(self):
+        offset = 0
+        if len(self.sliceCoordinates) == 3:
+            offset = 1
+        self.rowStart = self.sliceCoordinates[offset][0]
+        self.rowStop = self.sliceCoordinates[offset][1]
+        self.colStart = self.sliceCoordinates[offset+1][0]
+        self.colStop = self.sliceCoordinates[offset+1][1]
+        rows = self.rowStop-self.rowStart
+        cols = self.colStop-self.colStart
+        print("analyzing %d rows, %d cols" %(rows, cols))
+        
+        return rows, cols
+    
     def analyze(self):
-        if self.analysisType == "cluster":
+        if self.analysis == "cluster":
             self.clusterAnalysis()
         else:
             print("unknown analysis type %s" % (self.analysisType))
@@ -87,6 +107,7 @@ class AnalyzeH5(object):
             pass
 
         self.nBins = 200  ## for epixM with a lot of 2 photon events...
+        
         if self.seedCut is None:
             self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         else:
@@ -138,15 +159,15 @@ class AnalyzeH5(object):
         maximumModule = int(clusters[:, 1].max())
         analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
+        rows, cols = self.getRowsColsFromSliceCoordinates()
 
-        ##rows = self.sliceEdges[0]
-        ##cols = self.sliceEdges[1]
-        ## doesn't exist in h5 yet so calculate dumbly instead
-        rows = int(clusters[:, 2].max()) + 1
-        cols = int(clusters[:, 3].max()) + 1
+##        ##cols = self.sliceEdges[1]
+##        ## doesn't exist in h5 yet so calculate dumbly instead
+##        rows = int(clusters[:, 2].max()) + 1
+##        cols = int(clusters[:, 3].max()) + 1
         print("appear to have a slice with %d rows, %d cols" % (rows, cols))
-        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
-        self.sliceEdges = [rows, cols]
+##        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
+##        self.sliceEdges = [rows, cols]
 
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
@@ -166,19 +187,21 @@ class AnalyzeH5(object):
         plt.close()
 
         # verbose = False
-        fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        ##fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        fitInfo = np.zeros((self.detModules, self.detRows, self.detCols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
-            for i in range(rows):
+            for i in range(self.rowStart, self.rowStop):
                 # just do a single row when testing
                 if self.isTestRun and i > 0:
                     break
 
                 rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, "row", i)
 
-                for j in range(cols):
-                    detRow, detCol = self.sliceToDetector(i, j)
+                for j in range(self.colStart, self.colStop):
+                    ##detRow, detCol = self.sliceToDetector(i, j)
+                    detRow, detCol = i, j ## mostly for clarity
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
                         print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))

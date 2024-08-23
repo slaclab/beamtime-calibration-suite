@@ -45,7 +45,7 @@ if __name__ == "__main__":
         if not rft.detObj == "calib":
             thresholded = rawFrames >= rft.threshold
         else:
-            frames = rft.det.raw.calib(evt)
+            frames = rft.getCalibData(evt)
             thresholded = frames >= rft.threshold
 
         try:

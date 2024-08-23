@@ -31,7 +31,7 @@ else:
 
 class BasicSuiteScript(PsanaBase):
     def __init__(self, analysisType="scan"):
-        super().__init__()
+        super().__init__(analysisType)
 
         print("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
         logger.info("in BasicSuiteScript, inheriting from PsanaBase, type is psana%d" % (self.psanaType))
