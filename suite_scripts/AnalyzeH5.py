@@ -23,7 +23,7 @@ from calibrationSuite.argumentParser import ArgumentParser
 
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(currFileName[:-3] + ".log", logging.INFO) # change to logging.INFO for full logging output
 # for logging from current file
 logger = logging.getLogger(__name__)
 
@@ -47,28 +47,44 @@ class AnalyzeH5(object):
         fileNames = self.files.split(",")
         self.h5Files = []
         for f in fileNames:
-            print(f)
+            print("using file: ", f)
             self.h5Files.append(h5py.File(f))
 
     def identifyAnalysis(self):
+        
+        for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols"]:
+            if key not in self.h5Files[0]:
+                print("h5 file missing metadata for key: '" + key + "'\nexiting...")
+                exit(1) # eventually get this data from cmdline args??
+
+        encoding = 'utf-8'
+
+        # note: [()] is h5py way to access key's data
+
+        # handle how some different machines create h5 differently
         try:
-            ##print("in identifyAnalysis")
-            encoding = 'utf-8'
             self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
-            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
-            self.detModules = self.h5Files[0]["modules"][()][0]
-            self.detRows = self.h5Files[0]["rows"][()][0]
-            self.detCols = self.h5Files[0]["cols"][()][0]
-            ##print("slice coordinates:", self.sliceCoordinates)
-        except Exception:
-            print("imposing old hr info, something went wrong")
-            ## do something useful here, maybe
-            self.analysisType = None
-            ## but for now
-            self.analysisType = "cluster"
-            self.sliceCoordinates = [[270, 288], [59, 107]]
-            self.sliceEdges = [288 - 270, 107 - 59]
-            
+        except:
+            try:
+                self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
+            except Exception as e:
+                print(f"failed to decode metadata value for key 'analysis': {e}")
+                print("exiting...")
+
+        self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
+        self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
+        self.detModules = self.h5Files[0]["modules"][()]
+        self.detRows = self.h5Files[0]["rows"][()]
+        self.detCols = self.h5Files[0]["cols"][()]
+
+        print("the following metadata was read from h5:")
+        print("analysis: ", self.analysis)
+        print("sliceCoordinates: ", self.sliceCoordinates)
+        print("detModules: ", self.detModules)
+        print("detRows: ", self.detRows)
+        print("detCols: ", self.detCols)
+
+
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
