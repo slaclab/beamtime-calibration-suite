@@ -145,6 +145,23 @@ class DetectorInfo:
         self.seedCut = 3
         self.neighborCut = 0.5  
 
+    def setup_epix10k(self):
+        self.cameraType = self.epix10kCameraTypes[self.nModules]
+        self.g0cut = 1 << 14
+        self.nRows = 352
+        self.nCols = 384
+        self.nColsPerBank = 96
+        self.nBanksRow = int(self.nCols / self.nColsPerBank)
+        self.nBanksCol = 2
+        self.nRowsPerBank = int(self.nRows / self.nBanksCol)
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "colCommonMode"
+        self.clusterShape = [3, 3]
+        self.aduPerKeV = 16 ## high gain; 5.5 for medium
+        self.seedCut = 3
+        self.neighborCut = 0.5  
+
     def setup_rixsCCD(self):
         print("rixsCCD mode:", self.detectorSubtype)
         self.cameraType = "rixsCCD" ##+ mode ## psana should support mode
