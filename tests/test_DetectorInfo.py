@@ -3,6 +3,7 @@ from calibrationSuite.detectorInfo import DetectorInfo
 
 def test_epixhr_setup():
     detector = DetectorInfo("epixhr")
+    detector.setupDetector()
 
     assert detector.detectorType == "epixhr"
     assert detector.g0cut == 1 << 14
@@ -20,6 +21,7 @@ def test_epixhr_setup():
 
 def test_epixm_setup():
     detector = DetectorInfo("epixm")
+    detector.setupDetector()
 
     assert detector.detectorType == "epixm"
     assert detector.g0cut == 1 << 15
@@ -41,6 +43,7 @@ def test_epixm_setup():
 
 def test_archon_setup_1d():
     detector = DetectorInfo("archon")
+    detector.setupDetector()
 
     assert detector.detectorType == "archon"
     assert detector.dimension == 2
@@ -54,6 +57,7 @@ def test_archon_setup_1d():
 
 def test_archon_setup_2d():
     detector = DetectorInfo("archon", "2d")
+    detector.setupDetector()
 
     assert detector.detectorType == "archon"
     assert detector.dimension == 3

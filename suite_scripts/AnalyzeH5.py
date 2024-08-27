@@ -41,7 +41,7 @@ class AnalyzeH5(object):
         self.label = args.label
         self.camera = 0
         self.seedCut = args.seedCut
-        self.isTestRun = 'testRun' in args.special
+        self.isTestRun = args.special is not None and 'testRun' in args.special
 
     def getFiles(self):
         fileNames = self.files.split(",")

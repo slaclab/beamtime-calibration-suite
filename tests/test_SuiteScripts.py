@@ -458,7 +458,6 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
-
 # this test uses input data from sdf filepath (available on s3df),
 # and we remove r102_custers.npy from the correctness comparison b/c this file is around 10gb!
 @pytest.mark.parametrize(
@@ -468,7 +467,7 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "time python AnalyzeH5.py -r 102 -f /sdf/data/lcls/ds/rix/rixx1005922/results/lowFlux/SimpleClusters__c0_r102_n100.h5 -p ./test_analyze_h5 --special testRun && rm ./test_analyze_h5/r102_clusters.npy",
+                "time python AnalyzeH5.py -r 102 -f /sdf/data/lcls/ds/rix/rixx1005922/results/lowFlux/SimpleClusters_testData_c0_r47_n666.h5 -p ./test_analyze_h5 --special testRun && rm ./test_analyze_h5/r102_clusters.npy",
             ],
             "test_analyze_h5",
         ),
@@ -478,7 +477,6 @@ def test_Analyze_h5(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-
 
 # non-working commands...
 '''
