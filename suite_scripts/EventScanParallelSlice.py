@@ -311,7 +311,7 @@ if __name__ == "__main__":
             pulseId = 0
         else:
             timestamp = evt.datetime().timestamp()
-            pulsId = esp.getPulseId(evt)
+            pulseId = esp.getPulseId(evt)
         smdDict = {
             "timestamps": timestamp,
             "pulseIds": pulseId,
