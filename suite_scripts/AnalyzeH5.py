@@ -70,6 +70,7 @@ class AnalyzeH5(object):
             except Exception as e:
                 print(f"failed to decode metadata value for key 'analysis': {e}")
                 print("exiting...")
+                exit(1)
 
         self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
         self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
