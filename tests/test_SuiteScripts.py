@@ -31,7 +31,7 @@ python EventScanParallelSlice.py -r 120 -f ../suite_scripts/test_event_scan_para
 
 python findMinSwitchValue.py -r 102 --maxNevents 6 -d Epix10ka -p /test_find_min_switch_value
 
-python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
+mython roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
 python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi
 
 
@@ -198,10 +198,10 @@ def suite_tester():
     yield tester
 
     # teardown
-    for dir in tester.expected_outcome_dirs:
+    # for dir in tester.expected_outcome_dirs:
         # the folders won't exist if passing b/c of missing dependencies
-        if os.path.exists(dir):
-            shutil.rmtree(dir)
+        # if os.path.exists(dir):
+            # shutil.rmtree(dir)
 
 
 @pytest.mark.parametrize(

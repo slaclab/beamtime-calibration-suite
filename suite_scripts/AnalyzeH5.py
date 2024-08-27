@@ -55,7 +55,7 @@ class AnalyzeH5(object):
         for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols"]:
             if key not in self.h5Files[0]:
                 print("h5 file missing metadata for key: '" + key + "'\nexiting...")
-                exit(1) # eventually get this data from cmdline args??
+                exit(1) # eventually try get this data from cmdline args?? or maybe have default vals to try with?
 
         encoding = 'utf-8'
 
