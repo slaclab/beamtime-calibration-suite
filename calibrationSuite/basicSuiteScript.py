@@ -95,6 +95,16 @@ class BasicSuiteScript(PsanaBase):
         frames = self.plainGetRawData(evt)
         if frames is None:
             return None
+
+        nZero = frames.size - np.count_nonzero(frames)
+        try:
+            dz = self.nZero - nZero
+            if dz > 0:
+                print("found %d new zero pixels, expected %d, setting frame to None" %(dz, self.nZero))
+                return None
+        except:
+            self.nZero = nZero
+
         if False and self.special:  ## turned off for a tiny bit of speed
             if "thirteenBits" in self.special:
                 frames = frames & 0xFFFE
