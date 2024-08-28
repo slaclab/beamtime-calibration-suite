@@ -21,7 +21,8 @@ for i in range(4):
     singlePixelArray.append([i, 80, 20])
 
 experimentHash = {
-    "detectorType": "Epix10kaQuad",
+    ##"detectorType": "Epix10kaQuad",## this needs work
+    "detectorType": "Epix10ka",
     "exp": "detdaq21",
     # "exp": "rixx1003721",
     "location": "DetLab",

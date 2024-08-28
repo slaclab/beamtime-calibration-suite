@@ -184,5 +184,6 @@ if __name__ == "__main__":
     bss.dumpEventCodeStatistics()
     ## temp for Alex:
     if False:
+    ##if True:
         np.save("nonZeroAsicAccounting.npy", np.array(nonZeroAsicArray))
         print("non-zero asic accounting:", nonZeroAsicArray)

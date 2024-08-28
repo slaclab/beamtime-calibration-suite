@@ -44,7 +44,10 @@ class PsanaBase(PsanaCommon):
             self.run = self.runRange[0]
             self.ds = self.get_ds()
 
-        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
+##        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
+        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detectorInfo.cameraType, self.camera), self.ds.env())
+        ## this is to distinguish between epix10ka form factors, etc.
+        
         self.evrs = None
         try:
             self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
