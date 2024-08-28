@@ -152,7 +152,7 @@ class PsanaBase(PsanaCommon):
         return self.det.calib(evt)
 
     def getImage(self, evt, data=None):
-        return self.raw.image(evt, data)
+        return self.det.image(evt, data)
 
     def getPedestal(self, evt, gainmode):
         if self.detectorInfo.autoRanging:
