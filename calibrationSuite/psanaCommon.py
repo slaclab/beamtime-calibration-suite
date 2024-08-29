@@ -249,7 +249,7 @@ class PsanaCommon(object):
 
         self.loadPedestalGainOffsetFiles()
 
-        print("det type:", self.args.detType)
+        print("command line det type:", self.args.detType)
         if self.args.detType == "":
             if self.args.nModules is not None:
                 self.detectorInfo.setNModules(self.args.nModules)

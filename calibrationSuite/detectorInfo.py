@@ -42,11 +42,11 @@ class DetectorInfo:
         
         knownTypes = ["epixhr", "epixm", "epix100", "Epix100a",
                       "jungfrau", "Jungfrau",## cxic00121 has no alias in run 88
-                      "epix10k", "archon"]
+                      "epix10k", "Epix10ka", "archon"]
         if detType not in knownTypes:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
-        self.ePix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
+        self.epix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
     def setupDetector(self): ## needs nModules to be set
@@ -142,6 +142,23 @@ class DetectorInfo:
         self.preferredCommonMode = "regionCommonMode"
         self.clusterShape = [3, 3]
         self.aduPerKeV = 41 ## g0 only of course...
+        self.seedCut = 3
+        self.neighborCut = 0.5  
+
+    def setup_epix10k(self):
+        self.cameraType = self.epix10kCameraTypes[self.nModules]
+        self.g0cut = 1 << 14
+        self.nRows = 352
+        self.nCols = 384
+        self.nColsPerBank = 96
+        self.nBanksRow = int(self.nCols / self.nColsPerBank)
+        self.nBanksCol = 2
+        self.nRowsPerBank = int(self.nRows / self.nBanksCol)
+        # need to still implement getGainMode()
+        # self.gainMode = self.getGainMode()
+        self.preferredCommonMode = "colCommonMode"
+        self.clusterShape = [3, 3]
+        self.aduPerKeV = 16 ## high gain; 5.5 for medium
         self.seedCut = 3
         self.neighborCut = 0.5  
 

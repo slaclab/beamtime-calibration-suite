@@ -12,20 +12,22 @@ import numpy as np
 # experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 singlePixelArray = []
-for i in range(0, 3):
+for i in range(1, 3):
     singlePixelArray.append([i, 10, 10])
-    singlePixelArray.append([i, 180, 10])
-    singlePixelArray.append([i, 10, 200])
-    singlePixelArray.append([i, 180, 200])
-    singlePixelArray.append([i, 10, 380])
-    singlePixelArray.append([i, 180, 380])
+    singlePixelArray.append([i, 10, 100])
+    singlePixelArray.append([i, 100, 10])
+    singlePixelArray.append([i, 100, 100])
+    singlePixelArray.append([i, 150, 150])
+    singlePixelArray.append([i, 80, 20])
+
+singlePixelArray.append([2, 178, 367])
 
 experimentHash = {
     "detectorType": "epixm",
-    "detectorVersion":1,## new firmware
     "exp": "rixx1005922",
+    # "exp": "rixx1003721",
     "location": "RixEndstation",
-    "analyzedModules": [0, 2, 3],
+    "analyzedModules": [1, 2],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
     # "fluxSource": "MfxDg1BmMon",
