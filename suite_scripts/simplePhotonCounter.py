@@ -10,8 +10,9 @@
 import logging
 import os
 
-import calibrationSuite.loggingSetup as ls
 import numpy as np
+
+import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     print("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
     logger.info("total photons in detector using cut %0.2f is %0.3f" % (spc.photonCut, (thresholded).sum()))
 
-    if False:
+    if True:##False:
         spectrumFileName = "%s/%s_%s_r%d_c%d_%s_spectrum.npy" % (
             spc.outputDir,
             scriptType,
@@ -114,4 +115,14 @@ if __name__ == "__main__":
         )
         np.save(spectrumFileName, energyHistogram)
 
+        imageFileName = spectrumFileName.replace("spectrum", "image")
+        tImage = spc.getImage(evt, thresholded)
+        np.save(imageFileName, tImage)
+        import matplotlib.pyplot as plt
+        p90 = np.percentile(tImage, 90)
+        print("clipping image at 90% of max")
+        plt.imshow(tImage.clip(0, p90))
+        plt.colorbar()
+        plt.savefig(imageFileName.replace("npy", "png"))
+        
     spc.dumpEventCodeStatistics()

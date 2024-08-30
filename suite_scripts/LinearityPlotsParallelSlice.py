@@ -11,12 +11,13 @@ import logging
 import os
 import sys
 
-import calibrationSuite.ancillaryMethods as ancillaryMethods
-import calibrationSuite.fitFunctions as fitFunctions
-import calibrationSuite.loggingSetup as ls
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+
+import calibrationSuite.ancillaryMethods as ancillaryMethods
+import calibrationSuite.fitFunctions as fitFunctions
+import calibrationSuite.loggingSetup as ls
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 # for logging from current file
@@ -160,7 +161,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
     def analyze_h5(self, dataFile, label):
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
-        print(fluxes)
+        print(np.array(fluxes))
         rois = data["rois"][()]
         pixels = data["pixels"][()]
         g0s = []
@@ -215,8 +216,11 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         break
 
                     iDet, jDet = self.sliceToDetector(i, j)
-                    if False:
+                    try:
                         self.fitInfo[module, i, j, 8] = self.g0Ped[module, iDet, jDet]
+                    except Exception:
+                        pass
+                    if False:
                         self.fitInfo[module, i, j, 9] = self.g1Ped[module, iDet, jDet]
                         self.fitInfo[module, i, j, 10] = self.g0Gain[module, iDet, jDet]
                         self.fitInfo[module, i, j, 11] = self.g1Gain[module, iDet, jDet]
@@ -267,7 +271,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                         y_g1_min = y.min()
                         x = fluxes[g1]
                         if self.profiles:
-                            x, y, err = ancillaryMethods.makeProfile(x, y, 50)
+                            x, y, err = ancillaryMethods.makeProfile(x, y, 50, myStatistic="median")
                             if x is None:  ##empty plot if single points/bin apparently
                                 print("empty profile for %d, %d" % (i, j))
                                 logger.info("empty profile for %d, %d" % (i, j))
@@ -370,7 +374,10 @@ if __name__ == "__main__":
 
     lpp.setupPsana()
 
-    size = 666
+    try:
+        size = comm.Get_size()  # noqa: F821
+    except Exception:
+        size = 1
     smd = lpp.ds.smalldata(
         filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)
     )

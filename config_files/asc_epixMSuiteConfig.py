@@ -14,24 +14,28 @@ import numpy as np
 singlePixelArray = []
 for i in range(0, 3):
     singlePixelArray.append([i, 10, 10])
-    singlePixelArray.append([i, 180, 10])
-    singlePixelArray.append([i, 10, 200])
-    singlePixelArray.append([i, 180, 200])
-    singlePixelArray.append([i, 10, 380])
-    singlePixelArray.append([i, 180, 380])
+    singlePixelArray.append([i, 10, 100])
+    singlePixelArray.append([i, 100, 10])
+    singlePixelArray.append([i, 100, 100])
+    singlePixelArray.append([i, 150, 150])
+    singlePixelArray.append([i, 80, 20])
+
+singlePixelArray.append([2, 178, 367])
 
 experimentHash = {
     "detectorType": "epixm",
     "detectorVersion":1,## new firmware
-    "exp": "rixx1005922",
-    "location": "RixEndstation",
-    "analyzedModules": [0, 2, 3],
+    "exp": "ascdaq18",
+    # "exp": "rixx1003721",
+    "location": "DetLab",## I guess
+    "ignoreEventCodeCheck": True,
+    "analyzedModules": [0, 1, 2, 3],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
     # "fluxSource": "MfxDg1BmMon",
-    "fluxSource": "MfxDg2BmMon",
-    "fluxChannels": [15],
-    "fluxSign": 1,  ## for dg2
+    ##"fluxSource": "MfxDg2BmMon",
+    ##"fluxChannels": [15],
+    ##"fluxSign": 1,  ## for dg2
     # "fluxSign": -1,
     "singlePixels": singlePixelArray,
     # 'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']

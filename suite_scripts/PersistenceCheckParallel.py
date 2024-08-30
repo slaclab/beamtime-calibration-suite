@@ -7,11 +7,13 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-from calibrationSuite.basicSuiteScript import BasicSuiteScript
-import h5py
 import sys
-import numpy as np
+
+import h5py
 import matplotlib.pyplot as plt
+import numpy as np
+
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 
 class PersistenceCheckParallel(BasicSuiteScript):

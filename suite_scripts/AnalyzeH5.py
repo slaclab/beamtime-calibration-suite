@@ -7,23 +7,23 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import h5py
-import numpy as np
-import calibrationSuite.fitFunctions as fitFunctions
-import calibrationSuite.ancillaryMethods as ancillaryMethods
+import logging
+import os
 
+import h5py
 import matplotlib.pyplot as plt
+import numpy as np
+
+import calibrationSuite.ancillaryMethods as ancillaryMethods
+import calibrationSuite.fitFunctions as fitFunctions
+import calibrationSuite.loggingSetup as ls
 
 ##import sys
 from calibrationSuite.argumentParser import ArgumentParser
 
-import logging
-import calibrationSuite.loggingSetup as ls
-import os
-
 # log to file named <curr script name>.log
 currFileName = os.path.basename(__file__)
-ls.setupScriptLogging(currFileName[:-3] + ".log", logging.ERROR)  # change to logging.INFO for full logging output
+ls.setupScriptLogging(currFileName[:-3] + ".log", logging.INFO) # change to logging.INFO for full logging output
 # for logging from current file
 logger = logging.getLogger(__name__)
 
@@ -40,32 +40,71 @@ class AnalyzeH5(object):
         ##logging.info("Output dir: " + self.outputDir)
         self.label = args.label
         self.camera = 0
+        self.seedCut = args.seedCut
+        self.isTestRun = args.special is not None and 'testRun' in args.special
 
     def getFiles(self):
         fileNames = self.files.split(",")
         self.h5Files = []
         for f in fileNames:
-            print(f)
+            print("using file: ", f)
             self.h5Files.append(h5py.File(f))
 
     def identifyAnalysis(self):
+        
+        for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols"]:
+            if key not in self.h5Files[0]:
+                print("h5 file missing metadata for key: '" + key + "'\nexiting...")
+                exit(1) # eventually try get this data from cmdline args?? or maybe have default vals to try with?
+
+        encoding = 'utf-8'
+
+        # note: [()] is h5py way to access key's data
+
+        # handle how some different machines create h5 differently
         try:
-            self.analysisType = self.h5Files[0]["analysisType"]
-            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-            print("slice coordinates:", self.sliceCoordinates)
-        except Exception:
-            ## do something useful here, maybe
-            self.analysisType = None
-            ## but for now
-            self.analysisType = "cluster"
-            self.sliceCoordinates = [[270, 288], [59, 107]]
-            self.sliceEdges = [288 - 270, 107 - 59]
+            self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
+        except:
+            try:
+                self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
+            except Exception as e:
+                print(f"failed to decode metadata value for key 'analysis': {e}")
+                print("exiting...")
+                exit(1)
+
+        self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
+        self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
+        self.detModules = self.h5Files[0]["modules"][()]
+        self.detRows = self.h5Files[0]["rows"][()]
+        self.detCols = self.h5Files[0]["cols"][()]
+
+        print("the following metadata was read from h5:")
+        print("analysis: ", self.analysis)
+        print("sliceCoordinates: ", self.sliceCoordinates)
+        print("detModules: ", self.detModules)
+        print("detRows: ", self.detRows)
+        print("detCols: ", self.detCols)
+
 
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
 
+    def getRowsColsFromSliceCoordinates(self):
+        offset = 0
+        if len(self.sliceCoordinates) == 3:
+            offset = 1
+        self.rowStart = self.sliceCoordinates[offset][0]
+        self.rowStop = self.sliceCoordinates[offset][1]
+        self.colStart = self.sliceCoordinates[offset+1][0]
+        self.colStop = self.sliceCoordinates[offset+1][1]
+        rows = self.rowStop-self.rowStart
+        cols = self.colStop-self.colStart
+        print("analyzing %d rows, %d cols" %(rows, cols))
+        
+        return rows, cols
+    
     def analyze(self):
-        if self.analysisType == "cluster":
+        if self.analysis == "cluster":
             self.clusterAnalysis()
         else:
             print("unknown analysis type %s" % (self.analysisType))
@@ -85,6 +124,7 @@ class AnalyzeH5(object):
             pass
 
         self.nBins = 200  ## for epixM with a lot of 2 photon events...
+        
         if self.seedCut is None:
             self.lowEnergyCut = 4  ## fix - should be 0.5 photons or something
         else:
@@ -136,15 +176,15 @@ class AnalyzeH5(object):
         maximumModule = int(clusters[:, 1].max())
         analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
+        rows, cols = self.getRowsColsFromSliceCoordinates()
 
-        ##rows = self.sliceEdges[0]
-        ##cols = self.sliceEdges[1]
-        ## doesn't exist in h5 yet so calculate dumbly instead
-        rows = int(clusters[:, 2].max()) + 1
-        cols = int(clusters[:, 3].max()) + 1
+##        ##cols = self.sliceEdges[1]
+##        ## doesn't exist in h5 yet so calculate dumbly instead
+##        rows = int(clusters[:, 2].max()) + 1
+##        cols = int(clusters[:, 3].max()) + 1
         print("appear to have a slice with %d rows, %d cols" % (rows, cols))
-        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
-        self.sliceEdges = [rows, cols]
+##        self.sliceCoordinates = [[0, rows], [0, cols]]  ## temp - get from h5
+##        self.sliceEdges = [rows, cols]
 
         print("mean energy above 0:" + str(energy[energy > 0].mean()))
         logger.info("mean energy above 0:" + str(energy[energy > 0].mean()))
@@ -164,15 +204,21 @@ class AnalyzeH5(object):
         plt.close()
 
         # verbose = False
-        fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        ##fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
+        fitInfo = np.zeros((self.detModules, self.detRows, self.detCols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
         for m in analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
-            for i in range(rows):
+            for i in range(self.rowStart, self.rowStop):
+                # just do a single row when testing
+                if self.isTestRun and i > 0:
+                    break
+
                 rowModClusters = ancillaryMethods.getMatchedClusters(modClusters, "row", i)
 
-                for j in range(cols):
-                    detRow, detCol = self.sliceToDetector(i, j)
+                for j in range(self.colStart, self.colStop):
+                    ##detRow, detCol = self.sliceToDetector(i, j)
+                    detRow, detCol = i, j ## mostly for clarity
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
                         print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))

@@ -38,30 +38,22 @@ def test_getEnergeticClusters():
 
 
 def test_getSmallSquareClusters():
-    clusters = np.array(
-        [[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]]
-    )
+    clusters = np.array([[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]])
     small_square_clusters = getSmallSquareClusters(clusters)
 
     assert np.array_equal(small_square_clusters, [[2, 1, 2, 2, 3, 1]])
 
 
 def test_getSmallClusters():
-    clusters = np.array(
-        [[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]]
-    )
+    clusters = np.array([[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]])
     small_clusters = getSmallClusters(clusters)
     assert np.array_equal(small_clusters, [[2, 1, 2, 2, 3, 1]])
 
 
 def test_getSquareClusters():
-    clusters = np.array(
-        [[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]]
-    )
+    clusters = np.array([[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [2, 1, 2, 2, 5, 0], [3, 1, 2, 2, 6, 1]])
     square_clusters = getSquareClusters(clusters)
-    assert np.array_equal(
-        square_clusters, [[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [3, 1, 2, 2, 6, 1]]
-    )
+    assert np.array_equal(square_clusters, [[1, 1, 1, 1, 4, 1], [2, 1, 2, 2, 3, 1], [3, 1, 2, 2, 6, 1]])
 
 
 def test_getMatchedClusters():
@@ -79,9 +71,7 @@ def test_getMatchedClusters():
     dimension = "column"
     n = 6
     matched_clusters = getMatchedClusters(clusters, dimension, n)
-    assert np.array_equal(
-        matched_clusters, [[1, 1, 1, 6], [2, 1, 2, 6], [2, 2, 2, 6], [3, 4, 3, 6]]
-    )
+    assert np.array_equal(matched_clusters, [[1, 1, 1, 6], [2, 1, 2, 6], [2, 2, 2, 6], [3, 4, 3, 6]])
 
 
 def test_goodClusters():

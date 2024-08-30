@@ -1,6 +1,7 @@
 import os
-import sys
 import subprocess
+import sys
+
 import pytest
 
 # Quick and simple test that creates the main calibrationSuite object that all the /suite_scripts
@@ -11,6 +12,7 @@ import pytest
 def psana_installed():
     try:
         import psana  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -28,10 +30,17 @@ def test_example(psana_installed):
 
         # annoyingly complicated way to get root of current git repo,
         # do this so test can be run from tests/ dir or root of project
-        git_repo_root = (subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE).communicate()[0].rstrip().decode("utf-8"))
+        git_repo_root = (
+            subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE)
+            .communicate()[0]
+            .rstrip()
+            .decode("utf-8")
+        )
 
         os.environ["OUTPUT_ROOT"] = "."
         os.environ["SUITE_CONFIG"] = git_repo_root + "/tests/testingSuiteConfig.py"
+        # to be sure this script acts the same as those in suite_scripts (in regards to file-paths)
+        os.chdir(git_repo_root + "/suite_scripts/")
         os.makedirs("basic_suite_test", exist_ok=True)
 
         bSS = BasicSuiteScript()
@@ -47,7 +56,7 @@ def test_example(psana_installed):
 
         stepGen = bSS.getStepGen()
         assert stepGen is not None
-       
+
         # this is slow, don't do for now
         """
         count = 0
@@ -64,7 +73,6 @@ def test_example(psana_installed):
 
         # TODO: add checks that init and setupPsana stuff is set properly,
         # also call and test directly some class-methods.
-
 
         """
         # also here's a way to potentially test creating a base object

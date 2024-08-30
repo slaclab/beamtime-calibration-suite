@@ -9,12 +9,13 @@
 ##############################################################################
 import sys
 
-import calibrationSuite.fitFunctions as fitFunctions
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import curve_fit
+
+import calibrationSuite.fitFunctions as fitFunctions
 from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from calibrationSuite.cluster import BuildClusters
-from scipy.optimize import curve_fit
 
 
 class SimpleClusters(BasicSuiteScript):
@@ -133,10 +134,15 @@ if __name__ == "__main__":
         sys.exit(0)
 
     sic.setupPsana()
+    sic.configHash["analysis"] = "cluster"
+    
+    print("analyzed modules:", sic.analyzedModules) ## move this to psana setup
     size = 666
-    smd = sic.ds.smalldata(
-        filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
-    )
+    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    if sic.psanaType==1:
+        smd = sic.ds.small_data(filename=filename, gather_interval=100)
+    else:
+        smd = sic.get_smalldata(filename=filename)
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
@@ -167,8 +173,12 @@ if __name__ == "__main__":
     if sic.useFlux:
         evtGen = sic.matchedDetEvt()
     else:
-        evtGen = sic.myrun.events()
-
+        try:
+            evtGen = sic.myrun.events()
+        except:
+            ##if sic.psanaType == 1: ## fix in base class asap
+            evtGen = sic.ds.events()
+        
     pedestal = None
     nComplaints = 0
     try:
@@ -200,7 +210,11 @@ if __name__ == "__main__":
     zeroLowGain = False
     if sic.special and "zeroLowGain" in sic.special:
         zeroLowGain = True
-
+        
+    useSlice = False
+    if sic.special is not None and "slice" in sic.special:
+        useSlice = True
+    
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
@@ -254,7 +268,14 @@ if __name__ == "__main__":
             print("common mode killed frames???")
             raise Exception
 
-        flux = sic.flux
+        ## temp fix for 2d case (epix100, rixsCCD)
+        if sic.detectorInfo.dimension == 2:
+            frames = np.array([frames])
+            
+        try: ## added for psana1 - should fix in base class
+            flux = sic.flux
+        except:
+            flux = None
         if sic.useFlux and flux is None:
             continue
         if sic.threshold is not None and flux > sic.threshold:
@@ -275,8 +296,11 @@ if __name__ == "__main__":
         for module in sic.analyzedModules:
             if nClusters == maxClusters:
                 continue
-            if sic.special is not None and "slice" in sic.special:
-                bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
+            if useSlice:
+                if sic.detectorInfo.dimension == 2: ## figure out how to kill if
+                    bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut)
+                elif sic.detectorInfo.dimension == 3:
+                    bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
             else:
                 bc = BuildClusters(frames[module], seedCut, neighborCut)
 
@@ -289,21 +313,39 @@ if __name__ == "__main__":
             for c in fc:
                 ##print(c.goodCluster, c.nPixels, c.eTotal)
                 if c.goodCluster and c.nPixels < 6 and nClusters < maxClusters:
-                    clusterArray[nClusters] = [c.eTotal, module, c.seedRow, c.seedCol, c.nPixels, c.isSquare()]
+                    sr = c.seedRow
+                    sc = c.seedCol
+                    if useSlice:
+                        sr, sc = sic.sliceToDetector(sr, sc)
+                    clusterArray[nClusters] = [c.eTotal, module, sr, sc, c.nPixels, c.isSquare()]
                     nClusters += 1
                 if nClusters == maxClusters:
                     print("have found %d clusters, mean energy:" % (maxClusters), np.array(clusterArray)[:, 0].mean())
                     ## had continue here
                     break
 
-        smd.event(evt, clusterData=clusterArray)
+        if nevt%1000 == 0:
+            print("event %d, found %d clusters" %(nevt, nClusters))
+            
+        if sic.psanaType==1:
+            smd.event(clusterData=clusterArray)
+        else:
+            smd.event(evt, clusterData=clusterArray)
 
         sic.nGoodEvents += 1
+        if sic.nGoodEvents == sic.maxNevents:
+            print("have reached max n events %d, quitting" %(sic.maxNevents))
+            break
+            
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            f = frames[sic.regionSlice]
+            
+            if sic.detectorInfo.dimension == 3:
+                f = frames[sic.regionSlice]
+            elif sic.detectorInfo.dimension == 2:
+                f = frames[sic.analyzedModules[0]]
             print(
-                "slice median, max, guess at single photon, guess at zero photon:",
+                "slice or module median, max, guess at single photon, guess at zero photon:",
                 np.median(f),
                 f.max(),
                 np.median(f[f > 4]),
@@ -314,9 +356,20 @@ if __name__ == "__main__":
     ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
     ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if smd.summary:
+    if sic.psanaType==1 or smd.summary:
+        ## guess at desired psana1 behavior - no smd.summary there
+        ## maybe check smd.rank == 0?
         sumhSum = smd.sum(hSum)
-        smd.save_summary({"energyHistogram": sumhSum})
-    smd.done()
+        if sic.psanaType==1:
+            smd.save({"energyHistogram": sumhSum})
+            smd.save(sic.configHash)
+        else:
+            smd.save_summary({"energyHistogram": sumhSum})
+            smd.save_summary(sic.configHash)
+
+    if sic.psanaType != 1:
+        ## need to figure out how to hide the smalldata differences
+        ## unless we have to make new classes to wrap it
+        smd.done()
 
     sic.dumpEventCodeStatistics()

@@ -1,15 +1,18 @@
-import os
 import re
+import subprocess
 
 
 def test_environment_setup():
-    # so we can run from project root or 'tests' folder
-    curr_dir = os.getcwd()
-    setup_script_path = ""
-    if "tests" in curr_dir:
-        setup_script_path = "../setup.sh"
-    else:
-        setup_script_path = "setup.sh"
+    # annoyingly complicated way to get root of current git repo,
+    # do this so test can be run from tests/ dir or root of project
+    git_repo_root = (
+        subprocess.Popen(["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE)
+        .communicate()[0]
+        .rstrip()
+        .decode("utf-8")
+    )
+
+    setup_script_path = git_repo_root + "/setup.sh"
 
     # Read the script to extract expected values
     expected_values = {}
