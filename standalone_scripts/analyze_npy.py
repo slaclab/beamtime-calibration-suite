@@ -35,6 +35,12 @@ class LinearityInfo(object):  ## describes the .npy array
             "g1r2": 5,
             "g0max": 6,
             "g1min": 7,
+            "min": 8,
+            "max": 9,
+            "g0Ped": 10,
+            "g1Ped": 11,
+            "g0Gain": 12,
+            "offset": 13
         }
         self.dataRanges = {  ##"g0slope":[0,1000],
             "g0slope": [0, 5],
@@ -49,8 +55,8 @@ class LinearityInfo(object):  ## describes the .npy array
 
 
 class AnalyzeOneScan(object):
-    def __init__(self, scanObj, statsArray, data, label, ratio=False):
-        self.data = data
+    def __init__(self, scanObj, statsArray, data, module, label, ratio=False):
+        self.data = data[module]
         self.label = label
         self.ratio = ratio
         self.statsArray = statsArray
@@ -209,12 +215,13 @@ class CompareMultipleScans(object):
 
 if __name__ == "__main__":
     f = sys.argv[1]
+    module = eval(sys.argv[2])
     statsArray = None
     plainStatsArray = None
     ratioStatsArray = None
 
     try:
-        statsArray = [sys.argv[2].split(",")]
+        statsArray = [sys.argv[3].split(",")]
     except:
         pass
 
@@ -251,9 +258,9 @@ if __name__ == "__main__":
                 plainStatsArray = statsArray
 
         if plainStatsArray is not None:
-            a = AnalyzeOneScan(scanObj, plainStatsArray, data, label)
+            a = AnalyzeOneScan(scanObj, plainStatsArray, data, module, label)
             a.analyze()
 
         if ratioStatsArray is not None:
-            a = AnalyzeOneScan(scanObj, ratioStatsArray, data, label, ratio=True)
+            a = AnalyzeOneScan(scanObj, ratioStatsArray, data, module, label, ratio=True)
             a.analyze()
