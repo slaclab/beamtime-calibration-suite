@@ -12,7 +12,7 @@ import numpy as np
 # experimentHash = {'exp':'mfxx1005021', 'location':'MfxEndstation', 'fluxSource':'MFX-USR-DIO', 'fluxChannels':[11], 'fluxSign':-1}
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 singlePixelArray = []
-for i in range(0, 3):
+for i in [0, 2, 3]:##range(0, 3):
     singlePixelArray.append([i, 10, 10])
     singlePixelArray.append([i, 180, 10])
     singlePixelArray.append([i, 10, 200])
@@ -28,11 +28,11 @@ experimentHash = {
     "analyzedModules": [0, 2, 3],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
-    # "fluxSource": "MfxDg1BmMon",
-    "fluxSource": "MfxDg2BmMon",
-    "fluxChannels": [15],
-    "fluxSign": 1,  ## for dg2
-    # "fluxSign": -1,
+    "fluxSource": "MfxDg1BmMon",
+    #"fluxSource": "MfxDg2BmMon",
+    "fluxChannels": [15],## or 11 if we see saturation
+    #"fluxSign": 1,  ## for dg2
+    "fluxSign": -1,
     "singlePixels": singlePixelArray,
     # 'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']
     # 'ROIs':['roiFromSwitched_e557_rmfxx1005021']
