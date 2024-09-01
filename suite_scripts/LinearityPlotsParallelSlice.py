@@ -193,7 +193,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
     def analyze_h5_slice(self, dataFile, label):
         module = 2
-        nModules = 3
+        nModules = 4
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
         pixels = data["slice"][()]
@@ -204,7 +204,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 (nModules, rows, cols, 13)
             )  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
 
-        for module in [1, 2]:
+        for module in lpp.analyzedModules:
             for i in range(rows):
                 # so we can end early on testing runs:
                 if self.special is not None and "testing" in self.special and i >= self.maxNevents:

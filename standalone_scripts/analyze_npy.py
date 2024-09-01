@@ -43,14 +43,15 @@ class LinearityInfo(object):  ## describes the .npy array
             "offset": 13
         }
         self.dataRanges = {  ##"g0slope":[0,1000],
-            "g0slope": [0, 5],
+            ##"g0slope": [-5, 5],
+            "g0slope": [-1, 0], ##just xtalk...
             "g0intercept": [0, 10000],
             "g0r2": [0.9, 1.0],
-            "g1slope": [0, 0.1],
+            "g1slope": [-.1, 0.1],
             "g1intercept": [0, 10000],
             "g1r2": [0.9, 1.0],
-            "g0max": [10000, 16384],
-            "g1min": [0, 16384],
+            "g0max": [10000, 32000],
+            "g1min": [0, 32000],
         }
 
 
