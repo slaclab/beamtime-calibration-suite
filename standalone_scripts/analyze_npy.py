@@ -67,7 +67,10 @@ class AnalyzeOneScan(object):
     def analyze(self):
         if self.ratio:
             for array in self.statsArray:
-                self.plotRatio(*tuple(array))
+                try:
+                    self.plotRatio(*tuple(array))
+                except:
+                    print("problem with", array, "in plotRatio, probably divide by zero")
         else:
             for array in self.statsArray:
                 if len(array) == 2:
