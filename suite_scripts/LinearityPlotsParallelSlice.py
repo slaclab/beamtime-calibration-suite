@@ -277,7 +277,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                 logger.info("empty profile for %d, %d" % (i, j))
                         if x is not None:
                             fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
-                            print(i, j, fitPar, r2, 1)
+                            print(module, i, j, fitPar, r2, 1)
                             self.fitInfo[module, i, j, 3:5] = fitPar
                             self.fitInfo[module, i, j, 5] = r2
                             self.fitInfo[module, i, j, 7] = y_g1_min
