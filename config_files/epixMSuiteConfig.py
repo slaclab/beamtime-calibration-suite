@@ -13,12 +13,12 @@ import numpy as np
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 singlePixelArray = []
 for i in [0, 2, 3]:##range(0, 3):
-    singlePixelArray.append([i, 10, 10])
-    singlePixelArray.append([i, 180, 10])
-    singlePixelArray.append([i, 10, 200])
-    singlePixelArray.append([i, 180, 200])
-    singlePixelArray.append([i, 10, 380])
-    singlePixelArray.append([i, 180, 380])
+    singlePixelArray.append([i, 55, 10])
+    singlePixelArray.append([i, 120, 10])
+    singlePixelArray.append([i, 55, 200])
+    singlePixelArray.append([i, 120, 200])
+    singlePixelArray.append([i, 55, 300])
+    singlePixelArray.append([i, 120, 300])
 
 experimentHash = {
     "detectorType": "epixm",
