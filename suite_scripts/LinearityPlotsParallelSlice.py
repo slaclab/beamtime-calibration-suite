@@ -243,7 +243,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                             )
                             if True:
                                 if i % 10 == 0 and j % 10 == 0:
-                                    print(i, j, fitPar, r2, 0)
+                                    print(module, i, j, fitPar, r2, 0)
                             ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                             ##np.save("temp_r%dc%d_y.py" %(i,j), y)
                             ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
@@ -277,7 +277,9 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                 logger.info("empty profile for %d, %d" % (i, j))
                         if x is not None:
                             fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
-                            print(module, i, j, fitPar, r2, 1)
+                            if True:
+                                if i % 10 == 0 and j % 10 == 0:
+                                    print(module, i, j, fitPar, r2, 1)
                             self.fitInfo[module, i, j, 3:5] = fitPar
                             self.fitInfo[module, i, j, 5] = r2
                             self.fitInfo[module, i, j, 7] = y_g1_min
