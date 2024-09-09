@@ -193,7 +193,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
 
     def analyze_h5_slice(self, dataFile, label):
         module = 2
-        nModules = 3
+        nModules = 4
         data = h5py.File(dataFile)
         fluxes = data["fluxes"][()]
         pixels = data["slice"][()]
@@ -204,7 +204,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                 (nModules, rows, cols, 13)
             )  ##g0 slope, intercept, r2; g1 x3; max, min, g0Ped, g1Ped, g0Gain, g1Gain, offset
 
-        for module in [1, 2]:
+        for module in lpp.analyzedModules:
             for i in range(rows):
                 # so we can end early on testing runs:
                 if self.special is not None and "testing" in self.special and i >= self.maxNevents:
@@ -243,7 +243,7 @@ class LinearityPlotsParallel(BasicSuiteScript):
                             )
                             if True:
                                 if i % 10 == 0 and j % 10 == 0:
-                                    print(i, j, fitPar, r2, 0)
+                                    print(module, i, j, fitPar, r2, 0)
                             ##np.save("temp_r%dc%d_x.py" %(i,j), fluxes[g0])
                             ##np.save("temp_r%dc%d_y.py" %(i,j), y)
                             ##np.save("temp_r%dc%d_func.py" %(i,j), fitFunc)
@@ -277,7 +277,9 @@ class LinearityPlotsParallel(BasicSuiteScript):
                                 logger.info("empty profile for %d, %d" % (i, j))
                         if x is not None:
                             fitPar, covar, fitFunc, r2 = fitFunctions.fitLinearUnSaturatedData(x, y)
-                            print(i, j, fitPar, r2, 1)
+                            if True:
+                                if i % 10 == 0 and j % 10 == 0:
+                                    print(module, i, j, fitPar, r2, 1)
                             self.fitInfo[module, i, j, 3:5] = fitPar
                             self.fitInfo[module, i, j, 5] = r2
                             self.fitInfo[module, i, j, 7] = y_g1_min

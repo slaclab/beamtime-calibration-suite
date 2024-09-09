@@ -16,6 +16,7 @@ from statsmodels.nonparametric.bandwidths import bw_silverman
 
 logger = logging.getLogger(__name__)
 
+sqrt2pi = np.sqrt(2*np.pi)
 
 def linear(x, a, b):
     return a * x + b
@@ -34,20 +35,20 @@ def gaussian(x, a, mu, sigma):
 
 
 def gaussianArea(a, sigma):
-    return a * sigma * 6.28
+    return a * sigma * sqrt2pi
 
 
 def estimateGaussianParametersFromUnbinnedArray(flatData):
     sigma = flatData.std()
     entries = len(flatData)
     ## will crash if sigma is 0
-    return entries / (sigma * 6.28), flatData.mean(), sigma
+    return entries / (sigma * sqrt2pi), flatData.mean(), sigma
 
 
 def estimateGaussianParametersFromXY(x, y):
     mean, sigma = getHistogramMeanStd(x, y)
     ## will crash if sigma is 0
-    return sum(y) / (sigma * 6.28), mean, sigma
+    return sum(y) / (sigma * sqrt2pi), mean, sigma
 
 
 def getHistogramMeanStd(binCenters, counts):
