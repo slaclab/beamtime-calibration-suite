@@ -44,6 +44,7 @@ if __name__ == "__main__":
     outer_max = 1
     inner_count = 0
     inner_max = 50
+    nonZeroAsicArray = 0
 
     for nstep, step in enumerate(stepGen):
         # for testing
@@ -53,11 +54,11 @@ if __name__ == "__main__":
 
         for nevt, evt in enumerate(step.events()):
             if nevt >= bss.maxNevents:
-                print("have reached %d events" %(bss.maxNevents))
+                print("have reached %d events" % (bss.maxNevents))
                 break
             if evt is None:
                 continue
-    
+
             # for testing
             inner_count += 1
             if isTestRun and inner_count > inner_max:
@@ -119,12 +120,12 @@ if __name__ == "__main__":
 
             ## temp for Alex:
             if False and not (bss.detObj and bss.detObj == "calib"):
-            ##if True and not (bss.detObj and bss.detObj == "calib"):
-                nonZeroAsics = [1*np.any(frames[i]) for i in range(frames.shape[0])]
+                ##if True and not (bss.detObj and bss.detObj == "calib"):
+                nonZeroAsics = [1 * np.any(frames[i]) for i in range(frames.shape[0])]
                 try:
                     ##print(nonZeroAsics)
                     nonZeroAsicArray += nonZeroAsics
-                except:
+                except Exception:
                     nonZeroAsicArray = np.array(nonZeroAsics)
 
             for i, p in enumerate(bss.singlePixels):
@@ -184,6 +185,6 @@ if __name__ == "__main__":
     bss.dumpEventCodeStatistics()
     ## temp for Alex:
     if False:
-    ##if True:
+        ##if True:
         np.save("nonZeroAsicAccounting.npy", np.array(nonZeroAsicArray))
         print("non-zero asic accounting:", nonZeroAsicArray)

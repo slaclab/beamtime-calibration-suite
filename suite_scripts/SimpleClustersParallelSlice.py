@@ -135,11 +135,11 @@ if __name__ == "__main__":
 
     sic.setupPsana()
     sic.configHash["analysis"] = "cluster"
-    
-    print("analyzed modules:", sic.analyzedModules) ## move this to psana setup
+
+    print("analyzed modules:", sic.analyzedModules)  ## move this to psana setup
     size = 666
-    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
-    if sic.psanaType==1:
+    filename = "%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    if sic.psanaType == 1:
         smd = sic.ds.small_data(filename=filename, gather_interval=100)
     else:
         smd = sic.get_smalldata(filename=filename)
@@ -175,10 +175,10 @@ if __name__ == "__main__":
     else:
         try:
             evtGen = sic.myrun.events()
-        except:
+        except Exception:
             ##if sic.psanaType == 1: ## fix in base class asap
             evtGen = sic.ds.events()
-        
+
     pedestal = None
     nComplaints = 0
     try:
@@ -210,11 +210,11 @@ if __name__ == "__main__":
     zeroLowGain = False
     if sic.special and "zeroLowGain" in sic.special:
         zeroLowGain = True
-        
+
     useSlice = False
     if sic.special is not None and "slice" in sic.special:
         useSlice = True
-    
+
     hSum = None
     for nevt, evt in enumerate(evtGen):
         if evt is None:
@@ -271,10 +271,10 @@ if __name__ == "__main__":
         ## temp fix for 2d case (epix100, rixsCCD)
         if sic.detectorInfo.dimension == 2:
             frames = np.array([frames])
-            
-        try: ## added for psana1 - should fix in base class
+
+        try:  ## added for psana1 - should fix in base class
             flux = sic.flux
-        except:
+        except Exception:
             flux = None
         if sic.useFlux and flux is None:
             continue
@@ -297,7 +297,7 @@ if __name__ == "__main__":
             if nClusters == maxClusters:
                 continue
             if useSlice:
-                if sic.detectorInfo.dimension == 2: ## figure out how to kill if
+                if sic.detectorInfo.dimension == 2:  ## figure out how to kill if
                     bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut)
                 elif sic.detectorInfo.dimension == 3:
                     bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
@@ -324,22 +324,22 @@ if __name__ == "__main__":
                     ## had continue here
                     break
 
-        if nevt%1000 == 0:
-            print("event %d, found %d clusters" %(nevt, nClusters))
-            
-        if sic.psanaType==1:
+        if nevt % 1000 == 0:
+            print("event %d, found %d clusters" % (nevt, nClusters))
+
+        if sic.psanaType == 1:
             smd.event(clusterData=clusterArray)
         else:
             smd.event(evt, clusterData=clusterArray)
 
         sic.nGoodEvents += 1
         if sic.nGoodEvents == sic.maxNevents:
-            print("have reached max n events %d, quitting" %(sic.maxNevents))
+            print("have reached max n events %d, quitting" % (sic.maxNevents))
             break
-            
+
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            
+
             if sic.detectorInfo.dimension == 3:
                 f = frames[sic.regionSlice]
             elif sic.detectorInfo.dimension == 2:
@@ -356,11 +356,11 @@ if __name__ == "__main__":
     ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
     ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if sic.psanaType==1 or smd.summary:
+    if sic.psanaType == 1 or smd.summary:
         ## guess at desired psana1 behavior - no smd.summary there
         ## maybe check smd.rank == 0?
         sumhSum = smd.sum(hSum)
-        if sic.psanaType==1:
+        if sic.psanaType == 1:
             smd.save({"energyHistogram": sumhSum})
             smd.save(sic.configHash)
         else:
