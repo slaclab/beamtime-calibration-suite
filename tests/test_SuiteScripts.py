@@ -458,6 +458,7 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
+
 # this test uses input data from sdf filepath (available on s3df),
 # and we remove r102_custers.npy from the correctness comparison b/c this file is around 10gb!
 @pytest.mark.parametrize(
@@ -478,8 +479,9 @@ def test_Analyze_h5(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
+
 # non-working commands...
-'''
+"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
@@ -490,4 +492,4 @@ def test_PersistenceCheck(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-'''
+"""
