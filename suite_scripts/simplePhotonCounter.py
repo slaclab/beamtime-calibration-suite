@@ -63,6 +63,8 @@ if __name__ == "__main__":
 
         if spc.fakePedestal is not None:
             rawFrames = spc.getRawData(evt)
+            if rawFrames is None:
+                continue
             frames = rawFrames.astype("float") - spc.fakePedestal
             frames /= gain  ## psana may not have the right default
         else:
