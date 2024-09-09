@@ -63,7 +63,7 @@ def test_gaussian(a, mu, sigma, expected):
     np.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("a, sigma, expected", [(10, 0.5, 31.4)])
+@pytest.mark.parametrize("a, sigma, expected", [(10, 0.5, 12.533141373155)])
 def test_gaussianArea(a, sigma, expected):
     result = gaussianArea(a, sigma)
     assert np.isclose(result, expected)
@@ -73,7 +73,7 @@ def test_estimateGaussianParametersFromUnbinnedArray():
     flatData = np.array([1, 2, 3, 4, 5])
     result_amp, result_mean, result_sigma = estimateGaussianParametersFromUnbinnedArray(flatData)
     expected_amp, expected_mean, expected_sigma = (
-        0.5629831060402448,
+        1.4104739588693909,
         3.0,
         1.4142135623730951,
     )
@@ -87,7 +87,7 @@ def test_estimateGaussianParametersFromXY():
     y = np.array([2, 4, 6, 4, 2])
     result_amp, result_mean, result_sigma = estimateGaussianParametersFromXY(x, y)
     expected_amp, expected_mean, expected_sigma = (
-        2.482238418490429,
+        6.21889469048404,
         3.0,
         1.1547005383792515,
     )
