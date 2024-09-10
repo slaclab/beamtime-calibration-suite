@@ -143,14 +143,6 @@ class SuiteTester:
             import psana  # noqa: F401
         except ImportError:
             return False
-
-        # check for submodule
-        data_path = self.git_repo_root + "/tests/test_data"
-        if not os.path.exists(data_path):
-            return False
-        # check for some expected folder to be sure submodule initalized
-        if not os.path.exists(data_path + "/test_roi"):
-            return False
         return True
 
     def run_command(self, command):
@@ -173,10 +165,19 @@ class SuiteTester:
         if result.returncode != 0:
             assert False, f"Script failed with error: {result.stderr}"
 
+        # let's not diff output files if user doesn't have download the /tests/test_data submodule,
+        # since the exact output of scripts can often change a small amount so diffing the output files
+        # is mainly useful when refactoring or when sure output data won't change.
+        # testing without diffing output will still test if scripts can run to completion without error!
+        data_path = self.git_repo_root + "/tests/test_data"
+        if not os.path.exists(data_path) or not os.path.exists(data_path + "/test_roi"):
+            print("/tests/test_data submodule not setup, not diffing output against expected output files")
+            return
+
         real_output_location = self.git_repo_root + "/suite_scripts/" + output_location
         expected_output_location = self.git_repo_root + "/tests/test_data/" + output_location
 
-        # Compare files in directories
+        # diff real output vs expected output files
         for root, dirs, files in os.walk(real_output_location):
             for file in files:
                 real_file_path = real_output_location + "/" + file
