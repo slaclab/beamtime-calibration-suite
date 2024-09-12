@@ -182,7 +182,7 @@ if __name__ == "__main__":
     pedestal = None
     nComplaints = 0
     try:
-        gain = sic.detectorInfo.aduPerKeV
+        gain = sic.aduPerKeV
     except Exception:
         gain = None
     if sic.special is not None:  ## and 'fakePedestal' in sic.special:
@@ -245,15 +245,16 @@ if __name__ == "__main__":
         ##print("something is probably wrong, need a pedestal to cluster")
         ##sys.exit(0)
 
+        ##print("frames and gain:", frames, gain)
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666 * 10, 10)
                 print("added %d fake photons" % (nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
-            frame = sic.getCalibData(evt)[0]
+            frames = sic.getCalibData(evt)
         if frames is None:
-            print("something weird and bad happened, ignore event")
+            print("something weird and bad happened, ignore event %d" %(nevt))
             continue
 
         if sic.special is not None:

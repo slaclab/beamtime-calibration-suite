@@ -37,7 +37,7 @@ if __name__ == "__main__":
     gain = None
     if spc.fakePedestal is not None:
         if spc.detectorInfo is not None:
-            gain = spc.detectorInfo.aduPerKeV
+            gain = spc.aduPerKeV
         else:
             if "FH" in spc.special:
                 gain = 20  ##17.## my guess

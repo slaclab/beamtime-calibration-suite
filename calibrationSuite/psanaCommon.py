@@ -234,7 +234,9 @@ class PsanaCommon(object):
                 self.seedCut = None
 
         self.photonEnergy = self.args.photonEnergy
-
+        self.aduPerKeV = self.args.aduPerKeV
+        self.gainMode = self.args.gainMode
+        
         self.fluxCutMin = self.args.fluxCutMin
         self.fluxCutMax = self.args.fluxCutMax
 
@@ -370,6 +372,12 @@ class PsanaCommon(object):
                 logger.info("Error evaluating range: " + str(e))
         print("analyzing modules:", self.analyzedModules)
 
+        if self.aduPerKeV is None:
+            self.aduPerKeV = self.detectorInfo.aduPerKeV
+
+        if self.gainMode == None:
+            self.gainMode = 0 ## assume high gain or non-autoranging
+            
     def setupOutputDirString(self, analysisType):
         """
         Sets up the output directory for saving output file (default dir-name is based on the analysis type).
