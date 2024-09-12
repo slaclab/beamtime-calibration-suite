@@ -12,7 +12,7 @@ def test_environment_setup():
         .decode("utf-8")
     )
 
-    setup_script_path = git_repo_root + "/setup.sh"
+    setup_script_path = git_repo_root + "/setup_scripts/setup.sh"
 
     # Read the script to extract expected values
     expected_values = {}
