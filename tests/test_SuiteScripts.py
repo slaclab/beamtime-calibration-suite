@@ -22,8 +22,8 @@ python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity
 python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
 
-python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon
-python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon
+python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon
 
 
 python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice
@@ -120,7 +120,7 @@ class SuiteTester:
             "test_noise_1",
             "test_noise_2",
             "test_noise_3",
-            "test_single_photon",
+            "test_simple_photon",
             "test_time_scan_parallel_slice",
             "test_event_scan_parallel_slice",
             "test_find_min_switch_value",
@@ -293,21 +293,21 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon",
+                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
         (
             [
                 "bash",
                 "-c",
-                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
+                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
     ],
 )
-def test_SinglePhoton(suite_tester, command, output_dir_name):
+def test_SimplePhoton(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
