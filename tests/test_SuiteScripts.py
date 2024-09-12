@@ -22,8 +22,8 @@ python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity
 python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
 
-python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon
-python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon
+python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon
 
 
 python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice
@@ -120,7 +120,7 @@ class SuiteTester:
             "test_noise_1",
             "test_noise_2",
             "test_noise_3",
-            "test_single_photon",
+            "test_simple_photon",
             "test_time_scan_parallel_slice",
             "test_event_scan_parallel_slice",
             "test_find_min_switch_value",
@@ -149,6 +149,7 @@ class SuiteTester:
         result = subprocess.run(command, capture_output=True, text=True)
         return result
 
+    # think this is least annoying way to diff PNGs
     def are_images_same(self, img1_path, img2_path):
         img1 = Image.open(img1_path)
         img2 = Image.open(img2_path)
@@ -178,31 +179,30 @@ class SuiteTester:
         expected_output_location = self.git_repo_root + "/tests/test_data/" + output_location
 
         # diff real output vs expected output files
+        diff_failed = False
+        failed_real_file = ""
+        failed_expected_file = ""
         for root, dirs, files in os.walk(real_output_location):
             for file in files:
                 real_file_path = real_output_location + "/" + file
                 expected_file_path = expected_output_location + "/" + file
 
-                # Check if files are PNGs
-                if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
-                    if self.are_images_same(real_file_path, expected_file_path) == 0:
-                        assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
-                else:
-                    # For non-PNG files, perform directory comparison
-                    if filecmp.cmp(real_file_path, expected_file_path) == 0:
-                        assert False, f"files {real_file_path} and {expected_file_path} are different"
+                if (real_file_path.endswith(".png") and self.are_images_same(real_file_path, expected_file_path) == 0) or\
+                    filecmp.cmp(real_file_path, expected_file_path) == 0:
+                        diff_failed = True
+                        failed_real_file = real_file_path
+                        failed_expected_file = expected_file_path
+
+        if diff_failed:
+            assert False, f"PNG files {failed_real_file} and {failed_expected_file} are different"
+        else: # let's keep the output files if diff failed, so we can take a look or save them as the new expected
+            shutil.rmtree(real_output_location)
 
 
 @pytest.fixture(scope="module")
 def suite_tester():
     tester = SuiteTester()
     yield tester
-
-    # teardown
-    for dir in tester.expected_outcome_dirs:
-        # the folders won't exist if passing b/c of missing dependencies
-        if os.path.exists(dir):
-            shutil.rmtree(dir)
 
 
 @pytest.mark.parametrize(
@@ -293,21 +293,21 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon",
+                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
         (
             [
                 "bash",
                 "-c",
-                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
+                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
     ],
 )
-def test_SinglePhoton(suite_tester, command, output_dir_name):
+def test_SimplePhoton(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
