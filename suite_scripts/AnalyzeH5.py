@@ -63,7 +63,8 @@ class AnalyzeH5(object):
 
         # handle how some different machines create h5 differently
         try:
-            self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
+            bstring = self.h5Files[0]["analysis"][()][0]
+            self.analysis = bstring.decode(encoding)
         except:
             try:
                 self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
@@ -72,7 +73,7 @@ class AnalyzeH5(object):
                 print("exiting...")
                 exit(1)
 
-        self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
+        
         self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
         self.detModules = self.h5Files[0]["modules"][()]
         self.detRows = self.h5Files[0]["rows"][()]
@@ -173,7 +174,7 @@ class AnalyzeH5(object):
 
         ax = plt.subplot()
         energy = clusters[:, 0]  ##.flatten()
-        maximumModule = int(clusters[:, 1].max())
+        ##maximumModule = int(clusters[:, 1].max())
         analyzedModules = np.unique(clusters[:, 1]).astype("int")
         print("analyzing modules", analyzedModules)
         rows, cols = self.getRowsColsFromSliceCoordinates()
