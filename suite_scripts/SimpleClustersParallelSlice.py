@@ -216,6 +216,8 @@ if __name__ == "__main__":
         useSlice = True
     
     hSum = None
+    ##sic.commonModeVals = []
+
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
@@ -261,9 +263,9 @@ if __name__ == "__main__":
             if "regionCommonMode" in sic.special:
                 frames = sic.regionCommonModeCorrection(frames, sic.regionSlice, 2.0)
             if "rowCommonMode" in sic.special:
-                frames = sic.rowCommonModeCorrection3d(frames, 2.0)
+                frames = sic.rowCommonModeCorrection3d(frames, 3.0)
             if "colCommonMode" in sic.special:
-                frames = sic.colCommonModeCorrection3d(frames, 2.0)
+                frames = sic.colCommonModeCorrection3d(frames, 3.0) ## don't hard code this - fix...
 
         if frames is None:
             print("common mode killed frames???")

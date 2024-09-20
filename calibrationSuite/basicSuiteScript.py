@@ -231,9 +231,9 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] < arbitraryCut
                         ]
                     )
-                    frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
+                    if not np.isnan(rowCM): ## no pixels found under cut
+                        frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
                 except Exception:
-                    rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
                     print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
@@ -245,6 +245,7 @@ class BasicSuiteScript(PsanaBase):
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
         ##rand = np.random.random()
+
         for c in range(self.detectorInfo.nCols):
             rowOffset = 0
             for b in range(0, self.detectorInfo.nBanksRow):
@@ -254,9 +255,12 @@ class BasicSuiteScript(PsanaBase):
                             frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
-                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
+                    if not np.isnan(colCM): ## if no pixels < cut we get nan
+                        if False:
+                            if c<100:
+                                self.commonModeVals.append(colCM)
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
                 except Exception:
-                    colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
                     print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)
