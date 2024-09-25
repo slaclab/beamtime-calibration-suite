@@ -95,7 +95,8 @@ class BasicSuiteScript(PsanaBase):
         frames = self.plainGetRawData(evt)
         if frames is None:
             return None
-        
+
+        ## nZero counting for epixM only (I hope)
         nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
@@ -105,6 +106,11 @@ class BasicSuiteScript(PsanaBase):
         except:
             self.nZero = nZero
             print("Starting with %d zero pixels, will require exactly that many for this run" %(nZero))
+            
+            try:
+                self.dumpEpixMHeaderInfo(evt)
+            except:
+                pass
             
         if False and self.special:  ## turned off for a tiny bit of speed
             if "thirteenBits" in self.special:

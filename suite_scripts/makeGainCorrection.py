@@ -103,7 +103,7 @@ if __name__ == "__main__":
     fileName = mgc.file.split(".npy")[0] + "_cleanedCorrection.npy"
     np.save(fileName, correction)
     fileName = "%d-end.data" %(mgc.run)
-    mgc.det.save_txtnda(fileName, ndarr=fullCorrection, fmt='%.3f')
+    mgc.det.save_txtnda(fileName, ndarr=fullCorrection, fmt='%.4f')
 
     
     print("n.b. for autoranging detectors this needs to be applied carefully")
