@@ -375,4 +375,5 @@ if __name__ == "__main__":
         ## unless we have to make new classes to wrap it
         smd.done()
 
+    ##np.save("r%d_commonModeVals.npy" %(sic.run), sic.commonModeVals)
     sic.dumpEventCodeStatistics()
