@@ -24,10 +24,10 @@ singlePixelArray.append([2, 178, 367])
 
 experimentHash = {
     "detectorType": "epixm",
-    "detectorVersion":1,## new firmware
+    "detectorVersion": 1,  ## new firmware
     "exp": "ascdaq18",
     # "exp": "rixx1003721",
-    "location": "DetLab",## I guess
+    "location": "DetLab",  ## I guess
     "ignoreEventCodeCheck": True,
     "analyzedModules": [0, 1, 2, 3],
     "seedCut": 40,  ## pure guess

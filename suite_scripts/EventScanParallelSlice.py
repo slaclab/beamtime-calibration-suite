@@ -203,9 +203,9 @@ if __name__ == "__main__":
         sys.exit(0)
 
     esp.setupPsana()
-    if esp.psanaType == 1:## move to psana1Base asap
+    if esp.psanaType == 1:  ## move to psana1Base asap
         from psana import EventId
-        
+
     try:
         ##skip_283_check = "skip283" in esp.special
         skip_283_check = "fakeBeamCode" in esp.special
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     size = 666
     h5FileName = "%s/%s_c%d_r%d_%s_n%d.h5" % (esp.outputDir, esp.className, esp.camera, esp.run, esp.label, size)
-    if esp.psanaType==1:
+    if esp.psanaType == 1:
         smd = esp.ds.small_data(filename=h5FileName, gather_interval=100)
     else:
         smd = esp.ds.smalldata(filename=h5FileName)
@@ -234,9 +234,9 @@ if __name__ == "__main__":
     bitSliceSum = None
     try:
         evtGen = esp.myrun.events()
-    except:
+    except Exception:
         evtGen = esp.ds.events()
-        
+
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
@@ -305,9 +305,9 @@ if __name__ == "__main__":
         ##parityTest = esp.getPingPongParity(frames[0][144:224, 0:80])
         ##print(frames[tuple(esp.singlePixels[0])], parityTest)
 
-        if esp.psanaType==1:
+        if esp.psanaType == 1:
             t = evt.get(EventId).time()
-            timestamp = t[0]+t[1]/1000000000.
+            timestamp = t[0] + t[1] / 1000000000.0
             pulseId = 0
         else:
             timestamp = evt.datetime().timestamp()
@@ -321,7 +321,7 @@ if __name__ == "__main__":
         if esp.ROIs != []:
             smdDict["rois"] = np.array([roiMeans[i][-1] for i in range(len(esp.ROIs))])
 
-        if esp.psanaType==1:
+        if esp.psanaType == 1:
             smd.event(**smdDict)
         else:
             smd.event(evt, **smdDict)
@@ -344,10 +344,9 @@ if __name__ == "__main__":
     logger.info("Wrote file: " + npyFileName)
     ##esp.plotData(roiMeans, pixelValues, eventNumbers, None, "foo")
 
-    
-    if (esp.psanaType==1 or smd.summary) and esp.fakePedestal is None:
+    if (esp.psanaType == 1 or smd.summary) and esp.fakePedestal is None:
         allSum = smd.sum(bitSliceSum)
-        if esp.psanaType==1:
+        if esp.psanaType == 1:
             smd.save({"summedBitSlice": allSum})
         else:
             smd.save_summary({"summedBitSlice": allSum})

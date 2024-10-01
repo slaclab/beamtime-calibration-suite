@@ -16,7 +16,8 @@ from statsmodels.nonparametric.bandwidths import bw_silverman
 
 logger = logging.getLogger(__name__)
 
-sqrt2pi = np.sqrt(2*np.pi)
+sqrt2pi = np.sqrt(2 * np.pi)
+
 
 def linear(x, a, b):
     return a * x + b
