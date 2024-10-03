@@ -74,11 +74,19 @@ class AnalyzeH5(object):
                 exit(1)
 
         
-        self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
-        self.detModules = self.h5Files[0]["modules"][()][0]
-        self.analyzedModules = self.h5Files[0]["analyzedModules"][()][0]
-        self.detRows = self.h5Files[0]["rows"][()][0]
-        self.detCols = self.h5Files[0]["cols"][()][0]
+        try:
+            self.detModules = self.h5Files[0]["modules"][()][0]
+            self.analyzedModules = self.h5Files[0]["analyzedModules"][()][0]
+            self.detRows = self.h5Files[0]["rows"][()][0]
+            self.detCols = self.h5Files[0]["cols"][()][0]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
+        except:
+            ## seems to be needed for command-line analysis
+            self.detModules = self.h5Files[0]["modules"][()]            
+            self.analyzedModules = self.h5Files[0]["analyzedModules"][()]
+            self.detRows = self.h5Files[0]["rows"][()]
+            self.detCols = self.h5Files[0]["cols"][()]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
 
         print("the following metadata was read from h5:")
         print("analysis: ", self.analysis)
