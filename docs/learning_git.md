@@ -14,4 +14,4 @@ git commands cheat-sheet can be found [here](https://www.jrebel.com/system/files
 
 (if you plan on developing the library) read about GitHub's 'Pull Request' feature [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)  
 
-for commit messages, we can try to follow the PyDM [guidelines](https://slaclab.github.io/pydm/development/development.html#commit-guidelines) 
+for commit messages, follow what's done for PyDM [guidelines](https://slaclab.github.io/pydm/development/development.html#commit-guidelines) 
