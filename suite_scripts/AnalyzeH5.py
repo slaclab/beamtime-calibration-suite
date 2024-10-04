@@ -51,7 +51,6 @@ class AnalyzeH5(object):
             self.h5Files.append(h5py.File(f))
 
     def identifyAnalysis(self):
-        
         for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols", "analyzedModules"]:
             if key not in self.h5Files[0]:
                 print("h5 file missing metadata for key: '" + key + "'\nexiting...")
@@ -73,16 +72,15 @@ class AnalyzeH5(object):
                 print("exiting...")
                 exit(1)
 
-        
         try:
             self.detModules = self.h5Files[0]["modules"][()][0]
             self.analyzedModules = self.h5Files[0]["analyzedModules"][()][0]
             self.detRows = self.h5Files[0]["rows"][()][0]
             self.detCols = self.h5Files[0]["cols"][()][0]
             self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
-        except:
+        except Exception:
             ## seems to be needed for command-line analysis
-            self.detModules = self.h5Files[0]["modules"][()]            
+            self.detModules = self.h5Files[0]["modules"][()]
             self.analyzedModules = self.h5Files[0]["analyzedModules"][()]
             self.detRows = self.h5Files[0]["rows"][()]
             self.detCols = self.h5Files[0]["cols"][()]

@@ -271,8 +271,9 @@ class PsanaBase(PsanaCommon):
         return delta > 0
 
     def dumpEpixMHeaderInfo(self, evt):
-        print(f'frameNo: {self.det.raw.frameNo(evt)},',
-              f'asicNo: {self.det.raw.asicNo(evt)},',
-              f'autoFillMask: {[hex(a) for a in self.det.raw.autoFillMask(evt)]},',
-              f'fixedMask: {self.det.raw.fixedMask(evt)}')
-
+        print(
+            f"frameNo: {self.det.raw.frameNo(evt)},",
+            f"asicNo: {self.det.raw.asicNo(evt)},",
+            f"autoFillMask: {[hex(a) for a in self.det.raw.autoFillMask(evt)]},",
+            f"fixedMask: {self.det.raw.fixedMask(evt)}",
+        )

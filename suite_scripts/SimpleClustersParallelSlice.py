@@ -256,7 +256,7 @@ if __name__ == "__main__":
         else:
             frames = sic.getCalibData(evt)
         if frames is None:
-            print("something weird and bad happened, ignore event %d" %(nevt))
+            print("something weird and bad happened, ignore event %d" % (nevt))
             continue
 
         if sic.special is not None:
@@ -265,7 +265,7 @@ if __name__ == "__main__":
             if "rowCommonMode" in sic.special:
                 frames = sic.rowCommonModeCorrection3d(frames, 3.0)
             if "colCommonMode" in sic.special:
-                frames = sic.colCommonModeCorrection3d(frames, 3.0) ## don't hard code this - fix...
+                frames = sic.colCommonModeCorrection3d(frames, 3.0)  ## don't hard code this - fix...
 
         if frames is None:
             print("common mode killed frames???")
