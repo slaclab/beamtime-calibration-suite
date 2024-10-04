@@ -51,7 +51,8 @@ class AnalyzeH5(object):
             self.h5Files.append(h5py.File(f))
 
     def identifyAnalysis(self):
-        for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols"]:
+        
+        for key in ["analysis", "sliceCoordinates", "modules", "rows", "cols", "analyzedModules"]:
             if key not in self.h5Files[0]:
                 print("h5 file missing metadata for key: '" + key + "'\nexiting...")
                 exit(1)  # eventually try get this data from cmdline args?? or maybe have default vals to try with?
@@ -62,7 +63,8 @@ class AnalyzeH5(object):
 
         # handle how some different machines create h5 differently
         try:
-            self.analysis = self.h5Files[0]["analysis"][()][0].decode(encoding)
+            bstring = self.h5Files[0]["analysis"][()][0]
+            self.analysis = bstring.decode(encoding)
         except Exception:
             try:
                 self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
@@ -71,11 +73,20 @@ class AnalyzeH5(object):
                 print("exiting...")
                 exit(1)
 
-        self.analysis = self.h5Files[0]["analysis"][()].decode(encoding)
-        self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
-        self.detModules = self.h5Files[0]["modules"][()]
-        self.detRows = self.h5Files[0]["rows"][()]
-        self.detCols = self.h5Files[0]["cols"][()]
+        
+        try:
+            self.detModules = self.h5Files[0]["modules"][()][0]
+            self.analyzedModules = self.h5Files[0]["analyzedModules"][()][0]
+            self.detRows = self.h5Files[0]["rows"][()][0]
+            self.detCols = self.h5Files[0]["cols"][()][0]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()][0]
+        except:
+            ## seems to be needed for command-line analysis
+            self.detModules = self.h5Files[0]["modules"][()]            
+            self.analyzedModules = self.h5Files[0]["analyzedModules"][()]
+            self.detRows = self.h5Files[0]["rows"][()]
+            self.detCols = self.h5Files[0]["cols"][()]
+            self.sliceCoordinates = self.h5Files[0]["sliceCoordinates"][()]
 
         print("the following metadata was read from h5:")
         print("analysis: ", self.analysis)
@@ -83,6 +94,7 @@ class AnalyzeH5(object):
         print("detModules: ", self.detModules)
         print("detRows: ", self.detRows)
         print("detCols: ", self.detCols)
+        print("analyzedModules: ", self.analyzedModules)
 
     def sliceToDetector(self, sliceRow, sliceCol):
         return sliceRow + self.sliceCoordinates[0][0], sliceCol + self.sliceCoordinates[1][0]
@@ -171,8 +183,9 @@ class AnalyzeH5(object):
 
         ax = plt.subplot()
         energy = clusters[:, 0]  ##.flatten()
-        analyzedModules = np.unique(clusters[:, 1]).astype("int")
-        print("analyzing modules", analyzedModules)
+        ##maximumModule = int(clusters[:, 1].max())
+        ##analyzedModules = np.unique(clusters[:, 1]).astype("int")
+
         rows, cols = self.getRowsColsFromSliceCoordinates()
 
         ##        ##cols = self.sliceEdges[1]
@@ -205,7 +218,7 @@ class AnalyzeH5(object):
         ##fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
         fitInfo = np.zeros((self.detModules, self.detRows, self.detCols, 5))  ## mean, std, area, mu, sigma
         smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
-        for m in analyzedModules:
+        for m in self.analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
             for i in range(self.rowStart, self.rowStop):
                 # just do a single row when testing

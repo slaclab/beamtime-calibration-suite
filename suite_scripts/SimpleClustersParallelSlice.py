@@ -182,7 +182,7 @@ if __name__ == "__main__":
     pedestal = None
     nComplaints = 0
     try:
-        gain = sic.detectorInfo.aduPerKeV
+        gain = sic.aduPerKeV
     except Exception:
         gain = None
     if sic.special is not None:  ## and 'fakePedestal' in sic.special:
@@ -216,6 +216,8 @@ if __name__ == "__main__":
         useSlice = True
 
     hSum = None
+    ##sic.commonModeVals = []
+
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
@@ -245,24 +247,25 @@ if __name__ == "__main__":
         ##print("something is probably wrong, need a pedestal to cluster")
         ##sys.exit(0)
 
+        ##print("frames and gain:", frames, gain)
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666 * 10, 10)
                 print("added %d fake photons" % (nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
-            frame = sic.getCalibData(evt)[0]
+            frames = sic.getCalibData(evt)
         if frames is None:
-            print("something weird and bad happened, ignore event")
+            print("something weird and bad happened, ignore event %d" %(nevt))
             continue
 
         if sic.special is not None:
             if "regionCommonMode" in sic.special:
                 frames = sic.regionCommonModeCorrection(frames, sic.regionSlice, 2.0)
             if "rowCommonMode" in sic.special:
-                frames = sic.rowCommonModeCorrection3d(frames, 2.0)
+                frames = sic.rowCommonModeCorrection3d(frames, 3.0)
             if "colCommonMode" in sic.special:
-                frames = sic.colCommonModeCorrection3d(frames, 2.0)
+                frames = sic.colCommonModeCorrection3d(frames, 3.0) ## don't hard code this - fix...
 
         if frames is None:
             print("common mode killed frames???")
@@ -372,4 +375,5 @@ if __name__ == "__main__":
         ## unless we have to make new classes to wrap it
         smd.done()
 
+    ##np.save("r%d_commonModeVals.npy" %(sic.run), sic.commonModeVals)
     sic.dumpEventCodeStatistics()

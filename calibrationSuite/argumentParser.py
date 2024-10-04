@@ -62,6 +62,9 @@ class ArgumentParser:
         self.parser.add_argument("--fluxCutMax", type=float, help="maximum flux to be included in analysis")
         self.parser.add_argument("--seedCut", help="seed cut for clustering")
         self.parser.add_argument("--photonEnergy", type=float, help="photon energy")
+        self.parser.add_argument("--aduPerKeV", type=float, help="ADU per keV")
+        self.parser.add_argument("--gainMode", type=int, help="gain mode (int)")
+        
         self.parser.add_argument(
             "--special",
             type=str,

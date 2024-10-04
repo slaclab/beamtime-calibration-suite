@@ -158,5 +158,5 @@ class PsanaBase(PsanaCommon):
 
     def getPedestal(self, evt, gainmode):
         if self.detectorInfo.autoRanging:
-            return self.det.pedestal(evt)[gainmode]
+            return self.det.pedestals(evt)[gainmode]
         return self.det.pedestals(evt)

@@ -24,7 +24,7 @@ ls.setupScriptLogging(
 )  # change to logging.INFO for full logging output
 
 if __name__ == "__main__":
-    rfs = BasicSuiteScript("test2")
+    rfs = BasicSuiteScript("misc")
     print("have built an RFS")
     logger.info("have built an RFS")
 
@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
     fileName = "%s/roiFromSwitched_r%d_c%d.npy" % (rfs.outputDir, rfs.run, rfs.camera)
     np.save(fileName, switchedPixels)
+    print(fileName)
     logger.info("Wrote file: ", fileName)
 
     print("%d pixels were in low at least once in %d events" % ((switchedPixels > 0).sum(), nGoodEvents))
