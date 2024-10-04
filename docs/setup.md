@@ -33,7 +33,8 @@ The only other prerequisites should be a terminal that can run Unix commands (ma
 (note: in the 1st command replace `<slac-username>` with your slac unix account-name)  
 ``` 
 ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
-//now enter your info to login to s3df...
+# now enter your info to login to s3df...
+ssh psana // to access data on s3df
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 ```
 * all commands entered in the following steps should be done so in this setup terminal _(the terminal should now have an active ssh session into S3DF)_
@@ -44,8 +45,8 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 ``` 
 git config --global user.name <github username>
 git config --global user.email <email used to setup github account>
-//run one of the following cmds, depending on your preferred editor 
-//(the editor is used during some git operations)
+# run one of the following cmds, depending on your preferred editor 
+# (the editor is used during some git operations)
 git config --global core.editor vim
 git config --global core.editor emacs
 ```
@@ -60,8 +61,8 @@ git config --global core.editor emacs
 * To check if this worked, run:
 ```
 ssh -T git@github.com
-//if SSH is working, you should get the following output:
-//Hi <github_username>! You've successfully authenticated, but GitHub does not provide shell access.
+# if SSH is working, you should get the following output:
+# 'Hi <github_username>! You've successfully authenticated, but GitHub does not provide shell access.'
 ```
 
 ## 7: Download the repo
@@ -72,14 +73,14 @@ cd ~
 mkdir repos
 cd repos
 git clone git@github.com:slaclab/beamtime-calibration-suite.git
-//wait for download to finish...
+# wait for download to finish...
 cd beamtime-calibration-suite
 git switch development
 ls
-//should see a bunch of folders
+# should see a bunch of folders
 cd suite_scripts
 ls
-//now should see a bunch of python scripts
+# now should see a bunch of python scripts
 ```
 * if an error occurs with these commands, SSH setup in step **6)** may have had an issue and might need to be debugged
 
@@ -93,19 +94,19 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 source setup.sh // must be run in each new terminal session (or added to ~/bashric)
 cd suite_scripts
 mkdir setup_test_output
-//OUTPUT_ROOT=. makes the script to look relative to the current directory for the output-folder
-OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_outputi
-//let the script run to completion...
+# OUTPUT_ROOT=. makes the script to look relative to the current directory for the output-folder
+OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_output
+# let the script run to completion...
 ls -lt setup_test_output
-//if ran correctly, should see these non-empty files:
+# if ran correctly, should see some non-empty files in the output dir:
 eventNumbers_c0_r102_rixx1005922.npy  EventScanParallel_c0_r102__n666.h5  means_c0_r102_rixx1005922.npy
 ```
 
-## 9: Run the tests (optional):
+## 9: Run the tests (optional, mainly for use during development):
 * run the following terminal commands:
 ```
 cd ~/repos/beamtime_calibtation_suite
-// setup the test dependencies and test_data submodule
+# setup the test dependencies and test_data submodule
 source setup_developers.sh
 pytest .
 ```
