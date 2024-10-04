@@ -1,6 +1,6 @@
 # Setup Environment
 
-After you are ssh'd into s3df and ssh'd into psana computing pool, you will need to setup your environment for _python_, libraries like _psana_, etc:
+After you are ssh'd into s3df and ssh'd into the psana computing pool, you will need to setup your environment for _python_, libraries like _psana_, etc:
 ```
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 ```

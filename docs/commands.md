@@ -3,7 +3,7 @@
 ### A) Getting the latest changes for use at a beamtime
 ```
 git fetch
-//if beamtime is across multiple days, use 1st day's date
+# if beamtime is across multiple days, use 1st day's date
 git switch beamtime_<month>_<day>_<year>
 ```
 
@@ -76,5 +76,5 @@ git checkout <branch_want_to_switch_to>
 * same syntax as checking-out a branch, but use the tag name instead:
 ```
 git checkout <tag_name>
-//ex: git checkout v1.0.0
+# ex: git checkout v1.0.0
 ```

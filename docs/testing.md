@@ -9,7 +9,7 @@ This non-psana subset runs automatically on [github](https://github.com/slaclab/
 
 In short, running the following will check the code: (do so after commiting your current changes, since linting/format\ting will modify files):
 ```
-// cd to project root
+# cd to project root
 source setup_developers.sh # only need to run once
 ./lint_and_format.sh # note: might modify code, but should not modify functionality
 pytest .
@@ -62,4 +62,4 @@ The repo is added as a [git submodule](https://gist.github.com/gitaarik/8735255)
 Since the test data is large, [LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) is used and needs to be installed. (LFS is installed already on _S3DF_)  
 
 
-Some more info on testing, such as adding now data to the _test\_data_ submodule or add a new test-case to _test_SuiteScripts.py_, can be found [in this file.](https://github.com/slaclab/beamtime-calibration-suite/blob/development/tests/test_SuiteScripts.py)
+Some more info on testing, such as adding now data to the _test\_data_ submodule or adding a new suite_script test, can be found in [test_SuiteScripts.py.](https://github.com/slaclab/beamtime-calibration-suite/blob/development/tests/test_SuiteScripts.py)
