@@ -108,16 +108,16 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="gitgithub-workflow">Git/GitHub Workflow</h1>
-<p>We should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a><br />
-  * in our case the two important branches will be <code>main</code> and <code>development</code> <br />
-  * in-between beamtimes, <code>development</code> is used for pushing work<br />
-  * right before beamtimes, <code>development</code> is merged into <code>main</code><br />
-  * then a branch named <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;_</code> is branched off main<br />
-    * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime<br />
-  * after beamtimes, we merge <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code> back into <code>main</code> and tag it  </p>
+<p>We should try to generally follow the branching and pull-request workflow described in this SLAC <a href="https://docs.google.com/presentation/d/1AXcH17xDfum4mZsdV5lfjn_mvSMp2ye796xrVuSM3w8/edit#slide=id.gf4dca9affc_0_7">presentation</a>
+  * in our case the two important branches will be <code>main</code> and <code>development</code>
+  * in-between beamtimes, <code>development</code> is used for pushing work
+  * right before beamtimes, <code>development</code> is merged into <code>main</code>
+  * then a branch named <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;_</code> is branched off main
+    * this branch is used for sharing code fixes/changes (pushing-to and pulling-from) during beamtime
+  * after beamtimes, we merge <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code> back into <code>main</code> and tag it</p>
 <h3 id="before-beamtime">Before Beamtime:</h3>
 <ul>
-<li>checkout <code>development</code> (or a earlier stable point of <code>development</code>) </li>
+<li>checkout <code>development</code> (or a earlier stable point of <code>development</code>)</li>
 <li>use a pull request to merge <code>development</code>  into <code>main</code></li>
 <li>to do this follow the instructions in section <strong>F)</strong> of the doc page <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">Git Commands for Common Tasks</a></li>
 <li>make a branch for work during this specific beamtime</li>
@@ -126,7 +126,7 @@
 git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <ul>
-<li>Now run the tests with the following cmd:<br />
+<li>Now run the tests with the following cmd:
 <em>(assuming the tests have been setup already with setup_developers.sh)</em></li>
 </ul>
 <pre><code>pytest .
@@ -171,7 +171,7 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 # the description should be 'Beamtime &lt;Month&gt; &lt;Day&gt; &lt;Year&gt;'
 
 # push tag &lt;tag_name&gt;
-git push origin tag  
+git push origin tag
 </code></pre>
 <ul>
 <li>lastly, use a pull request to merge <em>main</em> into <code>development</code></li>

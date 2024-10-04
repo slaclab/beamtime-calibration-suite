@@ -106,15 +106,15 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="setup-environment">Setup Environment</h1>
-<p>After you are ssh'd into s3df and ssh'd into psana computing pool, you will need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
+<p>After you are ssh'd into s3df and ssh'd into the psana computing pool, you will need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
 <pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </code></pre>
 <p>Then you can execute the following to setup some project-specific things (must be ran in each new terminal session and from <em>beamtime-calibration-suite</em> folder):</p>
 <pre><code>source setup.sh
 </code></pre>
 <p>This script simplifies setting up the terminal environment and should be all most users will need to do</p>
-<p>This script does the following:<br />
-  * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
+<p>This script does the following:
+  * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code
   * sets the library's output-root to the shared dir used for the current experiment
   * sets the config file to the currently used config.</p>
 <p>The rest of the page has more detail on configuring the scripts.</p>
@@ -122,13 +122,13 @@
 <p>The output-root determines where the library will look for an output folder</p>
 <p>For example, if the root is set to the default value <code>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/</code>, the library will look for an output dir <code>../scan</code> in the location <code>/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan</code></p>
 <p>The output-directory can be set using the <code>-p &lt;dir_name&gt;</code> cmdline arg</p>
-<p>Setting the var to export <em>OUTPUT_ROOT=.</em> will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)  </p>
+<p>Setting the var to export <em>OUTPUT_ROOT=.</em> will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)</p>
 <h3 id="point-to-config-file">Point to Config File</h3>
 <p>Specify which config file for the library to use by setting the <code>SUITE_CONFIG</code> environment variable:</p>
-<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot; 
+<pre><code>export SUITE_CONFIG=&quot;rixSuiteConfig.py&quot;
 </code></pre>
 <p><em>(relative or full paths should work)</em></p>
-<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
+<p>You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments
 <em>(note: if set, the environment variable will always override this cmd-line option)</em></p>
 <p>If neither of the above are set, the suite will try to use a default file named <code>suiteConfig.py</code></p>
 <p>If no config file can be found and read, the library will fail-out early</p>

@@ -118,7 +118,7 @@
                 <h1 id="git-commands-for-common-tasks">Git Commands for Common Tasks</h1>
 <h3 id="a-getting-the-latest-changes-for-use-at-a-beamtime">A) Getting the latest changes for use at a beamtime</h3>
 <pre><code>git fetch
-//if beamtime is across multiple days, use 1st day's date
+# if beamtime is across multiple days, use 1st day's date
 git switch beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 </code></pre>
 <h3 id="b-getting-the-latest-changes-from-the-development-branch">B) Getting the latest changes from the <code>development</code> branch</h3>
@@ -181,21 +181,21 @@ git commit -m &lt;commit-message&gt;
 <h3 id="f-making-pull-request-one-branch-has-been-pushed-to-the-remote">F) Making pull request (one branch has been pushed to the remote):</h3>
 <ul>
 <li>go to: <a href="https://github.com/slaclab/beamtime-calibration-suite/pulls">https://github.com/slaclab/beamtime-calibration-suite/pulls</a></li>
-<li>click green 'New pull request' button in upper right  </li>
-<li>you will see two grey boxes containing branch names and an arrow pointing from one box to the other  </li>
-<li>the "compare: ..." box is the branch that will get merged into the "base: ..." box's branch  </li>
-<li>the base should be the branch named <code>development</code>  </li>
-<li>once the grey boxes are set correctly, click the green 'Create pull request' button  </li>
-<li>once branch is ready to merge, you can click the ''Merge pull request' button to merge the commit  </li>
-<li>being ready means: potentially reviewed (if big change), passing any automated checks/tests, etc  </li>
-<li>if github is not allowing the merge automatically, you will need to merge or rebase locally and manually handle the conflicts  </li>
+<li>click green 'New pull request' button in upper right</li>
+<li>you will see two grey boxes containing branch names and an arrow pointing from one box to the other</li>
+<li>the "compare: ..." box is the branch that will get merged into the "base: ..." box's branch</li>
+<li>the base should be the branch named <code>development</code></li>
+<li>once the grey boxes are set correctly, click the green 'Create pull request' button</li>
+<li>once branch is ready to merge, you can click the ''Merge pull request' button to merge the commit</li>
+<li>being ready means: potentially reviewed (if big change), passing any automated checks/tests, etc</li>
+<li>if github is not allowing the merge automatically, you will need to merge or rebase locally and manually handle the conflicts</li>
 </ul>
 <h3 id="g-check-out-tagged-commit-old-beamtime-code-will-be-tagged">G) Check out tagged commit (old beamtime code will be tagged):</h3>
 <ul>
 <li>same syntax as checking-out a branch, but use the tag name instead:</li>
 </ul>
 <pre><code>git checkout &lt;tag_name&gt;
-//ex: git checkout v1.0.0
+# ex: git checkout v1.0.0
 </code></pre>
               
             </div>

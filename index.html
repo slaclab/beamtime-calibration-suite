@@ -107,7 +107,7 @@
               
                 <h1 id="beamtime-calibration-suite">Beamtime calibration suite</h1>
 <p>This repository contains scripts ran during (or in-between) beamtimes to support calibrating LCLS detectors.</p>
-<p>Some more general info can be found on the team's confluence [page] (https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home) </p>
+<p>Some more general info can be found on the team's confluence <a href="https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home">page</a></p>
 <h3 id="file-organization">File organization:</h3>
 <p>The following describes what and where things are:</p>
 <ul>
@@ -118,7 +118,7 @@ from calibrationSuite import ancillaryMethods
 import calibrationSuite.fitFunctions as fitFunctions
 ...
 </code></pre>
-<p><em>(documentation on the library functionality is still to come, but example usage is seen by scripts in the /suite_scripts folder)</em></p>
+<p><em>(documentation on the library functionality is still to come, but example usage is seen by scripts in the suite_scripts folder)</em></p>
 <ul>
 <li><em>/suite_scripts</em>: scripts that use the calibrationSuite library code (these can be called 'high-level scripts')</li>
 <li><em>/config_files</em>: files that set values used by the calibrationSuite, which config-file to use is specified by env variable $SUITE_CONFIG</li>
@@ -130,7 +130,7 @@ import calibrationSuite.fitFunctions as fitFunctions
 <ul>
 <li><code>development</code>: contains the newest 'good' code, usually has new changes and bug fixes. This is also the default branch for the repo</li>
 <li><code>main</code>: stable code that's used during beamtimes. The code from each beamtime (including the changes made during) is tagged</li>
-<li><code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code>: branch to checkout and push to during a specific beamtime. The date should be the first day of the beamtime.</li>
+<li><code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code>: branch we will checkout and push to during a specific beamtime. The date should be the first day of the beamtime.</li>
 </ul>
               
             </div>
@@ -184,5 +184,5 @@ import calibrationSuite.fitFunctions as fitFunctions
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2024-10-04 20:52:21.836074+00:00
+Build Date UTC : 2024-10-04 21:12:17.010807+00:00
 -->
