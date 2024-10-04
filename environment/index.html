@@ -106,18 +106,17 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="setup-environment">Setup Environment</h1>
-<p>When running on S3DF, you will first need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
+<p>After you are ssh'd into s3df and ssh'd into psana computing pool, you will need to setup your environment for <em>python</em>, libraries like <em>psana</em>, etc:</p>
 <pre><code>source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </code></pre>
-<p>Then you can execute the following to setup some project-specific things (must be ran from <em>beamtime-calibration-suite</em> folder):</p>
+<p>Then you can execute the following to setup some project-specific things (must be ran in each new terminal session and from <em>beamtime-calibration-suite</em> folder):</p>
 <pre><code>source setup.sh
 </code></pre>
-<p><em>(must be ran in each new terminal session)</em></p>
 <p>This script simplifies setting up the terminal environment and should be all most users will need to do</p>
 <p>This script does the following:<br />
   * appends your cloned location of this library to your <em>PYTHONPATH</em>, so scripts in <em>/suite_scripts</em> and other locations on your machine can find the library code<br />
-  * sets the library's output-root to the shared /rix dir used for the current experiment
-  * sets the config file to the currently used <code>rixSuiteConfig.py</code> file  </p>
+  * sets the library's output-root to the shared dir used for the current experiment
+  * sets the config file to the currently used config.</p>
 <p>The rest of the page has more detail on configuring the scripts.</p>
 <h3 id="specifying-output-root">Specifying Output Root</h3>
 <p>The output-root determines where the library will look for an output folder</p>

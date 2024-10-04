@@ -120,7 +120,6 @@
 <li>checkout <code>development</code> (or a earlier stable point of <code>development</code>) </li>
 <li>use a pull request to merge <code>development</code>  into <code>main</code></li>
 <li>to do this follow the instructions in section <strong>F)</strong> of the doc page <a href="https://slaclab.github.io/beamtime-calibration-suite/commands/">Git Commands for Common Tasks</a></li>
-<li><code>main</code> is safeguarded and will require a +1 from another developer</li>
 <li>make a branch for work during this specific beamtime</li>
 </ul>
 <pre><code>git checkout -b main beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
@@ -164,17 +163,19 @@ git push origin beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;
 <ul>
 <li>make sure all the changes that need to be saved are commited to <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code></li>
 <li>use a pull request to merge <code>beamtime_&lt;month&gt;_&lt;day&gt;_&lt;year&gt;</code> into <code>main</code></li>
-<li>add a tag for the beamtime</li>
+<li>add a tag for the beamtime, named with date of beamtime: <code>v&lt;month&gt;.&lt;day&gt;.&lt;year&gt;</code></li>
+<li><em>(if beamtime is multiple days, use the 1st day's date)</em></li>
 </ul>
-<pre><code>//tag number is arbitrary at this point, just look at last tag and increment one of the values
-git tag v&lt;tag number&gt; -a //an example tag number would be 1.0.3
-//this will open your editor to write a description
-//the description should be 'Beamtime &lt;Month&gt; &lt;Day&gt; &lt;Year&gt;'
-//(if beamtime is multiple days, use the 1st day's date)
+<pre><code>git tag &lt;tag_name&gt; -a //an example tag number would be 1.0.3
+# this will open your editor to write a description
+# the description should be 'Beamtime &lt;Month&gt; &lt;Day&gt; &lt;Year&gt;'
+
+# push tag &lt;tag_name&gt;
+git push origin tag  
 </code></pre>
 <ul>
-<li>use a pull request to merge <em>main</em> into <code>development</code></li>
-<li>this is kinda sloppy, but seems like easiest way to 'reset' things after beamtime</li>
+<li>lastly, use a pull request to merge <em>main</em> into <code>development</code></li>
+<li>this is kinda sloppy, but seems like easy enough 'reset' things after beamtime</li>
 </ul>
               
             </div>

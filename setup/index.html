@@ -62,7 +62,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#8-run-an-example-script">8: Run an example script</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#9-run-the-tests-optional">9: Run the tests (optional):</a>
+    <li class="toctree-l2"><a class="reference internal" href="#9-run-the-tests-optional-mainly-for-use-during-development">9: Run the tests (optional, mainly for use during development):</a>
     </li>
     </ul>
                 </li>
@@ -150,7 +150,8 @@
 (note: in the 1st command replace <code>&lt;slac-username&gt;</code> with your slac unix account-name)  </li>
 </ul>
 <pre><code>ssh -Yt &lt;slac-username&gt;@s3dflogin.slac.stanford.edu
-//now enter your info to login to s3df...
+# now enter your info to login to s3df...
+ssh psana // to access data on s3df
 source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </code></pre>
 <ul>
@@ -162,8 +163,8 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 </ul>
 <pre><code>git config --global user.name &lt;github username&gt;
 git config --global user.email &lt;email used to setup github account&gt;
-//run one of the following cmds, depending on your preferred editor 
-//(the editor is used during some git operations)
+# run one of the following cmds, depending on your preferred editor 
+# (the editor is used during some git operations)
 git config --global core.editor vim
 git config --global core.editor emacs
 </code></pre>
@@ -177,8 +178,8 @@ git config --global core.editor emacs
 <li>To check if this worked, run:</li>
 </ul>
 <pre><code>ssh -T git@github.com
-//if SSH is working, you should get the following output:
-//Hi &lt;github_username&gt;! You've successfully authenticated, but GitHub does not provide shell access.
+# if SSH is working, you should get the following output:
+# 'Hi &lt;github_username&gt;! You've successfully authenticated, but GitHub does not provide shell access.'
 </code></pre>
 <h2 id="7-download-the-repo">7: Download the repo</h2>
 <ul>
@@ -188,14 +189,14 @@ git config --global core.editor emacs
 mkdir repos
 cd repos
 git clone git@github.com:slaclab/beamtime-calibration-suite.git
-//wait for download to finish...
+# wait for download to finish...
 cd beamtime-calibration-suite
 git switch development
 ls
-//should see a bunch of folders
+# should see a bunch of folders
 cd suite_scripts
 ls
-//now should see a bunch of python scripts
+# now should see a bunch of python scripts
 </code></pre>
 <ul>
 <li>if an error occurs with these commands, SSH setup in step <strong>6)</strong> may have had an issue and might need to be debugged</li>
@@ -209,19 +210,19 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 source setup.sh // must be run in each new terminal session (or added to ~/bashric)
 cd suite_scripts
 mkdir setup_test_output
-//OUTPUT_ROOT=. makes the script to look relative to the current directory for the output-folder
-OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_outputi
-//let the script run to completion...
+# OUTPUT_ROOT=. makes the script to look relative to the current directory for the output-folder
+OUTPUT_ROOT=. python EventScanParallelSlice.py -r 102 --maxNevents 500 -p /setup_test_output
+# let the script run to completion...
 ls -lt setup_test_output
-//if ran correctly, should see these non-empty files:
+# if ran correctly, should see some non-empty files in the output dir:
 eventNumbers_c0_r102_rixx1005922.npy  EventScanParallel_c0_r102__n666.h5  means_c0_r102_rixx1005922.npy
 </code></pre>
-<h2 id="9-run-the-tests-optional">9: Run the tests (optional):</h2>
+<h2 id="9-run-the-tests-optional-mainly-for-use-during-development">9: Run the tests (optional, mainly for use during development):</h2>
 <ul>
 <li>run the following terminal commands:</li>
 </ul>
 <pre><code>cd ~/repos/beamtime_calibtation_suite
-// setup the test dependencies and test_data submodule
+# setup the test dependencies and test_data submodule
 source setup_developers.sh
 pytest .
 </code></pre>
