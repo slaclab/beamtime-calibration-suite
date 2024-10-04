@@ -35,12 +35,11 @@ class LinearityInfo(object):  ## describes the .npy array
             "g1r2": 5,
             "g0max": 6,
             "g1min": 7,
-            "min": 8,
-            "max": 9,
-            "g0Ped": 10,
-            "g1Ped": 11,
-            "g0Gain": 12,
-            "offset": 13
+            "g0Ped": 8,
+            "g1Ped": 9,
+            "g0Gain": 10,
+            "g1Gain": 11,
+            "offset": 12
         }
         self.dataRanges = {  ##"g0slope":[0,1000],
             ##"g0slope": [-5, 5],

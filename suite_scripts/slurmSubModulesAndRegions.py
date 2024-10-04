@@ -1,3 +1,4 @@
+from subprocess import call
 import time
 
 from calibrationSuite.detectorInfo import DetectorInfo
