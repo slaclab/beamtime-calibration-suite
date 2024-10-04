@@ -135,11 +135,11 @@ if __name__ == "__main__":
 
     sic.setupPsana()
     sic.configHash["analysis"] = "cluster"
-    
-    print("analyzed modules:", sic.analyzedModules) ## move this to psana setup
+
+    print("analyzed modules:", sic.analyzedModules)  ## move this to psana setup
     size = 666
-    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
-    if sic.psanaType==1:
+    filename = "%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
+    if sic.psanaType == 1:
         smd = sic.ds.small_data(filename=filename, gather_interval=100)
     else:
         smd = sic.get_smalldata(filename=filename)
@@ -175,14 +175,14 @@ if __name__ == "__main__":
     else:
         try:
             evtGen = sic.myrun.events()
-        except:
+        except Exception:
             ##if sic.psanaType == 1: ## fix in base class asap
             evtGen = sic.ds.events()
-        
+
     pedestal = None
     nComplaints = 0
     try:
-        gain = sic.detectorInfo.aduPerKeV
+        gain = sic.aduPerKeV
     except Exception:
         gain = None
     if sic.special is not None:  ## and 'fakePedestal' in sic.special:
@@ -210,12 +210,14 @@ if __name__ == "__main__":
     zeroLowGain = False
     if sic.special and "zeroLowGain" in sic.special:
         zeroLowGain = True
-        
+
     useSlice = False
     if sic.special is not None and "slice" in sic.special:
         useSlice = True
-    
+
     hSum = None
+    ##sic.commonModeVals = []
+
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
@@ -245,24 +247,25 @@ if __name__ == "__main__":
         ##print("something is probably wrong, need a pedestal to cluster")
         ##sys.exit(0)
 
+        ##print("frames and gain:", frames, gain)
         if frames is not None and gain is not None:
             if sic.special is not None and "addFakePhotons" in sic.special:
                 frames, nAdded = sic.addFakePhotons(frames, 0.01, 666 * 10, 10)
                 print("added %d fake photons" % (nAdded))
             frames /= gain  ## this helps with the bit shift
         else:
-            frame = sic.getCalibData(evt)[0]
+            frames = sic.getCalibData(evt)
         if frames is None:
-            print("something weird and bad happened, ignore event")
+            print("something weird and bad happened, ignore event %d" %(nevt))
             continue
 
         if sic.special is not None:
             if "regionCommonMode" in sic.special:
                 frames = sic.regionCommonModeCorrection(frames, sic.regionSlice, 2.0)
             if "rowCommonMode" in sic.special:
-                frames = sic.rowCommonModeCorrection3d(frames, 2.0)
+                frames = sic.rowCommonModeCorrection3d(frames, 3.0)
             if "colCommonMode" in sic.special:
-                frames = sic.colCommonModeCorrection3d(frames, 2.0)
+                frames = sic.colCommonModeCorrection3d(frames, 3.0) ## don't hard code this - fix...
 
         if frames is None:
             print("common mode killed frames???")
@@ -271,10 +274,10 @@ if __name__ == "__main__":
         ## temp fix for 2d case (epix100, rixsCCD)
         if sic.detectorInfo.dimension == 2:
             frames = np.array([frames])
-            
-        try: ## added for psana1 - should fix in base class
+
+        try:  ## added for psana1 - should fix in base class
             flux = sic.flux
-        except:
+        except Exception:
             flux = None
         if sic.useFlux and flux is None:
             continue
@@ -297,7 +300,7 @@ if __name__ == "__main__":
             if nClusters == maxClusters:
                 continue
             if useSlice:
-                if sic.detectorInfo.dimension == 2: ## figure out how to kill if
+                if sic.detectorInfo.dimension == 2:  ## figure out how to kill if
                     bc = BuildClusters(frames[module][sic.regionSlice], seedCut, neighborCut)
                 elif sic.detectorInfo.dimension == 3:
                     bc = BuildClusters(frames[sic.regionSlice][module], seedCut, neighborCut)
@@ -324,22 +327,22 @@ if __name__ == "__main__":
                     ## had continue here
                     break
 
-        if nevt%1000 == 0:
-            print("event %d, found %d clusters" %(nevt, nClusters))
-            
-        if sic.psanaType==1:
+        if nevt % 1000 == 0:
+            print("event %d, found %d clusters" % (nevt, nClusters))
+
+        if sic.psanaType == 1:
             smd.event(clusterData=clusterArray)
         else:
             smd.event(evt, clusterData=clusterArray)
 
         sic.nGoodEvents += 1
         if sic.nGoodEvents == sic.maxNevents:
-            print("have reached max n events %d, quitting" %(sic.maxNevents))
+            print("have reached max n events %d, quitting" % (sic.maxNevents))
             break
-            
+
         if sic.nGoodEvents % 1000 == 0:
             print("n good events analyzed: %d, clusters this event: %d" % (sic.nGoodEvents, nClusters))
-            
+
             if sic.detectorInfo.dimension == 3:
                 f = frames[sic.regionSlice]
             elif sic.detectorInfo.dimension == 2:
@@ -356,11 +359,11 @@ if __name__ == "__main__":
     ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
     ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if sic.psanaType==1 or smd.summary:
+    if sic.psanaType == 1 or smd.summary:
         ## guess at desired psana1 behavior - no smd.summary there
         ## maybe check smd.rank == 0?
         sumhSum = smd.sum(hSum)
-        if sic.psanaType==1:
+        if sic.psanaType == 1:
             smd.save({"energyHistogram": sumhSum})
             smd.save(sic.configHash)
         else:
@@ -372,4 +375,5 @@ if __name__ == "__main__":
         ## unless we have to make new classes to wrap it
         smd.done()
 
+    ##np.save("r%d_commonModeVals.npy" %(sic.run), sic.commonModeVals)
     sic.dumpEventCodeStatistics()

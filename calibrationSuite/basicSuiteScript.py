@@ -95,17 +95,22 @@ class BasicSuiteScript(PsanaBase):
         frames = self.plainGetRawData(evt)
         if frames is None:
             return None
-        
+
         nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
             if dz != 0:
-                print("found %d new zero pixels, expected %d, setting frame to None" %(dz, self.nZero))
+                print("found %d new zero pixels, expected %d, setting frame to None" % (dz, self.nZero))
                 return None
-        except:
+        except Exception:
             self.nZero = nZero
             print("Starting with %d zero pixels, will require exactly that many for this run" %(nZero))
             
+            try:
+                self.dumpEpixMHeaderInfo(evt)
+            except:
+                pass
+
         if False and self.special:  ## turned off for a tiny bit of speed
             if "thirteenBits" in self.special:
                 frames = frames & 0xFFFE
@@ -231,9 +236,9 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] < arbitraryCut
                         ]
                     )
-                    frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
+                    if not np.isnan(rowCM): ## no pixels found under cut
+                        frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
                 except Exception:
-                    rowCM = -666
                     print("rowCM problem")
                     logger.error("rowCM problem")
                     print(frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank])
@@ -245,6 +250,7 @@ class BasicSuiteScript(PsanaBase):
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
         ##rand = np.random.random()
+
         for c in range(self.detectorInfo.nCols):
             rowOffset = 0
             for b in range(0, self.detectorInfo.nBanksRow):
@@ -254,9 +260,12 @@ class BasicSuiteScript(PsanaBase):
                             frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
                         ]
                     )
-                    frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
+                    if not np.isnan(colCM): ## if no pixels < cut we get nan
+                        if False:
+                            if c<100:
+                                self.commonModeVals.append(colCM)
+                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
                 except Exception:
-                    colCM = -666
                     print("colCM problem")
                     logger.error("colCM problem")
                     print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)

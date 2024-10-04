@@ -44,10 +44,12 @@ class PsanaBase(PsanaCommon):
             self.run = self.runRange[0]
             self.ds = self.get_ds()
 
-##        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
-        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detectorInfo.cameraType, self.camera), self.ds.env())
+        ##        self.det = psana.Detector("%s.0:%s.%d" % (self.location, self.detType, self.camera), self.ds.env())
+        self.det = psana.Detector(
+            "%s.0:%s.%d" % (self.location, self.detectorInfo.cameraType, self.camera), self.ds.env()
+        )
         ## this is to distinguish between epix10ka form factors, etc.
-        
+
         self.evrs = None
         try:
             self.wave8 = psana.Detector(self.fluxSource, self.ds.env())
@@ -65,13 +67,13 @@ class PsanaBase(PsanaCommon):
         ##return psana.DataSource("exp=%s:run=%d:smd" % (self.exp, run))
         return psana.MPIDataSource("exp=%s:run=%d:smd" % (self.exp, run))
 
-    def get_smalldata(self, **kwargs):##, gather_interval=100):
+    def get_smalldata(self, **kwargs):  ##, gather_interval=100):
         try:
-            return self.ds.small_data(filename=filename, gather_interval=gather_interval)
-        except:
+            return self.ds.small_data(filename=filename, gather_interval=gather_interval)  # noqa: F821
+        except Exception:
             print("can't make smalldata - is datasource defined?")
         return None
-        
+
     def getEvt(self, run=None):
         oldDs = self.ds
         if run is not None:
@@ -87,7 +89,7 @@ class PsanaBase(PsanaCommon):
     def getEventCodes(self, evt):
         ## do something smarter if ever needed
         return []
-    
+
     def getFlux(self, evt):
         try:
             fluxes = self.wave8.get(evt).peakA()
@@ -156,5 +158,5 @@ class PsanaBase(PsanaCommon):
 
     def getPedestal(self, evt, gainmode):
         if self.detectorInfo.autoRanging:
-            return self.det.pedestal(evt)[gainmode]
+            return self.det.pedestals(evt)[gainmode]
         return self.det.pedestals(evt)

@@ -22,8 +22,8 @@ python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity
 python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan -f test_linearity_scan/LinearityPlotsParallel__c0_r102_n1.h5 --label fooBar
 python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice
 
-python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon
-python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon
+python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon
+python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon
 
 
 python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice
@@ -120,7 +120,7 @@ class SuiteTester:
             "test_noise_1",
             "test_noise_2",
             "test_noise_3",
-            "test_single_photon",
+            "test_simple_photon",
             "test_time_scan_parallel_slice",
             "test_event_scan_parallel_slice",
             "test_find_min_switch_value",
@@ -142,14 +142,6 @@ class SuiteTester:
         try:
             import psana  # noqa: F401
         except ImportError:
-            return False
-
-        # check for submodule
-        data_path = self.git_repo_root + "/tests/test_data"
-        if not os.path.exists(data_path):
-            return False
-        # check for some expected folder to be sure submodule initalized
-        if not os.path.exists(data_path + "/test_roi"):
             return False
         return True
 
@@ -173,10 +165,19 @@ class SuiteTester:
         if result.returncode != 0:
             assert False, f"Script failed with error: {result.stderr}"
 
+        # let's not diff output files if user doesn't have download the /tests/test_data submodule,
+        # since the exact output of scripts can often change a small amount so diffing the output files
+        # is mainly useful when refactoring or when sure output data won't change.
+        # testing without diffing output will still test if scripts can run to completion without error!
+        data_path = self.git_repo_root + "/tests/test_data"
+        if not os.path.exists(data_path) or not os.path.exists(data_path + "/test_roi"):
+            print("/tests/test_data submodule not setup, not diffing output against expected output files")
+            return
+
         real_output_location = self.git_repo_root + "/suite_scripts/" + output_location
         expected_output_location = self.git_repo_root + "/tests/test_data/" + output_location
 
-        # Compare files in directories
+        # diff real output vs expected output files
         for root, dirs, files in os.walk(real_output_location):
             for file in files:
                 real_file_path = real_output_location + "/" + file
@@ -292,21 +293,21 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_single_photon",
+                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
         (
             [
                 "bash",
                 "-c",
-                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_single_photon",
+                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon",
             ],
-            "test_single_photon",
+            "test_simple_photon",
         ),
     ],
 )
-def test_SinglePhoton(suite_tester, command, output_dir_name):
+def test_SimplePhoton(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
@@ -458,6 +459,7 @@ def test_HistogramFlux(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
+
 # this test uses input data from sdf filepath (available on s3df),
 # and we remove r102_custers.npy from the correctness comparison b/c this file is around 10gb!
 @pytest.mark.parametrize(
@@ -478,8 +480,9 @@ def test_Analyze_h5(suite_tester, command, output_dir_name):
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
 
+
 # non-working commands...
-'''
+"""
 @pytest.mark.parametrize("command, output_dir_name", [
     (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
      'test_persistence_check'),
@@ -490,4 +493,4 @@ def test_PersistenceCheck(suite_tester, command, output_dir_name):
     if not suite_tester.canTestsRun:
         pytest.skip("Can only test with psana library on S3DF!")
     suite_tester.test_command(command, output_dir_name)
-'''
+"""

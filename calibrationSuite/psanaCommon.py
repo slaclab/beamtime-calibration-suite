@@ -32,8 +32,8 @@ class PsanaCommon(object):
         print("in psanaCommon")
         logger.info("in psanaCommon")
 
-        self.analysisType = analysisType ## fix below
-        
+        self.analysisType = analysisType  ## fix below
+
         self.args = ArgumentParser().parse_args()
         logger.info("parsed cmdline args: " + str(self.args))
 
@@ -59,6 +59,7 @@ class PsanaCommon(object):
         self.setupFromHashOrCmd()
         self.setupOutputDirString(analysisType)
         self.setupConfigHash()
+
     #### Start of setup related functions ####
 
     def loadExperimentHashFromConfig(self):
@@ -113,20 +114,17 @@ class PsanaCommon(object):
 
         try:
             detVersion = self.experimentHash["detectorVersion"]
-        except:
+        except Exception:
             detVersion = 0
 
         try:
             self.detectorInfo = DetectorInfo(
                 self.experimentHash["detectorType"],
                 detSubtype=self.experimentHash["detectorSubtype"],
-                detVersion=detVersion
+                detVersion=detVersion,
             )
         except Exception:
-            self.detectorInfo = DetectorInfo(
-                self.experimentHash["detectorType"],
-                detVersion=detVersion
-            )
+            self.detectorInfo = DetectorInfo(self.experimentHash["detectorType"], detVersion=detVersion)
 
         self.exp = self.experimentHash.get("exp", None)
 
@@ -134,7 +132,6 @@ class PsanaCommon(object):
 
         self.singlePixels = self.experimentHash.get("singlePixels", None)
 
-        
         self.regionSlice = self.experimentHash.get("regionSlice", None)
         ## some code moved to setupFromHashOrCmd
         self.analyzedModules = self.experimentHash.get("analyzedModules", None)
@@ -234,7 +231,9 @@ class PsanaCommon(object):
                 self.seedCut = None
 
         self.photonEnergy = self.args.photonEnergy
-
+        self.aduPerKeV = self.args.aduPerKeV
+        self.gainMode = self.args.gainMode
+        
         self.fluxCutMin = self.args.fluxCutMin
         self.fluxCutMax = self.args.fluxCutMax
 
@@ -257,20 +256,28 @@ class PsanaCommon(object):
         else:
             self.detType = self.args.detType
             jungfrau = epix10k = False
-            if 'epix10k' in self.detType.lower():
+            if "epix10k" in self.detType.lower():
                 epix10k = True
-            elif 'jungfrau' in self.detType.lower():
+            elif "jungfrau" in self.detType.lower():
                 jungfrau = True
             ## could allow just epix10k or jungfrau + n modules...
             if epix10k or jungfrau:
                 if self.args.nModules is not None:
                     raise RuntimeError("should not specify exact detector type and n modules")
                 if epix10k:
-                    nModules = [k for k in self.detectorInfo.epix10kCameraTypes.keys() if self.detectorInfo.epix10kCameraTypes[k]==self.detType]
+                    nModules = [
+                        k
+                        for k in self.detectorInfo.epix10kCameraTypes.keys()
+                        if self.detectorInfo.epix10kCameraTypes[k] == self.detType
+                    ]
                 if jungfrau:
-                    nModules = [k for k in self.detectorInfo.jungfrauCameraTypes.keys() if self.detectorInfo.jungfrauCameraTypes[k]==self.detType]
+                    nModules = [
+                        k
+                        for k in self.detectorInfo.jungfrauCameraTypes.keys()
+                        if self.detectorInfo.jungfrauCameraTypes[k] == self.detType
+                    ]
                 if nModules == []:
-                    raise RuntimeError("could not determine n modules from detector type %s" %(self.detType))
+                    raise RuntimeError("could not determine n modules from detector type %s" % (self.detType))
                 self.detectorInfo.setNModules(nModules[0])
 
         self.detectorInfo.setupDetector()
@@ -287,7 +294,7 @@ class PsanaCommon(object):
             regionSliceArray = eval(self.args.regionSlice)
             if len(regionSliceArray) != 6:
                 raise RuntimeError("expect 6 elements in region slice")
-            a,b,c,d,e,f = regionSliceArray
+            a, b, c, d, e, f = regionSliceArray
             self.regionSlice = np.s_[a:b, c:d, e:f]
 
         self.g0cut = self.detectorInfo.g0cut
@@ -344,7 +351,7 @@ class PsanaCommon(object):
         if self.regionSlice is not None:
             ## n.b. expects 3d slice definition regardless for consistency
             if self.detectorInfo.dimension == 3:
-                offset = 1
+                self.offset = 1
             self.sliceCoordinates = [
                 [self.regionSlice[1].start, self.regionSlice[1].stop],
                 [self.regionSlice[2].start, self.regionSlice[2].stop],
@@ -352,7 +359,7 @@ class PsanaCommon(object):
             sc = self.sliceCoordinates
             self.sliceEdges = [sc[0][1] - sc[0][0], sc[1][1] - sc[1][0]]
             ##print(self.regionSlice, sc, self.sliceEdges)
-            if self.detectorInfo.dimension == 2: ## remap to be 2d
+            if self.detectorInfo.dimension == 2:  ## remap to be 2d
                 self.regionSlice = self.regionSlice[1:3]
                 print("remapping regionSlice to be 2d")
 
@@ -370,6 +377,12 @@ class PsanaCommon(object):
                 logger.info("Error evaluating range: " + str(e))
         print("analyzing modules:", self.analyzedModules)
 
+        if self.aduPerKeV is None:
+            self.aduPerKeV = self.detectorInfo.aduPerKeV
+
+        if self.gainMode == None:
+            self.gainMode = 0 ## assume high gain or non-autoranging
+            
     def setupOutputDirString(self, analysisType):
         """
         Sets up the output directory for saving output file (default dir-name is based on the analysis type).
@@ -401,13 +414,14 @@ class PsanaCommon(object):
             print("output dir: " + self.outputDir)
             logger.info("output dir: " + self.outputDir)
 
-
     def setupConfigHash(self):
         ## info to write to h5 to help processing
-        self.configHash = {"sliceCoordinates":self.sliceCoordinates,
-                           "analyzedModules": self.analyzedModules,
-                           "modules": self.detectorInfo.nModules,
-                           "rows": self.detectorInfo.nRows,
-                           "cols": self.detectorInfo.nCols
-                           }
+        self.configHash = {
+            "sliceCoordinates": self.sliceCoordinates,
+            "analyzedModules": self.analyzedModules,
+            "modules": self.detectorInfo.nModules,
+            "rows": self.detectorInfo.nRows,
+            "cols": self.detectorInfo.nCols,
+        }
+
     #### End of setup related functions ####
