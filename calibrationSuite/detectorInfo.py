@@ -39,17 +39,25 @@ class DetectorInfo:
         self.cameraType = None
         self.dimension = 3  ## suite attempts not to know
         self.autoRanging = True
-        
-        knownTypes = ["epixhr", "epixm", "epix100", "Epix100a",
-                      "jungfrau", "Jungfrau",## cxic00121 has no alias in run 88
-                      "epix10k", "Epix10ka", "archon"]
+
+        knownTypes = [
+            "epixhr",
+            "epixm",
+            "epix100",
+            "Epix100a",
+            "jungfrau",
+            "Jungfrau",  ## cxic00121 has no alias in run 88
+            "epix10k",
+            "Epix10ka",
+            "archon",
+        ]
         if detType not in knownTypes:
             raise Exception("type %s not in known types %s" % (detType, str(knownTypes)))
 
         self.epix10kCameraTypes = {1: "Epix10ka", 4: "Epix10kaQuad", 16: "Epix10ka2M"}
         self.jungfrauCameraTypes = {1: "Jungfrau0.5", 2: "Jungfrau1M", 8: "Jungfrau4M"}
 
-    def setupDetector(self): ## needs nModules to be set
+    def setupDetector(self):  ## needs nModules to be set
         if self.detectorType == "epixhr":
             self.setup_epixhr()
         elif self.detectorType == "epixm":
@@ -58,11 +66,11 @@ class DetectorInfo:
             self.setup_epix100()
         elif self.detectorType == "archon":
             self.setup_rixsCCD()
-        elif 'jungfrau' in self.detectorType.lower():
+        elif "jungfrau" in self.detectorType.lower():
             self.setup_jungfrau()
-        elif 'epix10k' in self.detectorType.lower():
+        elif "epix10k" in self.detectorType.lower():
             self.setup_epix10k()
-            
+
     def setNModules(self, n):
         self.nModules = n
 
@@ -99,9 +107,9 @@ class DetectorInfo:
         self.preferredCommonMode = "rowCommonMode"  ## guess
         self.clusterShape = [3, 3]
         self.gainMode = None  ## may want to know about default, softHigh, softLow
-        if self.detectorVersion<1:
+        if self.detectorVersion < 1:
             self.negativeGain = True
-            print("N.b: using negative gain for version %d" %(self.detectorVersion))
+            print("N.b: using negative gain for version %d" % (self.detectorVersion))
         self.aduPerKeV = 666
         self.seedCut = 2
         self.neighborCut = 0.25  ## ditto
@@ -121,10 +129,10 @@ class DetectorInfo:
         # need to still implement getGainMode()
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "regionCommonMode"
-        self.aduPerKeV = 18. ## approximate
+        self.aduPerKeV = 18.0  ## approximate
         self.clusterShape = [3, 3]
         self.seedCut = 3
-        self.neighborCut = 0.5  
+        self.neighborCut = 0.5
 
     def setup_jungfrau(self):
         self.cameraType = self.jungfrauCameraTypes[self.nModules]
@@ -141,9 +149,9 @@ class DetectorInfo:
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "regionCommonMode"
         self.clusterShape = [3, 3]
-        self.aduPerKeV = 41 ## g0 only of course...
+        self.aduPerKeV = 41  ## g0 only of course...
         self.seedCut = 3
-        self.neighborCut = 0.5  
+        self.neighborCut = 0.5
 
     def setup_epix10k(self):
         self.cameraType = self.epix10kCameraTypes[self.nModules]
@@ -158,13 +166,13 @@ class DetectorInfo:
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "colCommonMode"
         self.clusterShape = [3, 3]
-        self.aduPerKeV = 16 ## high gain; 5.5 for medium
+        self.aduPerKeV = 16  ## high gain; 5.5 for medium
         self.seedCut = 3
-        self.neighborCut = 0.5  
+        self.neighborCut = 0.5
 
     def setup_rixsCCD(self):
         print("rixsCCD mode:", self.detectorSubtype)
-        self.cameraType = "rixsCCD" ##+ mode ## psana should support mode
+        self.cameraType = "rixsCCD"  ##+ mode ## psana should support mode
         self.autoRanging = False
         self.nTestPixelsPerBank = 36
         self.nBanks = 16
@@ -178,5 +186,3 @@ class DetectorInfo:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
         self.g0cut = 1 << 16
-
-    

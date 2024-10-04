@@ -13,7 +13,7 @@ import numpy as np
 # experimentHash = {'exp':'rixc00121', 'location':'RixEndstation',
 singlePixelArray = []
 ##for i in [0, 2, 3]:##range(0, 3):
-for i in [2, 3]:##range(0, 3):
+for i in [2, 3]:  ##range(0, 3):
     singlePixelArray.append([i, 55, 10])
     singlePixelArray.append([i, 120, 10])
     singlePixelArray.append([i, 55, 200])
@@ -23,16 +23,16 @@ for i in [2, 3]:##range(0, 3):
 
 experimentHash = {
     "detectorType": "epixm",
-    "detectorVersion":1,## new firmware
+    "detectorVersion": 1,  ## new firmware
     "exp": "rixx1005922",
     "location": "RixEndstation",
     "analyzedModules": [2, 3],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
     "fluxSource": "MfxDg1BmMon",
-    #"fluxSource": "MfxDg2BmMon",
-    "fluxChannels": [15],## or 11 if we see saturation
-    #"fluxSign": 1,  ## for dg2
+    # "fluxSource": "MfxDg2BmMon",
+    "fluxChannels": [15],  ## or 11 if we see saturation
+    # "fluxSign": 1,  ## for dg2
     "fluxSign": -1,
     "singlePixels": singlePixelArray,
     # 'ROIs':['module0', 'module2', 'module4', 'module6', 'module10','module12', 'module14']

@@ -40,7 +40,7 @@ experimentHash = {
     # 'ROIs':['roiFromSwitched_e557_rmfxx1005021']
     # 'ROIs':['allHRasicPixels', 'goodboxROI']#'roiAbove7k_raw_r123']
     # "ROIs": ["../data/XavierV4_2", "../data/OffXavierV4_2"],
-    #],
-    ##"regionSlice": np.s_[0:1, 0:704:, 0:768]  
-    "regionSlice": np.s_[0:1, 0:704:, 0:768]  
+    # ],
+    ##"regionSlice": np.s_[0:1, 0:704:, 0:768]
+    "regionSlice": np.s_[0:1, 0:704:, 0:768],
 }

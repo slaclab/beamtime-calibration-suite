@@ -7,12 +7,11 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-import sys
 
 import numpy as np
 
-from calibrationSuite.basicSuiteScript import BasicSuiteScript
 from calibrationSuite import ancillaryMethods
+from calibrationSuite.basicSuiteScript import BasicSuiteScript
 
 from PSCalib.NDArrIO import load_txt,save_txt
 
@@ -20,6 +19,7 @@ from PSCalib.NDArrIO import load_txt,save_txt
 class MakeGainCorrection(BasicSuiteScript):
     def __init__(self):
         super().__init__()  ##self)
+
 
 if __name__ == "__main__":
     mgc = MakeGainCorrection()
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     ## pedestal should be the same shape as a the numpy file analyzed
 
     data = np.load(mgc.file)
-    print("found %d NaN elements in %s" %(np.isnan(data).sum(), mgc.file))
+    print("found %d NaN elements in %s" % (np.isnan(data).sum(), mgc.file))
 
     ## handle 2d case
     if mgc.detectorInfo.dimension == 2:
@@ -77,9 +77,10 @@ if __name__ == "__main__":
               %(m, rmsClipped, data[m].std()))
 
     correction = measuredAduPerKeV = data/mgc.photonEnergy*mgc.aduPerKeV
+
     if mgc.detectorInfo.detectorType == "Epix100a":
         ## psana wants keV/adu in this one case
-        correction = 1./measuredAduPerKeV
+        correction = 1.0 / measuredAduPerKeV
 
     if "Epix10k" in mgc.detectorInfo.detectorType:
         if mgc.gainMode == 1:
@@ -105,13 +106,15 @@ if __name__ == "__main__":
     fileName = "%d-end.data" %(mgc.run)
     mgc.det.save_txtnda(fileName, ndarr=fullCorrection, fmt='%.4f')
 
-    
     print("n.b. for autoranging detectors this needs to be applied carefully")
 
     import matplotlib.pyplot as plt
+
     pedMean = pedestal.mean()
     pedRms = pedestal.std()
-    x, y, err = ancillaryMethods.makeProfile(pedestal.clip(pedMean-5*pedRms,pedMean+4*pedRms).flatten(), correction.flatten(), 50)##, spread=True)##, myStatistic="median")
+    x, y, err = ancillaryMethods.makeProfile(
+        pedestal.clip(pedMean - 5 * pedRms, pedMean + 4 * pedRms).flatten(), correction.flatten(), 50
+    )  ##, spread=True)##, myStatistic="median")
     plt.errorbar(x, y, err)
     plt.xlabel("pedestal")
     plt.ylabel("gain correction")
