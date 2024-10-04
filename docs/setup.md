@@ -29,9 +29,9 @@ The only other prerequisites should be a terminal that can run Unix commands (ma
 
 ## 4: Setup your terminal for next steps
 
-* for the following steps **5)**, **6)**, **7)**, **8)**, make sure you terminal is setup first with the following commands:  
-(note: in the 1st command replace `<slac-username>` with your slac unix account-name)  
-``` 
+* for the following steps **5)**, **6)**, **7)**, **8)**, make sure you terminal is setup first with the following commands:
+(note: in the 1st command replace `<slac-username>` with your slac unix account-name)
+```
 ssh -Yt <slac-username>@s3dflogin.slac.stanford.edu
 # now enter your info to login to s3df...
 ssh psana // to access data on s3df
@@ -42,10 +42,10 @@ source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 ## 5: Config your local git settings
 
 * Run the following terminal commands:
-``` 
+```
 git config --global user.name <github username>
 git config --global user.email <email used to setup github account>
-# run one of the following cmds, depending on your preferred editor 
+# run one of the following cmds, depending on your preferred editor
 # (the editor is used during some git operations)
 git config --global core.editor vim
 git config --global core.editor emacs
@@ -56,7 +56,7 @@ git config --global core.editor emacs
 * first make sure you are logged into your github account in your web browser
 * for the next two bullet-points, make sure you have selected the 'Linux' tab near the top of the page, not 'Mac'!
   * note: the commands on the following pages have to be ran in the terminal setup in step **4)**, which is ssh'd into S3DF
-* Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key) 
+* Follow instructions under “Generating a new SSH key” and “Adding your SSH key to the ssh-agent”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key)
 * Follow instructions under “Adding a new SSH key to your account”: [https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account)
 * To check if this worked, run:
 ```
