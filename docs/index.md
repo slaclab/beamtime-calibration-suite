@@ -1,7 +1,7 @@
 # Beamtime calibration suite
 This repository contains scripts ran during (or in-between) beamtimes to support calibrating LCLS detectors.
 
-Some more general info can be found on the team's confluence [page](https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home) 
+Some more general info can be found on the team's confluence [page](https://confluence.slac.stanford.edu/display/LCLSDET/LCLS+Detector+Department+Home)
 
 
 ### File organization:

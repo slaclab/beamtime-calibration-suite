@@ -12,7 +12,7 @@ git switch beamtime_<month>_<day>_<year>
 git checkout development
 git pull origin development
 ```
-    
+
 ### C) Saving a new feature/script/bugfix/etc:
 * make sure you have the latest changes from the remote:
 ```
@@ -60,16 +60,16 @@ git branch
 git checkout <branch_want_to_switch_to>
 ```
 
-### F) Making pull request (one branch has been pushed to the remote):  
+### F) Making pull request (one branch has been pushed to the remote):
 * go to: [https://github.com/slaclab/beamtime-calibration-suite/pulls](https://github.com/slaclab/beamtime-calibration-suite/pulls)
-* click green 'New pull request' button in upper right  
-* you will see two grey boxes containing branch names and an arrow pointing from one box to the other  
-  * the "compare: ..." box is the branch that will get merged into the "base: ..." box's branch  
-  * the base should be the branch named `development`  
-* once the grey boxes are set correctly, click the green 'Create pull request' button  
-* once branch is ready to merge, you can click the ''Merge pull request' button to merge the commit  
-  * being ready means: potentially reviewed (if big change), passing any automated checks/tests, etc  
-* if github is not allowing the merge automatically, you will need to merge or rebase locally and manually handle the conflicts  
+* click green 'New pull request' button in upper right
+* you will see two grey boxes containing branch names and an arrow pointing from one box to the other
+  * the "compare: ..." box is the branch that will get merged into the "base: ..." box's branch
+  * the base should be the branch named `development`
+* once the grey boxes are set correctly, click the green 'Create pull request' button
+* once branch is ready to merge, you can click the ''Merge pull request' button to merge the commit
+  * being ready means: potentially reviewed (if big change), passing any automated checks/tests, etc
+* if github is not allowing the merge automatically, you will need to merge or rebase locally and manually handle the conflicts
 
 ### G) Check out tagged commit (old beamtime code will be tagged):
 

@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 Then can add log statements throughout the script with:
 ```
 logger.error("Example error msg!") # for logging when the program goes wrong
-logger.exception("Example exception msg!) # for logging error and also including stack-trace in log 
+logger.exception("Example exception msg!) # for logging error and also including stack-trace in log
 logger.info("Example info msg!") # for logging useful info on the state of the program
 ```
 _(Note: these must take a statement evaluating to a single string, if 'a', 'b', 'c' are strings you can't do 'logger.info(a,b,c)' but can do 'logger.info(a+b+c)'. And if 'a' is an int, must do 'logger.info(str(a)))_

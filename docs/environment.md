@@ -12,8 +12,8 @@ source setup.sh
 
 This script simplifies setting up the terminal environment and should be all most users will need to do
 
-This script does the following:  
-  * appends your cloned location of this library to your _PYTHONPATH_, so scripts in _/suite_scripts_ and other locations on your machine can find the library code  
+This script does the following:
+  * appends your cloned location of this library to your _PYTHONPATH_, so scripts in _/suite_scripts_ and other locations on your machine can find the library code
   * sets the library's output-root to the shared dir used for the current experiment
   * sets the config file to the currently used config.
 
@@ -27,18 +27,18 @@ For example, if the root is set to the default value `/sdf/data/lcls/ds/rix/rixx
 
 The output-directory can be set using the `-p <dir_name>` cmdline arg
 
-Setting the var to export _OUTPUT_ROOT=._ will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)  
+Setting the var to export _OUTPUT_ROOT=._ will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)
 
 
 ### Point to Config File
 
 Specify which config file for the library to use by setting the `SUITE_CONFIG` environment variable:
 ```
-export SUITE_CONFIG="rixSuiteConfig.py" 
+export SUITE_CONFIG="rixSuiteConfig.py"
 ```
 _(relative or full paths should work)_
 
-You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments 
+You can also set the config-file using the '-cf' or '--configFile' cmd-line arguments
 _(note: if set, the environment variable will always override this cmd-line option)_
 
 If neither of the above are set, the suite will try to use a default file named `suiteConfig.py`
