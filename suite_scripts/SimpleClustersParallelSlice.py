@@ -139,10 +139,11 @@ if __name__ == "__main__":
     print("analyzed modules:", sic.analyzedModules)  ## move this to psana setup
     size = 666
     filename = "%s/%s_%s_c%d_r%d_n%d.h5" % (sic.outputDir, sic.className, sic.label, sic.camera, sic.run, size)
-    if sic.psanaType == 1:
-        smd = sic.ds.small_data(filename=filename, gather_interval=100)
-    else:
+    if sic.psanaType == 2:
         smd = sic.get_smalldata(filename=filename)
+    else:
+        smd = sic.ds.small_data(filename=filename, gather_interval=100)
+
 
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
@@ -359,11 +360,11 @@ if __name__ == "__main__":
     ## np.save("%s/eventNumbers_c%d_r%d_%s.npy" %(sic.outputDir, sic.camera, sic.run, sic.exp), np.array(eventNumbers))
     ## sic.plotData(roiMeans, pixelValues, eventNumbers, "foo")
 
-    if sic.psanaType == 1 or smd.summary:
+    if sic.psanaType < 2 or smd.summary:
         ## guess at desired psana1 behavior - no smd.summary there
         ## maybe check smd.rank == 0?
         sumhSum = smd.sum(hSum)
-        if sic.psanaType == 1:
+        if sic.psanaType < 2:
             smd.save({"energyHistogram": sumhSum})
             smd.save(sic.configHash)
         else:

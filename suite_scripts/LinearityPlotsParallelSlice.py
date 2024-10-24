@@ -10,6 +10,7 @@
 import logging
 import os
 import sys
+import copy
 
 import h5py
 import matplotlib.pyplot as plt
@@ -374,15 +375,23 @@ if __name__ == "__main__":
         print("not doing Kaz events")
         logger.info("not doing Kaz events")
 
+    commonModeCorrectionForZongde = False
+    if lpp.special is not None and "colCommonMode" in lpp.special:
+        commonModeCorrectionForZongde = True
+
     lpp.setupPsana()
 
     try:
         size = comm.Get_size()  # noqa: F821
     except Exception:
         size = 1
-    smd = lpp.ds.smalldata(
-        filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)
-    )
+
+    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)
+    if lpp.psanaType == 1:
+        smd = lpp.ds.small_data(filename, gather_interval=100)
+    else:
+        smd = lpp.get_smalldata(filename)
+
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs
@@ -400,7 +409,8 @@ if __name__ == "__main__":
         if doFast:
             ec = lpp.getEventCodes(evt)
             beamEvent = lpp.isBeamEvent(evt)
-            if ec[137]:
+            ##print(ec, beamEvent)
+            if not ec == [] and ec[137]:
                 lpp.flux = lpp._getFlux(evt)  ## fix this
                 lpp.fluxTS = lpp.getTimestamp(evt)
                 ##print("found flux", lpp.flux)
@@ -409,10 +419,18 @@ if __name__ == "__main__":
                 ##frames = lpp.det.raw(evt)&0x3fff
             ##elif ec[281]:
             elif beamEvent:
-                lpp.framesTS = lpp.getTimestamp(evt)
+                try:
+                    lpp.framesTS = lpp.getTimestamp(evt)
+                except: ## for nonPsana
+                    lpp.framesTS = nevt
+                    lpp.fluxTS = nevt
                 rawFrames = lpp.getRawData(evt, gainBitsMasked=False)
-                frames = lpp.getCalibData(evt)
+                try:
+                    frames = lpp.getCalibData(evt)
+                except:
+                    frames = rawFrames ## for nonPsana stuff
             else:
+                print("something problematic with event code going on")
                 continue
         else:
             lpp.flux = lpp._getFlux(evt)  ## fix this
@@ -451,12 +469,30 @@ if __name__ == "__main__":
                 ##print('nSwitched: %d' %(nSwitched))
                 continue
 
+        if commonModeCorrectionForZongde:
+            ## find switched pixels, strip gain bits,## make a copy
+            ## subtract pedestal from non-switched
+            ## (later make this apply to all, probably)
+            ## do common mode correction
+            ## cast back to int in case it matters
+            switchedPixels = lpp.getSwitchedPixels(rawFrames)
+            rawFrames = rawFrames & lpp.gainBitsMask
+            ##no_cm_rawFrames = copy.copy(rawFrames)
+            rawFrames = rawFrames.astype("float")
+            rawFrames[~switchedPixels] -= lpp.fakePedestal[~switchedPixels]
+            rawFrames = lpp.colCommonModeCorrection3d(rawFrames, cut=1000, switchedPixels=switchedPixels)
+            rawFrames = rawFrames.round().astype("int32")
+
         roiMeans = []
         for i, roi in enumerate(lpp.ROIs):
             ##m = np.multiply(roi, frames).mean()
-            m = frames[roi == 1].mean()
-            roiMeans.append(m)
-
+            try:
+                m = frames[roi == 1].mean()
+                roiMeans.append(m)
+            except:
+                ## probably have a bad config pointing to inapposite ROIs
+                pass
+            
         if doKazFlux:
             rf = rawFrames[tuple(lpp.singlePixels[0])]
             if not (flux < 20000 and rf >= lpp.g0cut and rf > 2950):
@@ -468,23 +504,34 @@ if __name__ == "__main__":
 
         singlePixelData = []
         for j, p in enumerate(lpp.singlePixels):
-            singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
-
+            if commonModeCorrectionForZongde:
+                singlePixelData.append([switchedPixels[tuple(p)], rawFrames[tuple(p)]])
+            else:
+                singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
+                
         eventDict = {
             "fluxes": flux,
-            "rois": np.array(roiMeans),
+            "rois":  np.array(roiMeans),
             "pixels": np.array(singlePixelData),
             "slice": rawFrames[lpp.regionSlice],
         }
 
-        smd.event(
-            evt,
-            eventDict,
-            fluxes=flux,
-            rois=np.array(roiMeans),
-            pixels=np.array(singlePixelData),
-            slice=rawFrames[lpp.regionSlice],
-        )
+        if lpp.psanaType == 0:
+            eventDict['fluxes'] = nevt
+            smd.event(
+                nevt,
+                eventDict)
+        elif lpp.psanaType == 2:
+            smd.event(
+                evt,
+                eventDict,
+                ##fluxes=flux,
+                ##rois=np.array(roiMeans),
+                ##pixels=np.array(singlePixelData),
+                ##slice=rawFrames[lpp.regionSlice],
+            )
+        else:
+            smd.event(eventDict)
 
         nGoodEvents += 1
         if nGoodEvents % 100 == 0:
@@ -569,6 +616,7 @@ if __name__ == "__main__":
         lpp.plotDataROIs(roiMeans, fluxes, "roiTest")
     """
 
-    smd.done()
+    if lpp.psanaType == 2:
+        smd.done()
 
     lpp.dumpEventCodeStatistics()
