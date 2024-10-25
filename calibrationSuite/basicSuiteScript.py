@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 if os.getenv("foo") == "0":
     print("non-psana")
-    from calibrationSuite.nonPsanaBase import PsanaBase    
+    from calibrationSuite.nonPsanaBase import PsanaBase
 elif os.getenv("foo") == "1":
     print("psana1")
     from calibrationSuite.psana1Base import PsanaBase
@@ -100,7 +100,7 @@ class BasicSuiteScript(PsanaBase):
             return None
 
         nZero = 0
-        if not 'skipZeroCheck' in dir(self):
+        if not "skipZeroCheck" in dir(self):
             nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
@@ -253,7 +253,7 @@ class BasicSuiteScript(PsanaBase):
                 colOffset += self.detectorInfo.nColsPerBank
         return frame
 
-    def colCommonModeCorrection(self, frame, cut=1000, switchedPixels = None):
+    def colCommonModeCorrection(self, frame, cut=1000, switchedPixels=None):
         ## this takes a 2d frame
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
@@ -262,15 +262,13 @@ class BasicSuiteScript(PsanaBase):
         for c in range(self.detectorInfo.nCols):
             rowOffset = 0
             for b in range(0, self.detectorInfo.nBanksRow):
-                if True:##try:
+                try:
                     testPixels = np.s_[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c]
-                    relevantPixels = frame[testPixels]<cut
+                    relevantPixels = frame[testPixels] < cut
                     if switchedPixels is not None:
                         ##print(testPixels, relevantPixels)
                         relevantPixels = np.bitwise_and(relevantPixels, ~switchedPixels[testPixels])
-                    colCM = np.median(
-                        frame[testPixels][relevantPixels]
-                    )
+                    colCM = np.median(frame[testPixels][relevantPixels])
                     if not np.isnan(colCM):  ## if no pixels < cut we get nan
                         if False:
                             if c < 100:
@@ -278,7 +276,7 @@ class BasicSuiteScript(PsanaBase):
                         if colCM > cut:
                             raise Exception("overcorrection: colCM, cut:", colCM, cut)
                         frame[testPixels] -= colCM
-                else:##except Exception:
+                except Exception:
                     print("colCM problem")
                     logger.error("colCM problem")
                     print(frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank], c)

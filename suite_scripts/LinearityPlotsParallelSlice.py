@@ -7,10 +7,10 @@
 ## may be copied, modified, propagated, or distributed except according to
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
+import copy
 import logging
 import os
 import sys
-import copy
 
 import h5py
 import matplotlib.pyplot as plt
@@ -386,12 +386,11 @@ if __name__ == "__main__":
     except Exception:
         size = 1
 
-    filename="%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)
+    filename = "%s/%s_%s_c%d_r%d_n%d.h5" % (lpp.outputDir, lpp.className, lpp.label, lpp.camera, lpp.run, size)
     if lpp.psanaType == 1:
         smd = lpp.ds.small_data(filename, gather_interval=100)
     else:
         smd = lpp.get_smalldata(filename)
-
 
     nGoodEvents = 0
     fluxes = []  ## common for all ROIs
@@ -421,14 +420,14 @@ if __name__ == "__main__":
             elif beamEvent:
                 try:
                     lpp.framesTS = lpp.getTimestamp(evt)
-                except: ## for nonPsana
+                except:  ## for nonPsana
                     lpp.framesTS = nevt
                     lpp.fluxTS = nevt
                 rawFrames = lpp.getRawData(evt, gainBitsMasked=False)
                 try:
                     frames = lpp.getCalibData(evt)
                 except:
-                    frames = rawFrames ## for nonPsana stuff
+                    frames = rawFrames  ## for nonPsana stuff
             else:
                 print("something problematic with event code going on")
                 continue
@@ -492,7 +491,7 @@ if __name__ == "__main__":
             except:
                 ## probably have a bad config pointing to inapposite ROIs
                 pass
-            
+
         if doKazFlux:
             rf = rawFrames[tuple(lpp.singlePixels[0])]
             if not (flux < 20000 and rf >= lpp.g0cut and rf > 2950):
@@ -508,19 +507,17 @@ if __name__ == "__main__":
                 singlePixelData.append([switchedPixels[tuple(p)], rawFrames[tuple(p)]])
             else:
                 singlePixelData.append([int(rawFrames[tuple(p)] >= lpp.g0cut), rawFrames[tuple(p)] & lpp.gainBitsMask])
-                
+
         eventDict = {
             "fluxes": flux,
-            "rois":  np.array(roiMeans),
+            "rois": np.array(roiMeans),
             "pixels": np.array(singlePixelData),
             "slice": rawFrames[lpp.regionSlice],
         }
 
         if lpp.psanaType == 0:
-            eventDict['fluxes'] = nevt
-            smd.event(
-                nevt,
-                eventDict)
+            eventDict["fluxes"] = nevt
+            smd.event(nevt, eventDict)
         elif lpp.psanaType == 2:
             smd.event(
                 evt,

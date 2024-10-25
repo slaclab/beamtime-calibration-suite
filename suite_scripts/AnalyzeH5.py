@@ -117,8 +117,8 @@ class AnalyzeH5(object):
         if self.analysis == "linearity":
             self.linearityAnalysis()
         else:
-            print("unknown analysis type %s" % (self.analysisType))
-            logging.info("unknown analysis type %s" % (self.analysisType))
+            print("unknown analysis type %s" % (self.analysis))
+            logging.info("unknown analysis type %s" % (self.analysis))
 
     def clusterAnalysis(self):
         clusters = None
@@ -308,16 +308,15 @@ class AnalyzeH5(object):
         except Exception:
             return 0, 0, 0
 
-
     def linearityAnalysis(self):
-       fluxes = np.concatenate([h5["fluxes"][()] for h5 in self.h5Files])
-       rois = np.concatenate([h5["rois"][()] for h5 in self.h5Files])
-       someSinglePixels = np.concatenate([h5["pixels"][()] for h5 in self.h5Files])
-       slice = np.concatenate([h5["slice"][()] for h5 in self.h5Files])
-       self.singlePixels = [[0, 66, 66], [0, 6, 6]]
-       print("load temporary fake pixels")
-       
-       
+        fluxes = np.concatenate([h5["fluxes"][()] for h5 in self.h5Files])
+        rois = np.concatenate([h5["rois"][()] for h5 in self.h5Files])
+        someSinglePixels = np.concatenate([h5["pixels"][()] for h5 in self.h5Files])
+        slice = np.concatenate([h5["slice"][()] for h5 in self.h5Files])
+        self.singlePixels = [[0, 66, 66], [0, 6, 6]]
+        print("load temporary fake pixels")
+
+
 if __name__ == "__main__":
     ah5 = AnalyzeH5()
     ah5.getFiles()

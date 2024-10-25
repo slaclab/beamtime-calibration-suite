@@ -144,7 +144,6 @@ if __name__ == "__main__":
     else:
         smd = sic.ds.small_data(filename=filename, gather_interval=100)
 
-
     ## 50x50 pixels, 3x3 clusters, 10% occ., 2 sensors
     maxClusters = 10000  ##int(50 * 50 / 3 / 3 * 0.1 * 2)
     if sic.seedCut is not None:

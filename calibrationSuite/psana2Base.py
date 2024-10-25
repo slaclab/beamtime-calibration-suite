@@ -87,7 +87,7 @@ class PsanaBase(PsanaCommon):
             self.timing = None
             ## timing makes us look at every single event
             ## we only want this in MFX+RIX mode
-            
+
         self.desiredCodes = {"120Hz": 272, "4kHz": 273, "5kHz": 274}
 
         try:
@@ -116,13 +116,16 @@ class PsanaBase(PsanaCommon):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
-        detectors=[self.experimentHash["detectorType"]]
+        detectors = [self.experimentHash["detectorType"]]
         if not self.ignoreEventCodeCheck:
             detectors.append("timing")
             detectors.append("MfxDg1BmMon")
         ds = psana.DataSource(
-            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents,
-            detectors=detectors
+            exp=self.exp,
+            run=run,
+            intg_det=self.experimentHash["detectorType"],
+            max_events=self.maxNevents,
+            detectors=detectors,
         )  ##, dir=tmpDir)
         return ds
 

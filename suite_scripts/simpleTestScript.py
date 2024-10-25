@@ -29,5 +29,4 @@ for nevt, evt in enumerate(myrun.events()):
         nGood += 1
 
 
-
 print("good vs evil:", nGood, nBad)

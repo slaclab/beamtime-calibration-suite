@@ -1,18 +1,22 @@
-import sys, os
-import numpy as np
+import os
+import sys
+
 import h5py
+import numpy as np
+
+## actually not psana, should rename
+## need this for DataSource.smalldata in analysis script
+from calibrationSuite.psana2Base import *  ##DataSource
+
 ##from calibrationSuite.argumentParser import ArgumentParser
 ##import importlib.util
 from calibrationSuite.psanaCommon import PsanaCommon
-## actually not psana, should rename
 
-
-## need this for DataSource.smalldata in analysis script
-from calibrationSuite.psana2Base import *##DataSource
 ## do we actually need this?
 
-class PsanaBase(PsanaCommon): ## not actually psana, should rename
-    def __init__(self, analysisType='scan'):
+
+class PsanaBase(PsanaCommon):  ## not actually psana, should rename
+    def __init__(self, analysisType="scan"):
         super().__init__(analysisType)
         commandUsed = sys.executable + " " + " ".join(sys.argv)
         ##logger.info("Ran with cmd: " + commandUsed)
@@ -41,49 +45,46 @@ class PsanaBase(PsanaCommon): ## not actually psana, should rename
         ## temp ##
         nonXtcFiles = self.args.nonXtcFiles
         if nonXtcFiles is not None:
-            self.file = None ## nonPsanaBase only used as substitute xtc reader
+            self.file = None  ## nonPsanaBase only used as substitute xtc reader
             print(nonXtcFiles)
             self.setupNonXtcFiles(nonXtcFiles)
-            
-        if 'run' not in dir(self) or self.run is None:
-            self.run = 666666
 
+        if "run" not in dir(self) or self.run is None:
+            self.run = 666666
 
         self.ignoreEventCodeCheck = True
 
-
     def setupNonXtcFiles(self, nonXtcFiles):
-        if nonXtcFiles.endswith('h5'):
-            self.h5File = h5py.File(nonXtcFiles) ## need concat
+        if nonXtcFiles.endswith("h5"):
+            self.h5File = h5py.File(nonXtcFiles)  ## need concat
             self.getDataFromFile()
             self.getStepInfoFromFile()
             self.npyFile = False
-        elif nonXtcFiles.endswith('npy'):
-            if ',' in nonXtcFiles:
-                self.data = np.concatenate([np.load(f) for f in nonXtcFiles.split(',')])
+        elif nonXtcFiles.endswith("npy"):
+            if "," in nonXtcFiles:
+                self.data = np.concatenate([np.load(f) for f in nonXtcFiles.split(",")])
             else:
                 self.data = np.load(nonXtcFiles)
                 fixAlexOrdering = True
                 if fixAlexOrdering:
-                    self.data = np.array([np.array([self.data[:,:, i]]) for i in range(self.data.shape[2])])
-                    
+                    self.data = np.array([np.array([self.data[:, :, i]]) for i in range(self.data.shape[2])])
+
             self.setDataArray(self.data)
             self.h5File = False
         else:
             raise Exception("non-psana file formats h5 and npy only")
-        
 
-##    def importConfigFile(self, file_path):
-##        if not os.path.exists(file_path):
-##            print(f"The file '{file_path}' does not exist")
-##            return None
-##        spec = importlib.util.spec_from_file_location("config", file_path)
-##        config_module = importlib.util.module_from_spec(spec)
-##        spec.loader.exec_module(config_module)
-##        return config_module
+    ##    def importConfigFile(self, file_path):
+    ##        if not os.path.exists(file_path):
+    ##            print(f"The file '{file_path}' does not exist")
+    ##            return None
+    ##        spec = importlib.util.spec_from_file_location("config", file_path)
+    ##        config_module = importlib.util.module_from_spec(spec)
+    ##        spec.loader.exec_module(config_module)
+    ##        return config_module
 
     def getDataFromFile(self):
-        self.data = self.h5File['frames'][()]
+        self.data = self.h5File["frames"][()]
         self.setDataArray(self.data)
 
     def getStepInfoFromFile(self):
@@ -99,27 +100,27 @@ class PsanaBase(PsanaCommon): ## not actually psana, should rename
         self.dataIter = iter(self.data)
         print("have set up dataIter")
         self.myrun = MyRun(self.data)
-        
+
     def getStepGen(self):
-        self.stepIndex = -1 ## needed?
+        self.stepIndex = -1  ## needed?
         return self.stepGen()
 
-    def setupPsana(self): ## should rename to setupBase or whatever
+    def setupPsana(self):  ## should rename to setupBase or whatever
         print("in fake setupPsana; get info from npy or h5 and fake stuff")
         if False:
-            self.ds = DataSource(files=[nonXtcFiles]) ## to make smalldata happy
+            self.ds = DataSource(files=[nonXtcFiles])  ## to make smalldata happy
             print("data source is", self.ds)
         else:
-            self.ds = psana.DataSource(exp='rixx1005922', run=6)##66)
+            self.ds = psana.DataSource(exp="rixx1005922", run=6)  ##66)
             ##self.ds = psana.MPIDataSource('exp=detdaq23:run=1')##66)
             ## get event to make smd call happy
             ##evt = next(self.ds.events())
-        self.skipZeroCheck = True ## some Alex data gets entirely lost else
-            
+        self.skipZeroCheck = True  ## some Alex data gets entirely lost else
+
         if False:
             self.getDataFromFile()
             self.getStepInfoFromFile()
-            
+
     def stepGen(self):
         while True:
             try:
@@ -144,7 +145,7 @@ class PsanaBase(PsanaCommon): ## not actually psana, should rename
         return [283]
 
     def plainGetRawData(self, evt):
-        return evt.astype('uint16')
+        return evt.astype("uint16")
 
     def getFlux(self, foo):
         return 1
@@ -176,15 +177,17 @@ class MyRun(object):
     def events(self):
         ## it would be smarter to yield the next event instead of filling RAM
         ##return(np.vstack(self.array))
-        return(self.array)
-    
+        return self.array
+
+
 class Step(object):
     def __init__(self, array, nStep):
         self.array = array
         self.nStep = nStep
 
     def events(self):
-        return(self.array)
+        return self.array
+
 
 if __name__ == "__main__":
     npb = NonPsanaBase()
@@ -195,18 +198,18 @@ if __name__ == "__main__":
     stepGen = npb.getStepGen()
     ##stepGen = npb.dataIter doesn't work because we want step.events below
     for nStep, step in enumerate(stepGen):
-        print("step %d" %(nStep))
+        print("step %d" % (nStep))
         for nEvt, evt in enumerate(step.events()):
             print("nEvt, evt:", nEvt, evt)
 
     print("end up with stepIndex:", npb.stepIndex)
-    
+
     if True:
         print("try running over 1, 3, 2 non-step data with step calls")
         npb.setDataArray(np.load("../data/testNoStepData.npy"))
         stepGen = npb.getStepGen()
         for nStep, step in enumerate(stepGen):
-            print("step %d" %(nStep))
+            print("step %d" % (nStep))
             for nEvt, evt in enumerate(step.events()):
                 print(nEvt, evt)
 
