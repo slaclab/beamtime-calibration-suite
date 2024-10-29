@@ -81,7 +81,13 @@ class PsanaBase(PsanaCommon):
             ##raise Exception
         ## could set to None and reset with first frame I guess, or does the det object know?
 
-        self.timing = self.myrun.Detector("timing")
+        try:
+            self.timing = self.myrun.Detector("timing")
+        except:
+            self.timing = None
+            ## timing makes us look at every single event
+            ## we only want this in MFX+RIX mode
+
         self.desiredCodes = {"120Hz": 272, "4kHz": 273, "5kHz": 274}
 
         try:
@@ -110,8 +116,16 @@ class PsanaBase(PsanaCommon):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
+        detectors = [self.experimentHash["detectorType"]]
+        if not self.ignoreEventCodeCheck:
+            detectors.append("timing")
+            detectors.append("MfxDg1BmMon")
         ds = psana.DataSource(
-            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+            exp=self.exp,
+            run=run,
+            intg_det=self.experimentHash["detectorType"],
+            max_events=self.maxNevents,
+            detectors=detectors,
         )  ##, dir=tmpDir)
         return ds
 
@@ -200,9 +214,13 @@ class PsanaBase(PsanaCommon):
         return self.flux
 
     def getEventCodes(self, evt):
+        if self.timing is None:
+            return []
         return self.timing.raw.eventcodes(evt)
 
     def getPulseId(self, evt):
+        if self.timing is None:
+            return []
         return self.timing.raw.pulseId(evt)
 
     def isKicked(self, evt):

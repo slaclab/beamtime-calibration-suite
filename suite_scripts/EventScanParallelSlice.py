@@ -273,12 +273,12 @@ if __name__ == "__main__":
             ##print(frames[tuple(esp.singlePixels[2])])
 
             if esp.special is not None and "rowCommonMode" in esp.special:
-                frames = np.array([esp.rowCommonModeCorrection3d(frames)])
+                frames = esp.rowCommonModeCorrection3d(frames, 3.0)
             if esp.special is not None and "colCommonMode" in esp.special:
-                frames = np.array([esp.colCommonModeCorrection3d(frames)])
+                frames = esp.colCommonModeCorrection3d(frames, 3.0)
             if esp.special is not None and "regionCommonMode" in esp.special:
                 ##oldFrames = frames
-                frames = np.array([esp.regionCommonModeCorrection(frames, esp.regionSlice, 666)])
+                frames = esp.regionCommonModeCorrection(frames, esp.regionSlice, 3.0)
                 ##print(frames-oldFrames)
         else:
             if esp.special is not None and "regionCommonMode" in esp.special:
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):
-            m = frames[roi == 1].mean()
+            m = frames[roi > 0].mean()
             roiMeans[i].append(m)
 
         for i, roi in enumerate(esp.singlePixels):

@@ -9,7 +9,7 @@ run = eval(sys.argv[1])
 ds = DataSource(exp=exp, run=run, intg_det="archon", max_events=666666)  # noqa: F405
 
 smd = ds.smalldata(filename="foo.h5")
-print(help(smd.event))
+##print(help(smd.event))
 
 myrun = next(ds.runs())
 det = myrun.Detector("archon")

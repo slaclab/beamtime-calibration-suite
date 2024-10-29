@@ -55,6 +55,9 @@ class ArgumentParser:
         self.parser.add_argument(
             "-f", "--files", type=str, default=None, help="run analysis on file or comma-separated files"
         )
+        self.parser.add_argument(
+            "-F", "--nonXtcFiles", type=str, default=None, help="run initial analysis on file or comma-separated files"
+        )
         self.parser.add_argument("-cf", "--configFile", type=str, help="config file path, can be relative or full path")
         self.parser.add_argument("-L", "--label", type=str, help="analysis label")
         self.parser.add_argument("-t", "--threshold", help="threshold (ADU or keV or wave8) depending on --detObj")
