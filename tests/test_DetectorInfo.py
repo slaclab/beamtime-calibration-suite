@@ -60,7 +60,7 @@ def test_archon_setup_2d():
     detector.setupDetector()
 
     assert detector.detectorType == "archon"
-    assert detector.dimension == 3
+    assert detector.dimension == 2
     assert detector.nTestPixelsPerBank == 36
     assert detector.nBanks == 16
     assert detector.nCols == 4800 - detector.nBanks * detector.nTestPixelsPerBank
