@@ -198,11 +198,14 @@ def suite_tester():
     tester = SuiteTester()
     yield tester
 
+    '''
     # teardown
+    # can re-enable if everyone's home dirs are getting too filled up, but not deleting avoids confusion on how to find real output files.
     for dir in tester.expected_outcome_dirs:
         # the folders won't exist if passing b/c of missing dependencies
         if os.path.exists(dir):
             shutil.rmtree(dir)
+    '''
 
 
 @pytest.mark.parametrize(
