@@ -41,6 +41,7 @@ class AnalyzeH5(object):
         self.label = args.label
         self.camera = 0
         self.seedCut = args.seedCut
+        self.photonEnergy = args.photonEnergy
         self.isTestRun = args.special is not None and "testRun" in args.special
 
     def getFiles(self):
@@ -114,7 +115,7 @@ class AnalyzeH5(object):
     def analyze(self):
         if self.analysis == "cluster":
             self.clusterAnalysis()
-        if self.analysis == "linearity":
+        elif self.analysis == "linearity":
             self.linearityAnalysis()
         else:
             print("unknown analysis type %s" % (self.analysis))
@@ -140,6 +141,8 @@ class AnalyzeH5(object):
         else:
             self.lowEnergyCut = self.seedCut * 0.8  ## 0.8 is dumb here
         self.highEnergyCut = 15  ## fix - should be 1.5 photons or something
+        if self.photonEnergy is not None:
+            self.highEnergyCut = self.photonEnergy*1.5
         ##tmp
         npyFileName = "%s/r%d_clusters.npy" % (self.outputDir, self.run)
         np.save(npyFileName, clusters)
@@ -150,7 +153,12 @@ class AnalyzeH5(object):
         if energyHist is None:
             return
 
-        _, bins = np.histogram(energyHist, 250, [-5, 45])
+        minE, maxE = -5, 45
+        if self.photonEnergy is not None:
+            minE = -1*self.photonEnergy/2.
+            maxE = self.photonEnergy*3
+        
+        _, bins = np.histogram(energyHist, 250, [minE, maxE])
         plt.hist(bins[:-1], bins, weights=energyHist)  ##, log=True)
         plt.grid(which="major", linewidth=0.5)
         plt.title = "All pixel energies in run after common mode correction"
@@ -217,7 +225,10 @@ class AnalyzeH5(object):
         ##maximumModule = int(clusters[:, 1].max())
         ##fitInfo = np.zeros((maximumModule + 1, rows, cols, 5))  ## mean, std, area, mu, sigma
         fitInfo = np.zeros((self.detModules, self.detRows, self.detCols, 5))  ## mean, std, area, mu, sigma
-        smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
+        if False: ## turn on if one believes the baseline is right
+            smallSquareClusters = ancillaryMethods.getSmallSquareClusters(clusters, nPixelCut=3)
+        else:
+            smallSquareClusters = clusters
         for m in self.analyzedModules:
             modClusters = ancillaryMethods.getMatchedClusters(smallSquareClusters, "module", m)
             for i in range(self.rowStart, self.rowStop):
@@ -232,8 +243,9 @@ class AnalyzeH5(object):
                     detRow, detCol = i, j  ## mostly for clarity
                     currGoodClusters = ancillaryMethods.getMatchedClusters(rowModClusters, "column", j)
                     if len(currGoodClusters) < 5:
-                        print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
-                        logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                        if i%10==0 and j%10==0:
+                            print("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
+                            logger.info("too few clusters in slice pixel %d, %d, %d: %d" % (m, i, j, len(currGoodClusters)))
                         continue
                     energies = ancillaryMethods.getClusterEnergies(currGoodClusters)
                     photonEcut = np.bitwise_and(energies > self.lowEnergyCut, energies < self.highEnergyCut)
@@ -280,7 +292,10 @@ class AnalyzeH5(object):
         logger.info("Wrote file: " + npyFileName)
 
         gains = fitInfo[:, :, 3]
-        goodGains = gains[np.bitwise_and(gains > 0, gains < 15)]
+        maxE = 15
+        if self.photonEnergy is not None:
+            maxE = self.photonEnergy*2
+        goodGains = gains[np.bitwise_and(gains > 0, gains < maxE)]
         ax = plt.subplot()
         ax.hist(goodGains, 100)
         ax.set_xlabel("energy (keV)")

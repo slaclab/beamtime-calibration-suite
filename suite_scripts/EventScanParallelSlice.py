@@ -210,7 +210,7 @@ if __name__ == "__main__":
         ##skip_283_check = "skip283" in esp.special
         skip_283_check = "fakeBeamCode" in esp.special
     except Exception:
-        skip_283_check = False  ## for running at MFX
+        skip_283_check = False  ## for not running at MFX
 
     zeroLowGain = False
     zeroHighGain = False
@@ -242,7 +242,7 @@ if __name__ == "__main__":
             continue
         ec = esp.getEventCodes(evt)
         if not skip_283_check:
-            if not ec[283]:
+            if not esp.isBeamEvent(evt):
                 ##print(ec)
                 continue
         frames = esp.getRawData(evt, gainBitsMasked=True)
@@ -312,6 +312,8 @@ if __name__ == "__main__":
         else:
             timestamp = evt.datetime().timestamp()
             pulseId = esp.getPulseId(evt)
+            if pulseId == 0:
+                pulseId = timestamp ## better than nothing
         smdDict = {
             "timestamps": timestamp,
             "pulseIds": pulseId,

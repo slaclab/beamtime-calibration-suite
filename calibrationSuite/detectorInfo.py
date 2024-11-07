@@ -42,6 +42,7 @@ class DetectorInfo:
 
         knownTypes = [
             "epixhr",
+            "epixuhr",
             "epixm",
             "epix100",
             "Epix100a",
@@ -60,6 +61,8 @@ class DetectorInfo:
     def setupDetector(self):  ## needs nModules to be set
         if self.detectorType == "epixhr":
             self.setup_epixhr()
+        elif self.detectorType == "epixuhr":
+            self.setup_epixUHR()
         elif self.detectorType == "epixm":
             self.setup_epixM()
         elif self.detectorType in ["epix100", "Epix100a"]:
@@ -70,7 +73,9 @@ class DetectorInfo:
             self.setup_jungfrau()
         elif "epix10k" in self.detectorType.lower():
             self.setup_epix10k()
-
+        else:
+            raise Exception("detector not matched", self.detectorType)
+        
     def setNModules(self, n):
         self.nModules = n
 
@@ -92,6 +97,24 @@ class DetectorInfo:
         self.clusterShape = [3, 3]
         self.seedCut = 4  ## maybe the minimum sensible
         self.neighborCut = 0.5  ## probably too low given the noise
+
+    def setup_epixUHR(self):
+        self.cameraType = "epixUHR"
+        self.g0cut = 1 << 11
+        self.nModules = 4
+        ## per module (aka asic)
+        self.nRows = 168
+        self.nBanksRow = 28
+        self.nRowsPerBank = int(self.nRows / self.nBanksRow)
+        self.nCols = 192
+        self.nBanksCol = 16
+        self.nColsPerBank = int(self.nCols / self.nBanksCol)
+        self.preferredCommonMode = "clusterCommonMode"  ## not yet defined
+        self.clusterShape = [3, 3]
+        self.gainMode = None  ## high, medium, low, lower
+        self.aduPerKeV = 40 ## high gain; medium is down by 2.8
+        self.seedCut = 2
+        self.neighborCut = 0.25  ## ditto
 
     def setup_epixM(self):
         self.cameraType = "epixM"
@@ -178,11 +201,16 @@ class DetectorInfo:
         self.nBanks = 16
         self.nCols = 4800 - self.nBanks * self.nTestPixelsPerBank
         self.preferredCommonMode = "rixsCCDTestPixelSubtraction"
+        self.dimension = 2
+        self.nModules = 1
         if self.detectorSubtype == "1d":
             self.nRows = 1
             self.clusterShape = [1, 5]  ## might be [1,3]
-            self.dimension = 2
+            ##self.dimension = 2
         else:
             self.nRows = 1200
             self.clusterShape = [3, 5]  ## maybe
         self.g0cut = 1 << 16
+        self.seedCut = 100
+        self.neighborCut = 5
+        ##self.aduPerKeV = 1000/3.6  

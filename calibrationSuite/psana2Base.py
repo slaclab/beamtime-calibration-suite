@@ -77,8 +77,7 @@ class PsanaBase(PsanaCommon):
         ## use a dict etc.
         self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
-            print("no det object for epixhr, what?  Pretend it's ok.")
-            ##raise Exception
+            raise Exception("no det object found")
         ## could set to None and reset with first frame I guess, or does the det object know?
 
         try:
@@ -220,7 +219,7 @@ class PsanaBase(PsanaCommon):
 
     def getPulseId(self, evt):
         if self.timing is None:
-            return []
+            return 0
         return self.timing.raw.pulseId(evt)
 
     def isKicked(self, evt):

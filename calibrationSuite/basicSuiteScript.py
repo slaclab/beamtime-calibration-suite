@@ -104,12 +104,13 @@ class BasicSuiteScript(PsanaBase):
             nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
-            if dz != 0:
-                print("found %d new zero pixels, expected %d, setting frame to None" % (dz, self.nZero))
+            ##if dz != 0:
+            if abs(dz) > 10: ## add a flag for just epixM...
+                print("found %d new zero pixels, expected %d, setting frame to None, size was %d" % (dz, self.nZero, frames.size))
                 return None
         except Exception:
             self.nZero = nZero
-            print("Starting with %d zero pixels, will require exactly that many for this run" % (nZero))
+            print("Starting with %d zero pixels, will maybe require exactly that many for this run, size is %d" % (nZero, frames.size))
 
             try:
                 self.dumpEpixMHeaderInfo(evt)
@@ -129,12 +130,14 @@ class BasicSuiteScript(PsanaBase):
             elif "tenBits" in self.special:
                 frames = frames & 0xFFF0
                 ##print("10bits")
+
         if self.negativeGain or negativeGain:
             zeroPixels = frames == 0
             maskedData = frames & self.gainBitsMask
             gainData = frames - maskedData
             frames = gainData + self.gainBitsMask - maskedData
             frames[zeroPixels] = 0
+
         if gainBitsMasked:
             return frames & self.gainBitsMask
         return frames
