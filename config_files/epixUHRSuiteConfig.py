@@ -38,7 +38,7 @@ experimentHash = {
     ##"detectorVersion": 1,  ## new firmware
     "exp": "rixx1005922",
     "location": "RixEndstation",
-    "analyzedModules": [0, 1, 2, 3],
+    "analyzedModules": [0, 3],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
     "fluxSource": "MfxDg1BmMon",
