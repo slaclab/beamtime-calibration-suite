@@ -77,9 +77,12 @@ class PsanaBase(PsanaCommon):
         ## use a dict etc.
         self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
+            return None
+            ##sys.exit(0)
             raise Exception("no det object found")
+        
         ## could set to None and reset with first frame I guess, or does the det object know?
-
+        
         try:
             self.timing = self.myrun.Detector("timing")
         except:
@@ -111,6 +114,8 @@ class PsanaBase(PsanaCommon):
         except Exception:
             self.controlData = None
 
+        return 0 ## i.e., if not helper rank in batch
+    
     def get_ds(self, run=None):
         if run is None:
             run = self.run

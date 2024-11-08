@@ -104,8 +104,8 @@ class BasicSuiteScript(PsanaBase):
             nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
-            ##if dz != 0:
-            if abs(dz) > 10: ## add a flag for just epixM...
+            if dz != 0:
+            ##if abs(dz) > 10: ## add a flag for just epixM...
                 print("found %d new zero pixels, expected %d, setting frame to None, size was %d" % (dz, self.nZero, frames.size))
                 return None
         except Exception:

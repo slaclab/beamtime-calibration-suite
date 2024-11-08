@@ -202,7 +202,7 @@ if __name__ == "__main__":
         logger.info("done with standalone analysis of %s, exiting" % (esp.file))
         sys.exit(0)
 
-    esp.setupPsana()
+    setupCheck = esp.setupPsana()
     if esp.psanaType == 1:  ## move to psana1Base asap
         from psana import EventId
 
@@ -237,6 +237,9 @@ if __name__ == "__main__":
     except Exception:
         evtGen = esp.ds.events()
 
+    if setupCheck is None:
+        evtGen = [None, None]
+        
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
