@@ -43,7 +43,7 @@ experimentHash = {
     "neighborCut": 10,  ##pure guess
     "fluxSource": "MfxDg1BmMon",
     # "fluxSource": "MfxDg2BmMon",
-    "fluxChannels": [15],  ## or 11 if we see saturation
+    "fluxChannels": [11],  ## 8 Nov
     # "fluxSign": 1,  ## for dg2
     "fluxSign": -1,
     "singlePixels": singlePixelArray,
