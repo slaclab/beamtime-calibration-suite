@@ -112,7 +112,7 @@ class DetectorInfo:
         self.preferredCommonMode = "clusterCommonMode"  ## not yet defined
         self.clusterShape = [3, 3]
         self.gainMode = None  ## high, medium, low, lower
-        self.aduPerKeV = 40 ## high gain; medium is down by 2.8
+        self.aduPerKeV = 3 ## high gain; medium is down by 2.8
         self.seedCut = 2
         self.neighborCut = 0.25  ## ditto
 
