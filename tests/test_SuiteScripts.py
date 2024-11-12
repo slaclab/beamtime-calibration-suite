@@ -79,6 +79,10 @@ so the output folder can be created and later deleted at end of the test.
 """
 
 
+# value passed to the '--maxNevents' cmd line argument of scripts tested in this file.
+# lets set to arbitrarily small value atm, so test runtime is not super long.
+MAX_EVENTS= 20
+
 class SuiteTester:
     def __init__(self):
         # annoyingly complicated way to get root of current git repo,
@@ -134,8 +138,12 @@ class SuiteTester:
         for i in range(len(self.expected_outcome_dirs)):
             self.expected_outcome_dirs[i] = self.git_repo_root + "/suite_scripts/" + self.expected_outcome_dirs[i]
 
-        for dir in self.expected_outcome_dirs:
-            os.makedirs(dir, exist_ok=True)
+        # remove any existing output dirs b4 we write any new files,
+        # since h5 file writing doesn't overwrite files properly when writing to existing location (causes test failures)
+        for curr_dir in self.expected_outcome_dirs:
+            if os.path.exists(curr_dir):
+                shutil.rmtree(curr_dir)
+            os.makedirs(curr_dir)
 
     # we skip tests if they can't be ran, so remaining tests can still go (such as locally or in github-actions)
     def can_tests_run(self):
@@ -215,7 +223,7 @@ def suite_tester():
             [
                 "bash",
                 "-c",
-                "python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents 250 -p /test_noise_1",
+                f"python CalcNoiseAndMean.py -r 102 --special testRun --maxNevents {MAX_EVENTS} -p /test_noise_1",
             ],
             "test_noise_1",
         ),
@@ -223,7 +231,7 @@ def suite_tester():
             [
                 "bash",
                 "-c",
-                "python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice,testRun --label calib --maxNevents 250 -p /test_noise_2",
+                f"python CalcNoiseAndMean.py -r 102 --special noCommonMode,slice,testRun --label calib --maxNevents {MAX_EVENTS} -p /test_noise_2",
             ],
             "test_noise_2",
         ),
@@ -231,7 +239,7 @@ def suite_tester():
             [
                 "bash",
                 "-c",
-                "python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice,testRun --label common --maxNevents 250 -p /test_noise_3",
+                f"python CalcNoiseAndMean.py -r 102 --special regionCommonMode,slice,testRun --label common --maxNevents {MAX_EVENTS} -p /test_noise_3",
             ],
             "test_noise_3",
         ),
@@ -253,7 +261,7 @@ def test_Noise(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice",
+                f"python TimeScanParallelSlice.py -r 102 --maxNevents {MAX_EVENTS} -p /test_time_scan_parallel_slice",
             ],
             "test_time_scan_parallel_slice",
         ),
@@ -271,13 +279,13 @@ def test_TimingScanExpectedFail(suite_tester, command, output_dir_name):
     "command, output_dir_name",
     [
         # for this script we expect run 102 to fail, the run has issues returning step_values
-        # (['bash', '-c', 'python TimeScanParallelSlice.py -r 102 --maxNevents 250 -p /test_time_scan_parallel_slice'],
+        # (['bash', '-c', f'python TimeScanParallelSlice.py -r 102 --maxNevents {MAX_EVENTS} -p /test_time_scan_parallel_slice'],
         # 'test_time_scan_parallel_slice'),
         (
             [
                 "bash",
                 "-c",
-                "python TimeScanParallelSlice.py -r 82 --maxNevents 250 -p /test_time_scan_parallel_slice",
+                f"python TimeScanParallelSlice.py -r 82 --maxNevents {MAX_EVENTS} -p /test_time_scan_parallel_slice",
             ],
             "test_time_scan_parallel_slice",
         ),
@@ -296,7 +304,7 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_simple_photon",
+                f"python simplePhotonCounter.py -r 102 --maxNevents {MAX_EVENTS} -p /test_simple_photon",
             ],
             "test_simple_photon",
         ),
@@ -304,7 +312,7 @@ def test_TimingScan(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents 250 -p /test_simple_photon",
+                f"python SimpleClustersParallelSlice.py --special regionCommonMode,FH -r 102 --maxNevents {MAX_EVENTS} -p /test_simple_photon",
             ],
             "test_simple_photon",
         ),
@@ -323,7 +331,7 @@ def test_SimplePhoton(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python LinearityPlotsParallelSlice.py -r 102 --maxNevents 250 -p /test_linearity_scan",
+                f"python LinearityPlotsParallelSlice.py -r 102 --maxNevents {MAX_EVENTS} -p /test_linearity_scan",
             ],
             "test_linearity_scan",
         ),
@@ -340,7 +348,7 @@ def test_SimplePhoton(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python simplePhotonCounter.py -r 102 --maxNevents 250 -p /test_linearity_scan --special slice",
+                f"python simplePhotonCounter.py -r 102 --maxNevents {MAX_EVENTS} -p /test_linearity_scan --special slice",
             ],
             "test_linearity_scan",
         ),
@@ -359,7 +367,7 @@ def test_LinearityScans(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python EventScanParallelSlice.py -r 120 --maxNevents 250 -p /test_event_scan_parallel_slice",
+                f"python EventScanParallelSlice.py -r 120 --maxNevents {MAX_EVENTS} -p /test_event_scan_parallel_slice",
             ],
             "test_event_scan_parallel_slice",
         ),
@@ -405,7 +413,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi",
+                f"python roiFromSwitched.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents {MAX_EVENTS} -p /test_roi",
             ],
             "test_roi",
         ),
@@ -413,7 +421,7 @@ def test_FindMinSwitchValue(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python roiFromThreshold.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents 250 -p /test_roi",
+                f"python roiFromThreshold.py -r 102 -c 1 -t 40000 --detObj calib -d Epix10ka --maxNevents {MAX_EVENTS} -p /test_roi",
             ],
             "test_roi",
         ),
@@ -432,7 +440,7 @@ def test_RoiFromSwitched(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python searchForNonSwitching.py -r 102 --special testing --maxNevents 250 -p /test_search_for_non_switching | grep gain > test_search_for_non_switching/out.txt",
+                f"python searchForNonSwitching.py -r 102 --special testing --maxNevents {MAX_EVENTS} -p /test_search_for_non_switching | grep gain > test_search_for_non_switching/out.txt",
             ],
             "test_roi",
         ),
@@ -451,7 +459,7 @@ def test_SearchNonSwitching(suite_tester, command, output_dir_name):
             [
                 "bash",
                 "-c",
-                "python histogramFluxEtc.py -r 102 --maxNevents 250 -p /test_histogram_flux_etc",
+                f"python histogramFluxEtc.py -r 102 --maxNevents {MAX_EVENTS} -p /test_histogram_flux_etc",
             ],
             "test_histogram_flux_etc",
         ),
@@ -487,9 +495,9 @@ def test_Analyze_h5(suite_tester, command, output_dir_name):
 # non-working commands...
 """
 @pytest.mark.parametrize("command, output_dir_name", [
-    (['bash', '-c', 'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check'],
+    (['bash', '-c', f'python persistenceCheck.py -r 102 -d Epix10ka2M --maxNevents {MAX_EVENTS} -p /test_persistence_check'],
      'test_persistence_check'),
-    (['bash', '-c', 'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents 250 -p /test_persistence_check],
+    (['bash', '-c', f'python persistenceChceckParallel.py -r 102 -d Epix10ka2M --maxNevents {MAX_EVENTS} -p /test_persistence_check],
      'test_persistence_check'),
 ])
 def test_PersistenceCheck(suite_tester, command, output_dir_name):
