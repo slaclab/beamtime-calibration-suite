@@ -2,6 +2,7 @@ import filecmp
 import os
 import shutil
 import subprocess
+import atexit
 
 import pytest
 
@@ -82,6 +83,8 @@ so the output folder can be created and later deleted at end of the test.
 # value passed to the '--maxNevents' cmd line argument of scripts tested in this file.
 # lets set to arbitrarily small value atm, so test runtime is not super long.
 MAX_EVENTS= 20
+
+failing_file_diffs = []
 
 class SuiteTester:
     def __init__(self):
@@ -194,10 +197,12 @@ class SuiteTester:
                 # Check if files are PNGs
                 if real_file_path.endswith(".png") and expected_file_path.endswith(".png"):
                     if self.are_images_same(real_file_path, expected_file_path) == 0:
+                        failing_file_diffs.append((real_file_path, expected_file_path))
                         assert False, f"PNG files {real_file_path} and {expected_file_path} are different"
                 else:
                     # For non-PNG files, perform directory comparison
                     if filecmp.cmp(real_file_path, expected_file_path) == 0:
+                        failing_file_diffs.append((real_file_path, expected_file_path))
                         assert False, f"files {real_file_path} and {expected_file_path} are different"
 
 
@@ -214,6 +219,17 @@ def suite_tester():
         if os.path.exists(dir):
             shutil.rmtree(dir)
     '''
+
+# this function runs after all of the pytest code (and prints will come after all pytest output)
+def ending_printout():
+    if failing_file_diffs is not None:
+        print("\n*****************************************************************")
+        print("Some tests failed b/c real output file diffs from expected file.")
+        print("If you've made code changes and expect change in the output files, please copy the new expected files over to the proper dir in tests/test_data.")
+        print("If not, please investigate the file diffs listed below...\n")
+        for real,expected in failing_file_diffs:
+            print(f"diff between: {real}, {expected}\n")
+atexit.register(ending_printout)
 
 
 @pytest.mark.parametrize(
