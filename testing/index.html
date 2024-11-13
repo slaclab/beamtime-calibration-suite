@@ -128,14 +128,15 @@ The script may output linting-errors that need to be manually fixed.
 <em>(note: this will modify your local files, so reccomended to commit changes first -&gt; run script -&gt; commit changes from running script)</em>
 <em>(note: running 'ruff --line-length 120' will lint the code without auto-fixing)</em></p>
 <p>You can run all the tests with the following:</p>
-<pre><code>pytest .
+<pre><code>pytest -vs .
 </code></pre>
-<p><em>(note: this works from either the project root-dir and also the /tests dir)</em></p>
+<p><em>(note: this works from either the project root-dir and also the /tests dir)</em>
+_(note: the -vs flags format the pytest output in a nice way and let you see the output of any prints added to test files.)</p>
 <p>You can run an individual test-file by specifying the path:</p>
-<pre><code>pytest tests/test_SuiteScripts.py
+<pre><code>pytest -vs tests/test_SuiteScripts.py
 </code></pre>
 <p>And run an individual test-case within the test-file by using '::':</p>
-<pre><code>pytest tests/test_SuiteScripts.py::test_Noise
+<pre><code>pytest -vs tests/test_SuiteScripts.py::test_Noise
 </code></pre>
 <p>These tests verify that the code in <em>/calibrationSuite</em> and <em>/suite_scripts</em> is currently working as expected.</p>
 <p><em>test_SuiteScripts.py</em> runs the files in <em>/suite_script</em> and diffs their real output against expected output in <em>/tests/test_data</em></p>
