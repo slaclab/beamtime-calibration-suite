@@ -44,6 +44,7 @@ experimentHash = {
     "fluxSource": "MfxDg1BmMon",
     # "fluxSource": "MfxDg2BmMon",
     "fluxChannels": [11],  ## 8 Nov
+    ##"fluxChannels": range(0,16),  ## direct beam, 11 Nov?
     # "fluxSign": 1,  ## for dg2
     "fluxSign": -1,
     "singlePixels": singlePixelArray,
