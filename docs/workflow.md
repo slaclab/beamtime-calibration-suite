@@ -60,7 +60,7 @@ git tag <tag_name> -a //an example tag number would be 1.0.3
 # the description should be 'Beamtime <Month> <Day> <Year>'
 
 # push tag <tag_name>
-git push origin tag
+git push origin <tag_name>
 ```
 
 * lastly, use a pull request to merge _main_ into `development`
