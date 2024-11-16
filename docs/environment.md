@@ -21,14 +21,13 @@ The rest of the page has more detail on configuring the scripts.
 
 ### Specifying Output Root
 
-The output-root determines where the library will look for an output folder
+The environment variable _OUTPUT_ROOT_ determines where the library will look for output folders.
+
+Setting the variable to . (by doing 'export _OUTPUT_ROOT=._') will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)
 
 For example, if the root is set to the default value `/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/`, the library will look for an output dir `../scan` in the location `/sdf/data/lcls/ds/rix/rixx1003721/results/scripts/../scan`
 
-The output-directory can be set using the `-p <dir_name>` cmdline arg
-
-Setting the var to export _OUTPUT_ROOT=._ will have the library look for an output folder relative to the location of the current script being ran. ( . refers to current dir on linux)
-
+Then to set the output-directory you can use the `-p <dir_name>` cmdline arg
 
 ### Point to Config File
 

@@ -38,19 +38,19 @@ _(note: running 'ruff --line-length 120' will lint the code without auto-fixing)
 
 You can run all the tests with the following:
 ```
-pytest .
+pytest -vs .
 ```
 _(note: this works from either the project root-dir and also the /tests dir)_
-
+_(note: the -vs flags format the pytest output in a nice way and let you see the output of any prints added to test files.)
 
 You can run an individual test-file by specifying the path:
 ```
-pytest tests/test_SuiteScripts.py
+pytest -vs tests/test_SuiteScripts.py
 ```
 
 And run an individual test-case within the test-file by using '::':
 ```
-pytest tests/test_SuiteScripts.py::test_Noise
+pytest -vs tests/test_SuiteScripts.py::test_Noise
 ```
 
 These tests verify that the code in _/calibrationSuite_ and _/suite\_scripts_ is currently working as expected.

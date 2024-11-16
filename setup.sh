@@ -1,5 +1,8 @@
 #!/bin/bash
-# Setup environment variables
+# sets up environment variables for running the suite.
+
+# this script assumes you are running on S3DF and are using the psana environment,
+# (you have executed 'source /sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh')
 
 
 # current_dir=$(pwd)
