@@ -77,11 +77,19 @@ class PsanaBase(PsanaCommon):
         ## use a dict etc.
         self.det = self.myrun.Detector(self.experimentHash["detectorType"])
         if self.det is None:
-            print("no det object for epixhr, what?  Pretend it's ok.")
-            ##raise Exception
+            return None
+            ##sys.exit(0)
+            raise Exception("no det object found")
+        
         ## could set to None and reset with first frame I guess, or does the det object know?
+        
+        try:
+            self.timing = self.myrun.Detector("timing")
+        except:
+            self.timing = None
+            ## timing makes us look at every single event
+            ## we only want this in MFX+RIX mode
 
-        self.timing = self.myrun.Detector("timing")
         self.desiredCodes = {"120Hz": 272, "4kHz": 273, "5kHz": 274}
 
         try:
@@ -106,12 +114,22 @@ class PsanaBase(PsanaCommon):
         except Exception:
             self.controlData = None
 
+        return 0 ## i.e., if not helper rank in batch
+    
     def get_ds(self, run=None):
         if run is None:
             run = self.run
         ##tmpDir = '/sdf/data/lcls/ds/rix/rixx1005922/scratch/xtc'
+        detectors = [self.experimentHash["detectorType"]]
+        if not self.ignoreEventCodeCheck:
+            detectors.append("timing")
+            detectors.append("MfxDg1BmMon")
         ds = psana.DataSource(
-            exp=self.exp, run=run, intg_det=self.experimentHash["detectorType"], max_events=self.maxNevents
+            exp=self.exp,
+            run=run,
+            intg_det=self.experimentHash["detectorType"],
+            max_events=self.maxNevents,
+            detectors=detectors,
         )  ##, dir=tmpDir)
         return ds
 
@@ -200,9 +218,13 @@ class PsanaBase(PsanaCommon):
         return self.flux
 
     def getEventCodes(self, evt):
+        if self.timing is None:
+            return []
         return self.timing.raw.eventcodes(evt)
 
     def getPulseId(self, evt):
+        if self.timing is None:
+            return 0
         return self.timing.raw.pulseId(evt)
 
     def isKicked(self, evt):
@@ -271,8 +293,9 @@ class PsanaBase(PsanaCommon):
         return delta > 0
 
     def dumpEpixMHeaderInfo(self, evt):
-        print(f'frameNo: {self.det.raw.frameNo(evt)},',
-              f'asicNo: {self.det.raw.asicNo(evt)},',
-              f'autoFillMask: {[hex(a) for a in self.det.raw.autoFillMask(evt)]},',
-              f'fixedMask: {self.det.raw.fixedMask(evt)}')
-
+        print(
+            f"frameNo: {self.det.raw.frameNo(evt)},",
+            f"asicNo: {self.det.raw.asicNo(evt)},",
+            f"autoFillMask: {[hex(a) for a in self.det.raw.autoFillMask(evt)]},",
+            f"fixedMask: {self.det.raw.fixedMask(evt)}",
+        )

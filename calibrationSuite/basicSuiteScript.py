@@ -21,7 +21,10 @@ import psana
 
 logger = logging.getLogger(__name__)
 
-if os.getenv("foo") == "1":
+if os.getenv("foo") == "0":
+    print("non-psana")
+    from calibrationSuite.nonPsanaBase import PsanaBase
+elif os.getenv("foo") == "1":
     print("psana1")
     from calibrationSuite.psana1Base import PsanaBase
 else:
@@ -96,19 +99,22 @@ class BasicSuiteScript(PsanaBase):
         if frames is None:
             return None
 
-        nZero = frames.size - np.count_nonzero(frames)
+        nZero = 0
+        if not "skipZeroCheck" in dir(self):
+            nZero = frames.size - np.count_nonzero(frames)
         try:
             dz = self.nZero - nZero
             if dz != 0:
-                print("found %d new zero pixels, expected %d, setting frame to None" % (dz, self.nZero))
+            ##if abs(dz) > 10: ## add a flag for just epixM...
+                print("found %d new zero pixels, expected %d, setting frame to None, size was %d" % (dz, self.nZero, frames.size))
                 return None
         except Exception:
             self.nZero = nZero
-            print("Starting with %d zero pixels, will require exactly that many for this run" %(nZero))
-            
+            print("Starting with %d zero pixels, will maybe require exactly that many for this run, size is %d" % (nZero, frames.size))
+
             try:
                 self.dumpEpixMHeaderInfo(evt)
-            except:
+            except Exception:
                 pass
 
         if False and self.special:  ## turned off for a tiny bit of speed
@@ -124,12 +130,14 @@ class BasicSuiteScript(PsanaBase):
             elif "tenBits" in self.special:
                 frames = frames & 0xFFF0
                 ##print("10bits")
+
         if self.negativeGain or negativeGain:
             zeroPixels = frames == 0
             maskedData = frames & self.gainBitsMask
             gainData = frames - maskedData
             frames = gainData + self.gainBitsMask - maskedData
             frames[zeroPixels] = 0
+
         if gainBitsMasked:
             return frames & self.gainBitsMask
         return frames
@@ -170,6 +178,9 @@ class BasicSuiteScript(PsanaBase):
 
     def getNswitchedPixels(self, data, region=None):
         return ((data >= self.g0cut) * 1).sum()
+
+    def getSwitchedPixels(self, data, region=None):
+        return data >= self.g0cut
 
     def dumpEventCodeStatistics(self):
         print(
@@ -217,9 +228,9 @@ class BasicSuiteScript(PsanaBase):
             frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
         return frames
 
-    def colCommonModeCorrection3d(self, frames, arbitraryCut=1000):
+    def colCommonModeCorrection3d(self, frames, cut=1000, switchedPixels=None):
         for module in self.analyzedModules:
-            frames[module] = self.colCommonModeCorrection(frames[module], arbitraryCut)
+            frames[module] = self.colCommonModeCorrection(frames[module], cut, switchedPixels[module])
         return frames
 
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
@@ -236,7 +247,7 @@ class BasicSuiteScript(PsanaBase):
                             frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] < arbitraryCut
                         ]
                     )
-                    if not np.isnan(rowCM): ## no pixels found under cut
+                    if not np.isnan(rowCM):  ## no pixels found under cut
                         frame[r, colOffset : colOffset + self.detectorInfo.nColsPerBank] -= rowCM
                 except Exception:
                     print("rowCM problem")
@@ -245,7 +256,7 @@ class BasicSuiteScript(PsanaBase):
                 colOffset += self.detectorInfo.nColsPerBank
         return frame
 
-    def colCommonModeCorrection(self, frame, arbitraryCut=1000):
+    def colCommonModeCorrection(self, frame, cut=1000, switchedPixels=None):
         ## this takes a 2d frame
         ## cut keeps photons in common mode - e.g. set to <<1 photon
 
@@ -255,16 +266,19 @@ class BasicSuiteScript(PsanaBase):
             rowOffset = 0
             for b in range(0, self.detectorInfo.nBanksRow):
                 try:
-                    colCM = np.median(
-                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c][
-                            frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] < arbitraryCut
-                        ]
-                    )
-                    if not np.isnan(colCM): ## if no pixels < cut we get nan
+                    testPixels = np.s_[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c]
+                    relevantPixels = frame[testPixels] < cut
+                    if switchedPixels is not None:
+                        ##print(testPixels, relevantPixels)
+                        relevantPixels = np.bitwise_and(relevantPixels, ~switchedPixels[testPixels])
+                    colCM = np.median(frame[testPixels][relevantPixels])
+                    if not np.isnan(colCM):  ## if no pixels < cut we get nan
                         if False:
-                            if c<100:
+                            if c < 100:
                                 self.commonModeVals.append(colCM)
-                        frame[rowOffset : rowOffset + self.detectorInfo.nRowsPerBank, c] -= colCM
+                        if colCM > cut:
+                            raise Exception("overcorrection: colCM, cut:", colCM, cut)
+                        frame[testPixels] -= colCM
                 except Exception:
                     print("colCM problem")
                     logger.error("colCM problem")

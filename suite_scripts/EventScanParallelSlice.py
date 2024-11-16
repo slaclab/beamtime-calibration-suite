@@ -202,7 +202,7 @@ if __name__ == "__main__":
         logger.info("done with standalone analysis of %s, exiting" % (esp.file))
         sys.exit(0)
 
-    esp.setupPsana()
+    setupCheck = esp.setupPsana()
     if esp.psanaType == 1:  ## move to psana1Base asap
         from psana import EventId
 
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         ##skip_283_check = "skip283" in esp.special
         skip_283_check = "fakeBeamCode" in esp.special
     except Exception:
-        skip_283_check = False  ## for running at MFX
+        skip_283_check = False  ## for not running at MFX
 
     zeroLowGain = False
     zeroHighGain = False
@@ -237,12 +237,15 @@ if __name__ == "__main__":
     except Exception:
         evtGen = esp.ds.events()
 
+    if setupCheck is None:
+        evtGen = [None, None]
+        
     for nevt, evt in enumerate(evtGen):
         if evt is None:
             continue
         ec = esp.getEventCodes(evt)
         if not skip_283_check:
-            if not ec[283]:
+            if not esp.isBeamEvent(evt):
                 ##print(ec)
                 continue
         frames = esp.getRawData(evt, gainBitsMasked=True)
@@ -273,12 +276,12 @@ if __name__ == "__main__":
             ##print(frames[tuple(esp.singlePixels[2])])
 
             if esp.special is not None and "rowCommonMode" in esp.special:
-                frames = np.array([esp.rowCommonModeCorrection3d(frames)])
+                frames = esp.rowCommonModeCorrection3d(frames, 3.0)
             if esp.special is not None and "colCommonMode" in esp.special:
-                frames = np.array([esp.colCommonModeCorrection3d(frames)])
+                frames = esp.colCommonModeCorrection3d(frames, 3.0)
             if esp.special is not None and "regionCommonMode" in esp.special:
                 ##oldFrames = frames
-                frames = np.array([esp.regionCommonModeCorrection(frames, esp.regionSlice, 666)])
+                frames = esp.regionCommonModeCorrection(frames, esp.regionSlice, 3.0)
                 ##print(frames-oldFrames)
         else:
             if esp.special is not None and "regionCommonMode" in esp.special:
@@ -286,7 +289,7 @@ if __name__ == "__main__":
 
         eventNumbers.append(nevt)
         for i, roi in enumerate(esp.ROIs):
-            m = frames[roi == 1].mean()
+            m = frames[roi > 0].mean()
             roiMeans[i].append(m)
 
         for i, roi in enumerate(esp.singlePixels):
@@ -312,6 +315,8 @@ if __name__ == "__main__":
         else:
             timestamp = evt.datetime().timestamp()
             pulseId = esp.getPulseId(evt)
+            if pulseId == 0:
+                pulseId = timestamp ## better than nothing
         smdDict = {
             "timestamps": timestamp,
             "pulseIds": pulseId,
