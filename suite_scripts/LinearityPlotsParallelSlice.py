@@ -362,7 +362,10 @@ if __name__ == "__main__":
         print("using flux label:", lpp.fluxLabel)
         lpp.fitInfo = None
         lpp.analyze_h5(lpp.file, lpp.label + "_raw")
-        lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
+        ## modify for speed...
+        slow = True
+        if slow:
+            lpp.analyze_h5_slice(lpp.file, lpp.label + "_raw")
         print("done with standalone analysis of %s, exiting" % (lpp.file))
         logger.info("done with standalone analysis of %s, exiting" % (lpp.file))
         sys.exit(0)

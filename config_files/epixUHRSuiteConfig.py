@@ -15,18 +15,18 @@ singlePixelArray = []
 ##for i in [0, 2, 3]:##range(0, 3):
 ## for 41-c00-01
 m = 0
-for r in range(11, 60):
-    for c in range(49):
-        if r%12 == 0 and c%6 == 0:
+for r in range(109, 157):
+    for c in range(48):
+        if r%12 == 11 and c%6 == 0:
             singlePixelArray.append([m, r, c])
 singlePixelArray.append([m, 12*7, 60])
 singlePixelArray.append([m, 13*7, 60+12])
 singlePixelArray.append([m, 14*7, 60+24])
 
 m = 3
-for r in range(8, 57):
-    for c in range(10, 59):
-        if r%12 == 0 and c%6 == 0:
+for r in range(111, 159):
+    for c in range(10, 58):
+        if r%12 == 11 and c%6 == 0:
             singlePixelArray.append([m, r, c])
 singlePixelArray.append([m, 12*7, 60])
 singlePixelArray.append([m, 13*7, 60+12])
@@ -38,12 +38,13 @@ experimentHash = {
     ##"detectorVersion": 1,  ## new firmware
     "exp": "rixx1005922",
     "location": "RixEndstation",
-    "analyzedModules": [0, 1, 2, 3],
+    "analyzedModules": [0, 3],
     "seedCut": 40,  ## pure guess
     "neighborCut": 10,  ##pure guess
     "fluxSource": "MfxDg1BmMon",
     # "fluxSource": "MfxDg2BmMon",
-    "fluxChannels": [15],  ## or 11 if we see saturation
+    "fluxChannels": [11],  ## 8 Nov
+    ##"fluxChannels": range(0,16),  ## direct beam, 11 Nov?
     # "fluxSign": 1,  ## for dg2
     "fluxSign": -1,
     "singlePixels": singlePixelArray,
