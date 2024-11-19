@@ -228,9 +228,16 @@ class BasicSuiteScript(PsanaBase):
             frames[module] = self.rowCommonModeCorrection(frames[module], arbitraryCut)
         return frames
 
-    def colCommonModeCorrection3d(self, frames, cut=1000, switchedPixels=None):
+    def colCommonModeCorrection3d(self, frames, cut=1000, switchedPixels = None
+):
+        if switchedPixels is None:
+            switchedPixels = self.getSwitchedPixels(frames)
+            
         for module in self.analyzedModules:
-            frames[module] = self.colCommonModeCorrection(frames[module], cut, switchedPixels[module])
+            sp = None
+            if switchedPixels is not None: ## dumb as written
+                sp  = switchedPixels[module]
+            frames[module] = self.colCommonModeCorrection(frames[module], cut, sp)
         return frames
 
     def rowCommonModeCorrection(self, frame, arbitraryCut=1000):
