@@ -106,6 +106,8 @@ if __name__ == "__main__":
             else:
                 if bss.detObj and bss.detObj == "calib":
                     frames = bss.getCalibData(evt)
+                elif bss.detObj and bss.detObj == "image":
+                    frames = bss.getImageData(evt)
                 else:
                     frames = bss.getRawData(evt, gainBitsMasked=True)
                     if frames is not None and bss.special is not None and "parity" in bss.special:

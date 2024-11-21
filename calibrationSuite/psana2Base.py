@@ -270,6 +270,10 @@ class PsanaBase(PsanaCommon):
         frames = self.det.raw.calib(evt)
         return frames
 
+    def getImageData(self, evt):
+        frames = self.det.raw.image(evt)
+        return frames
+
     def getImage(self, evt, data=None):
         return self.det.raw.image(evt, data)
 
