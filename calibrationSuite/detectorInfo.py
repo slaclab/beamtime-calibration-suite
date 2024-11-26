@@ -26,6 +26,7 @@ class DetectorInfo:
         self.negativeGain = False
 
         self.preferredCommonMode = None
+        self.cmpars = None
         self.clusterShape = None
 
         self.g0cut = None
@@ -189,7 +190,7 @@ class DetectorInfo:
         # self.gainMode = self.getGainMode()
         self.preferredCommonMode = "colCommonMode"
         self.clusterShape = [3, 3]
-        self.aduPerKeV = 16  ## high gain; 5.5 for medium
+        self.aduPerKeV = 5.5##16  ## high gain; 5.5 for medium
         self.seedCut = 3
         self.neighborCut = 0.5
 
@@ -214,3 +215,5 @@ class DetectorInfo:
         self.seedCut = 100
         self.neighborCut = 5
         ##self.aduPerKeV = 1000/3.6  
+        self.cmpars = 1
+        

@@ -51,7 +51,7 @@ if __name__ == "__main__":
         spc.photonCut = spc.threshold
     else:
         spc.photonCut = 6.0
-        print("using photon cut", spc.photonCut)
+    print("using photon cut", spc.photonCut)
 
     while True:
         evt = spc.getEvt()
