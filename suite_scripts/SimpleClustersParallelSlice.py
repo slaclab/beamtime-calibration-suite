@@ -185,7 +185,7 @@ if __name__ == "__main__":
         gain = sic.aduPerKeV
     except Exception:
         gain = None
-    if sic.special is not None:  ## and 'fakePedestal' in sic.special:
+    if False and sic.special is not None:  ## and 'fakePedestal' in sic.special:
         if "FH" in sic.special:
             gain = 20  ##17.## my guess
         elif "FM" in sic.special:
@@ -255,6 +255,9 @@ if __name__ == "__main__":
             frames /= gain  ## this helps with the bit shift
         else:
             frames = sic.getCalibData(evt)
+            if nevt==0:
+                print("calling calibData")
+                
         if frames is None:
             print("something weird and bad happened, ignore event %d" % (nevt))
             continue
